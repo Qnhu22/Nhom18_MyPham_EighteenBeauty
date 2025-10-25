@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Quản lý User</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; }
+        header h1 { margin: 0; font-size: 22px; }
+        nav { background: #34495e; padding: 10px 30px; }
+        nav a, nav form { display: inline-block; }
+        nav a { color: white; margin-right: 15px; text-decoration: none; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        .container { padding: 30px; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 15px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background: #2c3e50; color: white; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-add { background: #27ae60; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-edit { background: #f39c12; color: white; }
+        .btn-back { background: #2980b9; color: white; }
+        .btn:hover { opacity: 0.9; }
+        .flash { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .flash-success { background: #2ecc71; color: white; }
+        .search-box { margin-top: 15px; }
+        .search-box input { padding: 6px; width: 250px; }
+        .search-box button { padding: 6px 12px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .search-box a { margin-left: 10px; color: #e74c3c; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>👥 Quản lý User</h1>
+</header>
+
+<nav>
+    <a th:href="@{/admin/dashboard}" class="btn-back">⬅️ Quay lại Dashboard</a>
+    <a th:href="@{/admin/users/create}" class="btn-add">➕ Tạo User</a>
+</nav>
+
+<div class="container">
+    <!-- Hiển thị thông báo -->
+    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+
+    <!-- Form tìm kiếm -->
+    <form th:action="@{/admin/users}" method="get" class="search-box">
+        <input type="text" name="keyword" placeholder="🔍 Tìm theo username hoặc họ tên"
+               th:value="${keyword}">
+        <button type="submit">Tìm kiếm</button>
+        <a th:href="@{/admin/users}">❌ Reset</a>
+    </form>
+
+    <!-- Bảng danh sách user -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Số điện thoại</th>
+            <th>Roles</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.userId}"></td>
+            <td th:text="${user.fullName}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.phone}"></td>
+            <td>
+                <span th:each="role : ${user.roles}" th:text="${role.roleName}"></span>
+            </td>
+            <td th:text="${user.active} ? '✅ Active' : '❌ Disabled'"></td>
+            <td>
+                <a th:href="@{'/admin/users/edit/' + ${user.userId}}" class="btn btn-edit">✏️ Sửa</a>
+                <a th:href="@{'/admin/users/delete/' + ${user.userId}}" class="btn btn-delete"
+                   onclick="return confirm('Bạn có chắc chắn muốn xóa user này?');">🗑️ Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

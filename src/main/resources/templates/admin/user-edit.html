@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Chỉnh sửa User</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; }
+        header h1 { margin: 0; font-size: 22px; }
+        nav { background: #34495e; padding: 10px 30px; }
+        nav a { color: white; margin-right: 15px; text-decoration: none; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        .container { padding: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-submit { background: #f39c12; color: white; }
+        .btn-back { background: #2980b9; color: white; }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>✏️ Chỉnh sửa User</h1>
+</header>
+
+<nav>
+    <a th:href="@{/admin/users}" class="btn-back">⬅️ Quay lại Quản lý User</a>
+</nav>
+
+<div class="container">
+    <form th:action="@{'/admin/users/update/' + ${user.userId}}" th:object="${user}" method="post">
+        
+        <div class="form-group">
+            <label>Họ tên:</label>
+            <input type="text" th:field="*{fullName}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" th:field="*{username}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật khẩu (để trống nếu không đổi):</label>
+            <input type="password" th:field="*{password}">
+        </div>
+
+        <div class="form-group">
+            <label>Số điện thoại:</label>
+            <input type="text" th:field="*{phone}">
+        </div>
+
+        <div class="form-group">
+            <label>Trạng thái:</label>
+            <select th:field="*{active}">
+                <option th:value="true">✅ Active</option>
+                <option th:value="false">❌ Disabled</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Vai trò:</label>
+            <select name="roleId" required>
+                <option th:each="role : ${roles}" 
+                        th:value="${role.roleId}" 
+                        th:text="${role.roleName}"
+                        th:selected="${user.roles.contains(role)}"></option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-submit">💾 Cập nhật</button>
+    </form>
+</div>
+
+</body>
+</html>

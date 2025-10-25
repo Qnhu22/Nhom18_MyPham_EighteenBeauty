@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Quản lý Danh mục</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; }
+        header h1 { margin: 0; font-size: 22px; }
+        nav { background: #34495e; padding: 10px 30px; }
+        nav a, nav form { display: inline-block; margin-right: 15px; }
+        nav a { color: white; text-decoration: none; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        .container { padding: 30px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background: #2c3e50; color: white; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-add { background: #27ae60; color: white; }
+        .btn-edit { background: #f39c12; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-back { background: #2980b9; color: white; }
+        .btn-search { background: #8e44ad; color: white; }
+        .btn-reset { background: #7f8c8d; color: white; }
+        img { width: 80px; height: 80px; object-fit: cover; }
+        .flash { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .flash-success { background: #2ecc71; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📂 Quản lý Danh mục</h1>
+</header>
+
+<nav>
+    <a th:href="@{/admin/dashboard}" class="btn-back">⬅️ Quay lại Dashboard</a>
+    <a th:href="@{/admin/categories/create}" class="btn-add">➕ Thêm Danh mục</a>
+    <form th:action="@{/admin/categories}" method="get">
+        <input type="text" name="keyword" placeholder="Tìm theo tên..." th:value="${keyword}">
+        <button type="submit" class="btn btn-search">🔍 Tìm</button>
+        <a th:href="@{/admin/categories}" class="btn btn-reset">♻️ Reset</a>
+    </form>
+</nav>
+
+<div class="container">
+    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên Danh mục</th>
+            <th>Mô tả</th>
+            <th>Ảnh</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.categoryId}"></td>
+            <td th:text="${category.name}"></td>
+            <td th:text="${category.description}"></td>
+            <td>
+                <img th:if="${category.imageUrl}" th:src="@{${category.imageUrl}}" alt="Category Image">
+            </td>
+            <td>
+                <span th:text="${category.status == true ? 'Hoạt động' : 'Ẩn'}"></span>
+            </td>
+            <td>
+                <a th:href="@{'/admin/categories/edit/' + ${category.categoryId}}" class="btn btn-edit">✏️ Sửa</a>
+                <a th:href="@{'/admin/categories/delete/' + ${category.categoryId}}" class="btn btn-delete"
+                   onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

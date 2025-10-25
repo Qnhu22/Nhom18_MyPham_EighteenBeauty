@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>OneShop - Trang chủ</title>
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/banner.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+  <script src="https://kit.fontawesome.com/a2e0e6ad8b.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<div th:replace="fragments/_header :: header"></div>
+
+<main>
+  <!-- Banner -->
+  <section class="banner-section">
+    <div class="swiper bannerSwiper">
+      <div class="swiper-wrapper">
+
+        <div class="swiper-slide">
+          <img th:src="@{/images/banner/banner1.jpg}">
+          <div class="banner-content top-left">
+            <h2>Khám phá <br><span> sắc đẹp tự nhiên</span></h2>
+            <p>Bộ sưu tập mỹ phẩm cao cấp giúp bạn tự tin tỏa sáng mỗi ngày</p>
+            <a href="#" class="shop-btn">Mua ngay</a>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <img th:src="@{/images/banner/banner2.jpg}">
+          <div class="banner-content center-left">
+            <h2>Đẹp chuẩn <span>phong cách</span></h2>
+            <p>Thời trang & mỹ phẩm dành cho quý cô hiện đại</p>
+            <a href="#" class="shop-btn">Khám phá ngay</a>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <img th:src="@{/images/banner/banner3.jpg}">
+          <div class="banner-content center-left">
+            <h2><span>Ưu đãi cực lớn</span> tháng này</h2>
+            <p>Giảm đến 50% cho dòng son và dưỡng da cao cấp</p>
+            <a href="#" class="shop-btn">Xem chi tiết</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </section>
+</main>
+
+<div th:replace="fragments/_footer :: footer"></div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  const swiper = new Swiper(".bannerSwiper", {
+    loop: true,
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    pagination: { el: ".swiper-pagination", clickable: true },
+    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+    effect: "fade",
+    fadeEffect: { crossFade: true },
+  });
+
+  // Ẩn header-top khi cuộn xuống
+  const headerTop = document.querySelector('.header-top');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) {
+      headerTop.classList.add('hidden');
+    } else {
+      headerTop.classList.remove('hidden');
+    }
+  });
+</script>
+
+</body>
+</html>

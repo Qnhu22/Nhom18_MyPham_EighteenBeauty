@@ -1,0 +1,61 @@
+package com.oneshop.entity;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+//import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "product_variants")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ProductVariant {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long variantId;
+
+	@ManyToOne
+	@JoinColumn(name = "productId", nullable = false)
+	private Product product;
+
+	@Column(length = 200)
+	private String name; // ex: "Hồng đất 3.5g"
+
+	@Column(precision = 12, scale = 2, nullable = false)
+	private BigDecimal price;
+
+	@Column(precision = 12, scale = 2)
+	private BigDecimal oldPrice;
+
+	@Column(nullable = false)
+	private Integer stock;
+
+	private Integer soldCount;
+
+	@Column(length = 255)
+	private String imageUrl;
+
+	@Column(length = 50)
+	private String color;
+
+	@Column(length = 50)
+	private String size;
+
+	private LocalDateTime createdAt;
+}

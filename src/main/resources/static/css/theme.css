@@ -1,0 +1,16 @@
+:root {
+  --color-blue: #AEC6E5;       /* Xanh pastel */
+  --color-cream: #FBE8EA;      /* Hồng nhạt nền */
+  --color-pink: #F4C1C5;       /* Hồng sáng */
+  --color-rose: #DC92B3;       /* Hồng đậm */
+  --color-purple: #CEA7C2;     /* Tím phấn */
+  --color-text: #333;
+  --color-dark: #222;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-text);
+  margin: 0;
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; }
+        header h1 { margin: 0; font-size: 22px; }
+        nav { background: #34495e; padding: 10px 30px; display: flex; gap: 15px; }
+        nav a, nav button { color: white; text-decoration: none; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 14px; }
+        nav a:hover, nav button:hover { text-decoration: underline; }
+        .container { padding: 30px; max-width: 400px; margin: auto; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);}
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; background: #27ae60; color: white; width: 100%; }
+        .btn:hover { opacity: 0.9; }
+        .message { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔑 Đăng nhập</h1>
+</header>
+
+<nav>
+    <button onclick="history.back()">⬅️ Quay lại</button>
+    <a th:href="@{/register}">📝 Đăng ký</a>
+    <a th:href="@{/forgot-password}">❓ Quên mật khẩu</a>
+</nav>
+
+<div class="container">
+    <!-- Thông báo -->
+    <div class="message" th:if="${error}" style="color:red;" th:text="${error}"></div>
+    <div class="message" th:if="${success}" style="color:green;" th:text="${success}"></div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label>Username hoặc Email:</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mật khẩu:</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn">Đăng nhập</button>
+    </form>
+</div>
+
+</body>
+</html>

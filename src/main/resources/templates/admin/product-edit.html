@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Cập nhật Sản phẩm</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; }
+        header h1 { margin: 0; font-size: 22px; }
+        .container { padding: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        img { max-width: 150px; margin-top: 10px; display: block; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-submit { background: #f39c12; color: white; }
+        .btn-back { background: #2980b9; color: white; }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>✏️ Cập nhật Sản phẩm</h1>
+</header>
+
+<div class="container">
+    <form th:action="@{'/admin/products/update/' + ${product.productId}}" 
+          th:object="${product}" method="post" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label>Tên sản phẩm:</label>
+            <input type="text" th:field="*{name}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả:</label>
+            <textarea th:field="*{description}" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Giá:</label>
+            <input type="number" th:field="*{price}" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label>Giá cũ:</label>
+            <input type="number" th:field="*{oldPrice}" step="0.01">
+        </div>
+
+        <div class="form-group">
+            <label>Số lượng tồn kho:</label>
+            <input type="number" th:field="*{stock}" min="0">
+        </div>
+
+        <div class="form-group">
+            <label>Danh mục:</label>
+            <select th:field="*{category}" required>
+                <option th:each="cat : ${categories}" 
+                        th:value="${cat.categoryId}" 
+                        th:text="${cat.name}" 
+                        th:selected="${cat.categoryId == product.category.categoryId}">
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Ảnh hiện tại:</label>
+            <img th:if="${product.imageUrl}" th:src="@{${product.imageUrl}}" alt="Ảnh sản phẩm">
+        </div>
+
+        <div class="form-group">
+            <label>Chọn ảnh mới (nếu muốn đổi):</label>
+            <input type="file" name="file" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>Trạng thái:</label>
+            <select th:field="*{status}">
+                <option th:value="true" th:selected="${product.status}">Còn hàng</option>
+                <option th:value="false" th:selected="${!product.status}">Hết hàng</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-submit">💾 Cập nhật</button>
+        <a th:href="@{/admin/products}" class="btn btn-back">⬅️ Quay lại</a>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6f8;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+        nav {
+            background: #34495e;
+            padding: 10px 30px;
+        }
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            padding: 30px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            float: right;
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 8px 0;
+        }
+        ul li a {
+            color: #2980b9;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚙️ OneShop Admin Dashboard</h1>
+</header>
+
+<nav>
+    <a th:href="@{/}">🏠 Trang chủ</a>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit" class="logout-btn">Đăng xuất</button>
+    </form>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h2>Xin chào, <span sec:authentication="name"></span> 👋</h2>
+        <p>Bạn đang đăng nhập với vai trò: <b sec:authentication="authorities"></b></p>
+    </div>
+
+    <div class="card">
+        <h2>📊 Quản lý hệ thống</h2>
+        <ul>
+            <li><a th:href="@{/admin/users}">👥 Quản lý User</a></li>
+            <li><a th:href="@{/admin/products}">📦 Quản lý Sản phẩm</a></li>
+            <li><a th:href="@{/admin/categories}">📂 Quản lý Danh mục</a></li>
+            <li><a href="#">💰 Quản lý Chiết khấu</a></li>
+            <li><a href="#">🎉 Quản lý Khuyến mãi</a></li>
+            <li><a href="#">🚚 Quản lý Nhà vận chuyển</a></li>
+            <li><a href="#">⚡ Quản lý Roles & Tài khoản</a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
