@@ -50,10 +50,12 @@ public class ProductVariant {
 
 	@Column(length = 255)
 	private String imageUrl;
-
+	
+	// tùy chọn, không bắt buộc
 	@Column(length = 50)
 	private String color;
 
+	// tùy chọn, không bắt buộc
 	@Column(length = 50)
 	private String size;
 
