@@ -43,6 +43,9 @@ public class User {
 
     @Column(length = 20)
     private String phone;
+    
+    @Column
+    private LocalDateTime birthDate;
 
     @Column(length = 10)
     private String gender; // Nam / Nữ / Khác

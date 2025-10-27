@@ -22,10 +22,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(100)")
     private String name; // tên danh mục
 
-    @Column(length = 255)
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description; // mô tả ngắn
 
     @Column(length = 255)
