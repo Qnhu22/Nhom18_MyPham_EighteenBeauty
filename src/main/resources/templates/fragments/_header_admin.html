@@ -1,0 +1,80 @@
+<div th:fragment="header">
+  <header class="oneshop-header" id="main-header">
+
+    <!-- 🔹 THANH TRÊN (TOP BAR) -->
+    <div class="top-bar">
+      <div class="container top-content">
+        <div class="left">
+          <span><i class="fa fa-phone"></i> (08) 123 456 7890</span>
+          <span><i class="fa fa-envelope"></i> support@oneshop.vn</span>
+          <span class="social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-pinterest-p"></i></a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔸 THANH MENU CHÍNH -->
+    <nav class="main-nav">
+      <div class="container nav-content">
+        <div class="logo">
+          <a href="/" class="logo-text">Eighteen<span>beauty</span></a>
+        </div>
+
+        <ul class="menu">
+          <li><a th:href="@{/admin/categories}">DANH MỤC</a></li>
+          <li><a th:href="@{/admin/products}">SẢN PHẨM</a></li>
+          <li><a th:href="@{/admin/promotions}">KHUYẾN MÃI</a></li>
+          <li><a th:href="@{/admin/users}">NGƯỜI DÙNG</a></li>
+          <li><a th:href="@{/admin/shippers}">SHIPPER</a></li>
+        </ul>
+
+        <!-- 🛒 ICON HÌNH ẢNH -->
+        <div class="actions">
+          <!-- Kính lúp -->
+          <div class="search-wrapper">
+            <img th:src="@{/images/icons/search.png}" alt="Tìm kiếm" class="icon-btn" id="searchToggle">
+            <div class="mini-search" id="miniSearch">
+              <input type="text" placeholder="Nhập từ khóa và nhấn Enter">
+              <button><img th:src="@{/images/icons/search.png}" alt="Search"></button>
+            </div>
+          </div>
+          <a th:href="@{/}">🏠 Trang chủ</a>
+	    <form th:action="@{/logout}" method="post" style="display:inline;">
+	        <button type="submit" class="logout-btn">Đăng xuất</button>
+	    </form>
+         </div>
+        </div>
+        
+      </nav>
+  </header>
+          
+  <!-- ================== SCRIPT ================== -->
+  <script>
+    // Sticky Header
+    window.addEventListener("scroll", function () {
+      const header = document.getElementById("main-header");
+      header.classList.toggle("sticky", window.scrollY > 80);
+    });
+
+    // Dropdown arrow
+    document.querySelectorAll(".dropdown").forEach((drop) => {
+      drop.addEventListener("mouseenter", () => drop.querySelector(".arrow").classList.add("rotate"));
+      drop.addEventListener("mouseleave", () => drop.querySelector(".arrow").classList.remove("rotate"));
+    });
+
+    // Hiện ô tìm kiếm nhỏ
+    const searchToggle = document.getElementById("searchToggle");
+    const miniSearch = document.getElementById("miniSearch");
+
+    document.addEventListener("click", (e) => {
+      if (searchToggle.contains(e.target)) {
+        miniSearch.classList.toggle("active");
+      } else if (!miniSearch.contains(e.target)) {
+        miniSearch.classList.remove("active");
+      }
+    });
+  </script>
+</div>
