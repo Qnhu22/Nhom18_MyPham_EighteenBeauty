@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Địa chỉ giao hàng | OneShop</title>
+
+  <!-- Đồng bộ giao diện OneShop -->
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/address.css}">
+
+  <style>
+    /* Tránh header cố định che nội dung */
+    main.account-page { margin-top: 140px; padding-bottom: 60px; }
+
+    /* Tiêu đề + nút thêm */
+    .title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .title-row h2{margin:0}
+    .btn-add{background:#b8c9e8;border:none;padding:10px 14px;border-radius:999px;color:#111;cursor:pointer}
+    .btn-add:hover{filter:brightness(1.05)}
+    
+    /* === Thông báo pastel (thành công / lỗi) === */
+.alert {
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert.success {
+  background: #f3f9f3;
+  border-left: 5px solid #90d48a;
+  color: #2e7d32;
+}
+
+.alert.error {
+  background: #fff0f0;
+  border-left: 5px solid #f19999;
+  color: #c62828;
+}
+    
+
+    /* Label trước dữ liệu */
+    .label{font-weight:600;color:#555;margin-right:6px}
+
+    /* Modal */
+    .modal{display:none;position:fixed;z-index:9999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);backdrop-filter:blur(3px)}
+    .modal-content{background:#fff;border-radius:20px;max-width:520px;margin:80px auto;padding:30px 40px;position:relative;box-shadow:0 6px 20px rgba(0,0,0,.1);animation:fadeIn .25s ease-out}
+    @keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+    .modal-content h3{text-align:center;font-size:20px;margin-bottom:20px;color:#222}
+    .modal-content label{display:block;font-weight:500;margin-top:10px;margin-bottom:4px;color:#333}
+    .modal-content input,.modal-content select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid #ccc;font-size:14px}
+    .modal-content input:focus,.modal-content select:focus{border-color:#e8b4d1;outline:none}
+
+    .modal-content .btn-row{display:flex;justify-content:flex-end;margin-top:20px;gap:10px}
+    .btn-cancel{background:#ddd;color:#111;padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
+    .btn-save{background:#111;color:#fff;padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
+    .close{position:absolute;right:15px;top:10px;font-size:22px;cursor:pointer;color:#555}
+    .close:hover{color:#000}
+  </style>
+</head>
+
+<body>
+<!-- Header -->
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="account-page container">
+  <div class="account-wrapper">
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+      <ul>
+        <li><a th:href="@{/account/profile}">Thông tin tài khoản</a></li>
+        <li><a th:href="@{/account/orders}">Lịch sử đơn hàng</a></li>
+        <li><a th:href="@{/account/vouchers}">Ví Voucher</a></li>
+        <li class="active"><a th:href="@{/account/addresses}">Địa chỉ giao hàng</a></li>
+        <li><a th:href="@{/account/reviews}">Đánh giá & phản hồi</a></li>
+        <li><a th:href="@{/logout}">Đăng xuất</a></li>
+      </ul>
+    </aside>
+
+    <!-- Nội dung -->
+    <section class="account-content">
+          <!-- 🔔 Thông báo thành công / lỗi -->
+<div th:if="${msgSuccess}" class="alert success">
+  <span th:text="${msgSuccess}"></span>
+</div>
+
+<div th:if="${msgError}" class="alert error">
+  <span th:text="${msgError}"></span>
+</div>
+      <div class="title-row">
+        <h2>Địa chỉ của tôi</h2>
+        <button class="btn-add" onclick="openAddressModal()">+ Thêm địa chỉ mới</button>
+      </div>
+
+      <div class="address-list">
+        <div th:if="${#lists.isEmpty(addresses)}" class="no-data">
+          <p>Chưa có địa chỉ nào. Hãy thêm địa chỉ mới!</p>
+        </div>
+
+        <div th:each="addr : ${addresses}" class="address-item">
+          <div class="address-header">
+            <h4>
+              <span class="label">Tên:</span>
+              <span th:text="${addr.receiverName}">—</span>
+              <span th:if="${addr.isDefault}" class="badge-default">★ Mặc định</span>
+            </h4>
+          </div>
+
+          <p><span class="label">Số điện thoại:</span><span th:text="${addr.phone}">—</span></p>
+          <p><span class="label">Địa chỉ:</span>
+            <span th:text="${addr.addressLine} + ', ' + ${addr.ward} + ', ' + ${addr.district} + ', ' + ${addr.city}">—</span>
+          </p>
+
+          <div class="actions">
+            <button type="button" class="btn-update"
+                    th:onclick="'editAddress(' + ${addr.addressId} + ')'">Cập nhật</button>
+
+            <form th:action="@{'/account/addresses/delete/' + ${addr.addressId}}" method="post">
+              <button type="submit" class="btn-delete">Xóa</button>
+            </form>
+
+            <form th:if="${!addr.isDefault}"
+                  th:action="@{'/account/addresses/set-default/' + ${addr.addressId}}"
+                  method="post">
+              <button type="submit" class="btn-default">Đặt làm mặc định</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<!-- Modal thêm / cập nhật -->
+<div id="addressModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddressModal()">&times;</span>
+    <h3 id="modalTitle">Thêm địa chỉ mới</h3>
+
+    <form th:action="@{/account/addresses/save}" method="post" id="addressForm">
+      <input type="hidden" name="addressId" id="addressId">
+
+      <label>Họ tên</label>
+      <input type="text" name="receiverName" id="receiverName" placeholder="Nhập họ tên" required>
+
+      <label>Số điện thoại</label>
+      <input type="text" name="phone" id="phone" placeholder="Nhập số điện thoại" required>
+
+      <label>Tỉnh / Thành phố</label>
+      <select id="city" name="city" required>
+        <option value="">-- Chọn Tỉnh / Thành phố --</option>
+      </select>
+
+      <label>Quận / Huyện</label>
+      <select id="district" name="district" required>
+        <option value="">-- Chọn Quận / Huyện --</option>
+      </select>
+
+      <label>Xã / Phường</label>
+      <select id="ward" name="ward" required>
+        <option value="">-- Chọn Xã / Phường --</option>
+      </select>
+
+      <label>Địa chỉ (số nhà, đường)</label>
+      <input type="text" name="addressLine" id="addressLine" placeholder="Ví dụ: 123 đường A..." required>
+
+
+      <div class="btn-row">
+        <button type="button" class="btn-cancel" onclick="closeAddressModal()">Đóng</button>
+        <button type="submit" class="btn-save">Lưu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mở popup thêm mới
+  async function openAddressModal() {
+    const modal = document.getElementById('addressModal');
+    const form = document.getElementById('addressForm');
+
+    document.getElementById('modalTitle').innerText = 'Thêm địa chỉ mới';
+    form.reset();
+    document.getElementById('addressId').value = '';
+
+    modal.style.display = 'block';
+    await prepareForCreateAddress(); // nạp dropdown tỉnh/thành
+  }
+
+  // Đóng popup
+  function closeAddressModal() {
+    document.getElementById('addressModal').style.display = 'none';
+  }
+
+  // Mở popup cập nhật
+  async function editAddress(id) {
+    try {
+      const res = await fetch(`/account/addresses/${id}`);
+      if (!res.ok) throw new Error('Không tìm thấy địa chỉ!');
+      const data = await res.json();
+
+      document.getElementById('addressModal').style.display = 'block';
+      document.getElementById('modalTitle').innerText = 'Cập nhật địa chỉ';
+      document.getElementById('addressId').value = data.addressId;
+      document.getElementById('receiverName').value = data.receiverName || '';
+      document.getElementById('phone').value = data.phone || '';
+      document.getElementById('addressLine').value = data.addressLine || '';
+    
+
+      await prefillAdministrative(data.city, data.district, data.ward);
+    } catch (e) {
+      console.error(e);
+      alert('Không thể tải thông tin địa chỉ!');
+    }
+  }
+
+  // Click ra ngoài để đóng modal
+  window.onclick = (e) => {
+    const modal = document.getElementById('addressModal');
+    if (e.target === modal) modal.style.display = 'none';
+  };
+</script>
+
+<!-- ======================== -->
+<!--   Hành chính Việt Nam    -->
+<!-- ======================== -->
+<script>
+(() => {
+  const API = {
+    provinces: '/api/vn/p',
+    province:  (code) => `/api/vn/p-detail?code=${code}`,
+    district:  (code) => `/api/vn/d-detail?code=${code}`,
+  };
+
+  const selCity     = document.getElementById('city');
+  const selDistrict = document.getElementById('district');
+  const selWard     = document.getElementById('ward');
+
+  const CACHE = {
+    provinces: null,
+    districtsByProvinceCode: new Map(),
+    wardsByDistrictCode: new Map(),
+  };
+
+  const removeAccents = (s) =>
+    s?.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D') ?? '';
+  const sameName = (a, b) =>
+    removeAccents(String(a)).trim().toLowerCase() === removeAccents(String(b)).trim().toLowerCase();
+
+  function resetSelect(el, placeholder) {
+    el.innerHTML = `<option value="">${placeholder}</option>`;
+  }
+
+  function fillOptions(el, items, textKey='name', valueKey='name') {
+    items.forEach(it => {
+      const op = document.createElement('option');
+      op.value = it[valueKey];
+      op.textContent = it[textKey];
+      el.appendChild(op);
+    });
+  }
+
+  // ========== Load Provinces ==========
+  async function loadProvinces() {
+    resetSelect(selCity,   '-- Chọn Tỉnh / Thành phố --');
+    resetSelect(selDistrict, '-- Chọn Quận / Huyện --');
+    resetSelect(selWard,     '-- Chọn Xã / Phường --');
+    if (!CACHE.provinces) {
+      const res = await fetch(API.provinces);
+      if (!res.ok) throw new Error('Không thể tải danh sách Tỉnh/Thành phố');
+      CACHE.provinces = await res.json();
+    }
+    fillOptions(selCity, CACHE.provinces);
+  }
+
+  // ========== Load Districts theo Province ==========
+  async function loadDistricts(provinceName) {
+    resetSelect(selDistrict, '-- Chọn Quận / Huyện --');
+    resetSelect(selWard,     '-- Chọn Xã / Phường --');
+    if (!provinceName) return;
+
+    // tìm mã code của province dựa theo name
+    let found = CACHE.provinces.find(p => sameName(p.name, provinceName));
+    const code = found?.code;
+    if (!code) return;
+
+    if (!CACHE.districtsByProvinceCode.has(code)) {
+      const res = await fetch(API.province(code));
+      if (!res.ok) throw new Error('Không thể tải danh sách Quận/Huyện');
+      const data = await res.json();
+      CACHE.districtsByProvinceCode.set(code, data.districts || []);
+    }
+    fillOptions(selDistrict, CACHE.districtsByProvinceCode.get(code));
+  }
+
+  // ========== Load Wards theo District ==========
+  async function loadWards(districtName) {
+    resetSelect(selWard, '-- Chọn Xã / Phường --');
+    if (!districtName) return;
+
+    let found;
+    for (let [key, list] of CACHE.districtsByProvinceCode.entries()) {
+      found = list.find(d => sameName(d.name, districtName));
+      if (found) break;
+    }
+    const code = found?.code;
+    if (!code) return;
+
+    if (!CACHE.wardsByDistrictCode.has(code)) {
+      const res = await fetch(API.district(code));
+      if (!res.ok) throw new Error('Không thể tải danh sách Xã/Phường');
+      const data = await res.json();
+      CACHE.wardsByDistrictCode.set(code, data.wards || []);
+    }
+    fillOptions(selWard, CACHE.wardsByDistrictCode.get(code));
+  }
+
+  // ========== Sự kiện thay đổi ==========
+  selCity?.addEventListener('change', async () => {
+    await loadDistricts(selCity.value);
+  });
+
+  selDistrict?.addEventListener('change', async () => {
+    await loadWards(selDistrict.value);
+  });
+
+  // ========== Prefill khi EDIT ==========
+  window.prefillAdministrative = async (cityName, districtName, wardName) => {
+    await loadProvinces();
+    if (cityName) {
+      selCity.value = cityName;
+      await loadDistricts(cityName);
+    }
+    if (districtName) {
+      selDistrict.value = districtName;
+      await loadWards(districtName);
+    }
+    if (wardName) selWard.value = wardName;
+  };
+
+  window.prepareForCreateAddress = async () => {
+    await loadProvinces();
+  };
+
+  // Nạp sẵn danh sách tỉnh khi trang mở
+  loadProvinces().catch(err => alert(err.message));
+})();
+</script>
+
+<script>
+  // 🔹 Tự ẩn thông báo sau 3 giây
+  setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(a => {
+      a.style.opacity = '0';
+      setTimeout(() => (a.style.display = 'none'), 500);
+    });
+  }, 3000);
+</script>
+
+
+</body>
+</html>
