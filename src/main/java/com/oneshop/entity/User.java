@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,12 +44,13 @@ public class User {
 
     @Column(length = 20)
     private String phone;
-    
-    @Column
-    private LocalDateTime birthDate;
 
     @Column(length = 10)
     private String gender; // Nam / Nữ / Khác
+    
+    @Column
+    private LocalDate birthDate; // Ngày sinh
+
 
     @Column(length = 255)
     private String avatar; // Ảnh đại diện
@@ -79,8 +81,8 @@ public class User {
 
     // ================== QUAN HỆ ==================
 
-    // 1️⃣ Danh sách vai trò (Admin, User, Shipper,...)
-    @ManyToMany(fetch = FetchType.EAGER)
+    // 1️⃣ Vai trò của tài khoản (ROLE_USER, ROLE_ADMIN, ROLE_MANAGER,...)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -91,8 +93,8 @@ public class User {
     // 2️⃣ Danh sách địa chỉ giao hàng của user
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderAddress> addresses = new HashSet<>();
-    
+
+    // 3️⃣ Shop mà user quản lý (nếu có)
     @OneToOne(mappedBy = "manager")
     private Shop shop;
-
 }
