@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class Shipper {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipperId;
