@@ -1,122 +1,343 @@
 <div th:fragment="header">
-  <header class="oneshop-header" id="main-header">
+	<header class="oneshop-header" id="main-header">
 
-    <!-- 🔹 THANH TRÊN (TOP BAR) -->
-    <div class="top-bar">
-      <div class="container top-content">
-        <div class="left">
-          <span><i class="fa fa-phone"></i> (08) 123 456 7890</span>
-          <span><i class="fa fa-envelope"></i> support@oneshop.vn</span>
-          <span class="social">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-pinterest-p"></i></a>
-          </span>
-        </div>
+		<!-- 🔹 THANH TRÊN (TOP BAR) -->
+		<div class="top-bar">
+			<div class="container top-content">
+				<div class="left">
+					<span><i class="fa fa-phone"></i> (08) 123 456 7890</span>
+					<span><i class="fa fa-envelope"></i> support@oneshop.vn</span>
+					<span class="social">
+						<a href="#"><i class="fab fa-facebook-f"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-pinterest-p"></i></a>
+					</span>
+				</div>
 
-        <div class="right">
-          <!-- Login dropdown -->
-          <div class="dropdown login-dropdown" sec:authorize="isAnonymous()">
-            <button class="dropbtn">
-              <i class="fa fa-user"></i> Đăng nhập <i class="fa fa-caret-down arrow"></i>
-            </button>
-            <div class="dropdown-content">
-              <a href="#">So sánh sản phẩm</a>
-              <a href="#">Tài khoản của tôi</a>
-              <a href="#">Danh sách yêu thích</a>
-              <a th:href="@{/login}">Đăng nhập</a>
-            </div>
-          </div>
+				<div class="right">
+					<!-- 🔐 Đăng nhập / Tài khoản -->
+					<!-- 👤 Guest (ẩn danh) -->
+					<div class="dropdown login-dropdown" sec:authorize="isAnonymous()">
+						<button class="dropbtn">
+							<i class="fa fa-user"></i> Khách <i class="fa fa-caret-down arrow"></i>
+						</button>
 
-          <div class="dropdown login-dropdown" sec:authorize="isAuthenticated()">
-            <button class="dropbtn">
-              <i class="fa fa-user"></i> <span sec:authentication="name"></span>
-              <i class="fa fa-caret-down arrow"></i>
-            </button>
-            <div class="dropdown-content">
-              <a href="#">Tài khoản của tôi</a>
-              <form th:action="@{/logout}" method="post">
-                <button type="submit" class="logout-btn">Đăng xuất</button>
-              </form>
-            </div>
-          </div>
+						<div class="dropdown-content">
+							<a href="#"><i class="fa fa-heart"></i> Danh sách yêu thích</a>
+							<a th:href="@{/login}"><i class="fa fa-sign-in-alt"></i> Đăng nhập</a>
+						</div>
+					</div>
 
-          <!-- Language dropdown -->
-          <div class="dropdown lang-dropdown">
-            <button class="dropbtn">
-              <img src="https://flagcdn.com/16x12/vn.png" alt="VN"> Tiếng Việt
-              <i class="fa fa-caret-down arrow"></i>
-            </button>
-            <div class="dropdown-content">
-              <a href="#"><img src="https://flagcdn.com/16x12/vn.png" alt=""> Tiếng Việt</a>
-              <a href="#"><img src="https://flagcdn.com/16x12/gb.png" alt=""> English</a>
-              <a href="#"><img src="https://flagcdn.com/16x12/kr.png" alt=""> 한국어</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+					<!-- 👤 User đã đăng nhập -->
+					<div class="dropdown login-dropdown" sec:authorize="isAuthenticated()">
+						<button class="dropbtn">
+							<i class="fa fa-user"></i>
+							<span sec:authentication="name"></span>
+							<i class="fa fa-caret-down arrow"></i>
+						</button>
 
-    <!-- 🔸 THANH MENU CHÍNH -->
-    <nav class="main-nav">
-      <div class="container nav-content">
-        <div class="logo">
-          <a href="/" class="logo-text">Eighteen<span>beauty</span></a>
-        </div>
+						<div class="dropdown-content account-menu">
+							<a th:href="@{/account}"><i class="fa fa-id-card"></i> Thông tin tài khoản</a>
+							<a th:href="@{/account/orders}"><i class="fa fa-shopping-bag"></i> Lịch sử đơn hàng</a>
+							<a th:href="@{/account/vouchers}"><i class="fa fa-gift"></i> Ví Voucher</a>
+							<a th:href="@{/account/addresses}"><i class="fa fa-map-marker-alt"></i> Sổ địa chỉ</a>
+							<a th:href="@{/account/reviews}"><i class="fa fa-star"></i> Đánh giá & phản hồi</a>
 
-        <ul class="menu">
-          <li><a th:href="@{/}">TRANG CHỦ</a></li>
-          <li><a th:href="@{/shop}">SẢN PHẨM</a></li>
-          <li><a th:href="@{/blog}">BLOG</a></li>
-          <li><a th:href="@{/about}">GIỚI THIỆU</a></li>
-          <li><a th:href="@{/contact}">LIÊN HỆ</a></li>
-        </ul>
+							<form th:action="@{/logout}" method="post">
+								<button type="submit" class="logout-btn"><i class="fa fa-sign-out-alt"></i> Đăng
+									xuất</button>
+							</form>
+						</div>
+					</div>
 
-        <!-- 🛒 ICON HÌNH ẢNH -->
-        <div class="actions">
-          <!-- Kính lúp -->
-          <div class="search-wrapper">
-            <img th:src="@{/images/icons/search.png}" alt="Tìm kiếm" class="icon-btn" id="searchToggle">
-            <div class="mini-search" id="miniSearch">
-              <input type="text" placeholder="Nhập từ khóa và nhấn Enter">
-              <button><img th:src="@{/images/icons/search.png}" alt="Search"></button>
-            </div>
-          </div>
+					<!-- 🌐 Ngôn ngữ -->
+					<div class="dropdown lang-dropdown">
+						<button class="dropbtn">
+							<img src="https://flagcdn.com/16x12/vn.png" alt="VN"> Tiếng Việt
+							<i class="fa fa-caret-down arrow"></i>
+						</button>
+						<div class="dropdown-content">
+							<a href="#"><img src="https://flagcdn.com/16x12/vn.png" alt=""> Tiếng Việt</a>
+							<a href="#"><img src="https://flagcdn.com/16x12/gb.png" alt=""> English</a>
+							<a href="#"><img src="https://flagcdn.com/16x12/kr.png" alt=""> 한국어</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-          <!-- Giỏ hàng -->
-          <a href="#" class="cart-btn">
-            <img th:src="@{/images/icons/shopping-cart.png}" alt="Giỏ hàng" class="icon-btn">
-            <span class="badge">3</span>
-          </a>
-        </div>
-      </div>
-    </nav>
-  </header>
+		<!-- 🔸 THANH MENU CHÍNH -->
+		<nav class="main-nav">
+			<div class="container nav-content">
+				<div class="logo">
+					<a href="/" class="logo-text">Eighteen<span>beauty</span></a>
+				</div>
 
-  <!-- ================== SCRIPT ================== -->
-  <script>
-    // Sticky Header
-    window.addEventListener("scroll", function () {
-      const header = document.getElementById("main-header");
-      header.classList.toggle("sticky", window.scrollY > 80);
-    });
+				<ul class="menu">
+					<li><a th:href="@{/}">TRANG CHỦ</a></li>
+					<li><a th:href="@{/shop}">SẢN PHẨM</a></li>
+					<li><a th:href="@{/blog}">BLOG</a></li>
+					<li><a th:href="@{/about}">GIỚI THIỆU</a></li>
+					<li><a th:href="@{/contact}">LIÊN HỆ</a></li>
+				</ul>
 
-    // Dropdown arrow
-    document.querySelectorAll(".dropdown").forEach((drop) => {
-      drop.addEventListener("mouseenter", () => drop.querySelector(".arrow").classList.add("rotate"));
-      drop.addEventListener("mouseleave", () => drop.querySelector(".arrow").classList.remove("rotate"));
-    });
+				<!-- 🛒 KHU VỰC ICON -->
+				<div class="actions">
+					<!-- 🔍 Ô tìm kiếm -->
+					<div class="search-wrapper">
+						<img th:src="@{/images/icons/search.png}" alt="Tìm kiếm" class="icon-btn" id="searchToggle">
+						<div class="mini-search" id="miniSearch">
+							<input type="text" placeholder="Nhập từ khóa và nhấn Enter">
+							<button><img th:src="@{/images/icons/search.png}" alt="Search"></button>
+						</div>
+					</div>
 
     // Hiện ô tìm kiếm nhỏ
     const searchToggle = document.getElementById("searchToggle");
     const miniSearch = document.getElementById("miniSearch");
 
-    document.addEventListener("click", (e) => {
-      if (searchToggle.contains(e.target)) {
-        miniSearch.classList.toggle("active");
-      } else if (!miniSearch.contains(e.target)) {
-        miniSearch.classList.remove("active");
-      }
-    });
-  </script>
+						<!-- MINI CART DROPDOWN -->
+						<div class="mini-cart" id="miniCart">
+							<div class="mini-cart-items">
+
+								<!-- 🟣 Giỏ trống -->
+								<div th:if="${#lists.isEmpty(items)}" class="empty-cart">
+									<p>Giỏ hàng trống</p>
+									<div class="mini-cart-actions">
+										<a th:href="@{/cart}" class="btn-view">XEM GIỎ HÀNG</a>
+									</div>
+								</div>
+
+								<!-- 🟢 USER LOGIN: items là CartItem -->
+								<th:block sec:authorize="isAuthenticated()">
+									<th:block th:each="item : ${items}">
+										<div class="mini-cart-item"
+											th:attr="data-variantid=${item.productVariant.variantId}">
+											<img th:src="${item.productVariant.imageUrl}" alt="Ảnh">
+											<div class="details">
+												<p th:text="${item.productVariant.product.name}"></p>
+												<small
+													th:text="${item.quantity} + ' × ' +
+                            ${#numbers.formatDecimal(item.productVariant.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></small>
+											</div>
+											<form th:action="@{/cart/remove}" method="post">
+												<input type="hidden" name="variantId"
+													th:value="${item.productVariant.variantId}">
+												<button type="submit"><i class="fa fa-trash"></i></button>
+											</form>
+										</div>
+									</th:block>
+								</th:block>
+
+								<!-- 🔵 GUEST (Ẩn danh): items là Map -->
+								<th:block sec:authorize="isAnonymous()">
+									<th:block th:each="item : ${items}">
+										<div class="mini-cart-item" th:attr="data-variantid=${item['variantId']}">
+											<img th:src="${item['image']}" alt="Ảnh">
+											<div class="details">
+												<p th:text="${item['name']}"></p>
+												<small th:text="${item['quantity']} + ' × ' +
+                            ${#numbers.formatDecimal(item['price'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></small>
+											</div>
+											<form th:action="@{/cart/remove}" method="post">
+												<input type="hidden" name="variantId" th:value="${item['variantId']}">
+												<button type="submit"><i class="fa fa-trash"></i></button>
+											</form>
+										</div>
+									</th:block>
+								</th:block>
+							</div>
+
+							<!-- 🧾 Tổng cộng + nút Xem giỏ hàng -->
+							<div class="mini-cart-total" th:if="${items != null and !#lists.isEmpty(items)}">
+								<p>
+									Tổng cộng:
+									<strong
+										th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong>
+								</p>
+								<div class="mini-cart-actions">
+									<a th:href="@{/cart}" class="btn-view">XEM GIỎ HÀNG</a>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<!-- ================== SCRIPT ================== -->
+	<script>
+		// Sticky Header
+		window.addEventListener("scroll", function () {
+			const header = document.getElementById("main-header");
+			header.classList.toggle("sticky", window.scrollY > 80);
+		});
+
+		// Dropdown arrow animation
+		document.querySelectorAll(".dropdown").forEach((drop) => {
+			drop.addEventListener("mouseenter", () => drop.querySelector(".arrow").classList.add("rotate"));
+			drop.addEventListener("mouseleave", () => drop.querySelector(".arrow").classList.remove("rotate"));
+		});
+
+		// Toggle mini search
+		const searchToggle = document.getElementById("searchToggle");
+		const miniSearch = document.getElementById("miniSearch");
+		document.addEventListener("click", (e) => {
+			if (searchToggle.contains(e.target)) {
+				miniSearch.classList.toggle("active");
+			} else if (!miniSearch.contains(e.target)) {
+				miniSearch.classList.remove("active");
+			}
+		});
+	</script>
+
+	<!-- ================== SCRIPT BỔ SUNG ĐỒNG BỘ MINI CART ================== -->
+	<script>
+		document.addEventListener("DOMContentLoaded", async () => {
+			const cartBadge = document.getElementById("cartCount");
+			const miniCart = document.getElementById("miniCart");
+			const miniList = miniCart?.querySelector(".mini-cart-items");
+
+			// ✅ Khi load trang: đồng bộ badge + xóa "Giỏ hàng trống" nếu có
+			try {
+				const res = await fetch("/cart/api/status");
+				if (res.ok) {
+					const data = await res.json();
+					if (cartBadge) cartBadge.textContent = data.cartCount;
+
+					if (data.cartCount > 0) {
+						const empty = miniList?.querySelector("p");
+						if (empty && empty.textContent.includes("Giỏ hàng trống")) {
+							empty.remove();
+						}
+					}
+				}
+			} catch (e) {
+				console.warn("Không thể lấy trạng thái giỏ hàng:", e);
+			}
+
+			// ✅ Khi có sự kiện thêm sản phẩm từ product-detail
+			window.addEventListener("cart-updated", (e) => {
+				const {name, variantId, qty, price, image, total} = e.detail;
+				if (!miniList) return;
+
+				// Ẩn dòng "Giỏ hàng trống"
+				const empty = miniList.querySelector("p");
+				if (empty && empty.textContent.includes("Giỏ hàng trống")) empty.remove();
+
+				// 🔄 Gộp theo variantId (KHÔNG gộp chỉ theo tên)
+				const exist = Array.from(miniList.querySelectorAll(".mini-cart-item"))
+					.find(el => el.dataset.variantid === String(variantId));
+
+				if (exist) {
+					const small = exist.querySelector("small");
+					const oldQty = parseInt(small.textContent.split("×")[0].trim()) || 0;
+					small.textContent = `${oldQty + qty} × ${price}`;
+				} else {
+					const html = `
+    		  <div class="mini-cart-item" data-variantid="${variantId}">
+    		    <img src="${image}" alt="">
+    		    <div class="details">
+    		      <p>${name}</p>
+    		      <small>${qty} × ${price}</small>
+    		    </div>
+    		    <form action="/cart/remove" method="post" class="remove-form">
+    		      <input type="hidden" name="variantId" value="${variantId}">
+    		      <button type="submit"><i class="fa fa-trash"></i></button>
+    		    </form>
+    		  </div>`;
+
+					miniList.insertAdjacentHTML("beforeend", html);
+				}
+
+				// 🧾 Cập nhật tổng cộng + badge
+				let totalEl = document.querySelector(".mini-cart-total strong");
+
+				if (totalEl) {
+					// Đã có block tổng → chỉ cập nhật số tiền
+					totalEl.textContent = total.toLocaleString("vi-VN") + " ₫";
+				} else {
+					// Chưa có block tổng → tạo mới (chỉ còn nút Xem giỏ hàng)
+					const oldTotal = miniCart.querySelector(".mini-cart-total");
+					if (oldTotal) oldTotal.remove(); // tránh trùng
+
+					const wrapper = document.createElement("div");
+					wrapper.classList.add("mini-cart-total");
+					wrapper.innerHTML = `
+          <p>Tổng cộng: <strong>${total.toLocaleString("vi-VN")} ₫</strong></p>
+          <div class="mini-cart-actions">
+            <a href="/cart" class="btn-view">XEM GIỎ HÀNG</a>
+          </div>`;
+					miniCart.appendChild(wrapper);
+				}
+
+				if (cartBadge) cartBadge.textContent = parseInt(cartBadge.textContent || 0) + qty;
+
+				// 💫 Hiệu ứng rung giỏ hàng
+				const icon = document.getElementById("cartIcon");
+				if (icon) {
+					icon.classList.add("cart-shake");
+					setTimeout(() => icon.classList.remove("cart-shake"), 600);
+				}
+			});
+		});
+
+		//🗑 Xóa sản phẩm trực tiếp trong mini-cart (AJAX)
+		document.addEventListener("click", async (e) => {
+			const btn = e.target.closest(".mini-cart-item form button");
+			if (!btn) return; // nếu không phải nút xóa thì bỏ qua
+
+			e.preventDefault(); // 🚫 không cho redirect
+
+			const form = btn.closest("form");
+			const variantId = form.querySelector("input[name='variantId']").value;
+			const itemEl = btn.closest(".mini-cart-item");
+
+			try {
+				const res = await fetch("/cart/remove", {
+					method: "POST",
+					body: new URLSearchParams({variantId})
+				});
+
+				if (!res.ok) throw new Error("Lỗi HTTP " + res.status);
+
+				// ✅ Xóa dòng khỏi mini-cart
+				itemEl.remove();
+
+				// ✅ Gọi lại API trạng thái để cập nhật tổng & badge
+				const statusRes = await fetch("/cart/api/status");
+				if (statusRes.ok) {
+					const data = await statusRes.json();
+					const totalEl = document.querySelector(".mini-cart-total strong");
+					const badge = document.getElementById("cartCount");
+
+					if (totalEl) totalEl.textContent = data.total.toLocaleString("vi-VN") + " ₫";
+					if (badge) badge.textContent = data.cartCount;
+
+					// Nếu không còn item nào → hiển thị "Giỏ hàng trống" + nút Xem giỏ hàng
+					const miniList = document.querySelector(".mini-cart-items");
+					if (miniList && miniList.querySelectorAll(".mini-cart-item").length === 0) {
+						miniList.innerHTML = `
+            <div class="empty-cart">
+              <p>Giỏ hàng trống</p>
+              <div class="mini-cart-actions">
+                <a href="/cart" class="btn-view">XEM GIỎ HÀNG</a>
+              </div>
+            </div>
+          `;
+						const totalBlock = document.querySelector(".mini-cart-total");
+						if (totalBlock) totalBlock.remove();
+					}
+
+				}
+
+			} catch (err) {
+				console.error("Xóa sản phẩm thất bại:", err);
+				alert("Không thể xóa sản phẩm. Vui lòng thử lại!");
+			}
+		});
+
+	</script>
 </div>
