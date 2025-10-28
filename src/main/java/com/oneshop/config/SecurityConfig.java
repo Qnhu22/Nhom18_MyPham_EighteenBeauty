@@ -40,6 +40,7 @@ public class SecurityConfig {
         return authProvider;
     }
 
+
     // AuthenticationManager (nếu cần dùng trong service)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -65,10 +66,12 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")
-                .failureUrl("/login?error=true")
-                .successHandler(successHandler)
-                .permitAll()
+            	    .loginPage("/login")
+            	   // .loginProcessingUrl("/login") // ✅ Quan trọng! Cho phép POST /login
+            	    .failureUrl("/login?error=true")
+            	    .successHandler(successHandler)
+            	    .permitAll()
+
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
