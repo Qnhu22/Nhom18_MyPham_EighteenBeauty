@@ -1,0 +1,81 @@
+/* ================== BY CATEGORIES ================== */
+.categories {
+  text-align: center;
+  padding: 60px 0;
+  background-color: var(--color-cream, #fafaf2);
+}
+
+.categories h2 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff99cc, #e60073, #6b2e6d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  letter-spacing: 0.5px;
+  animation: gradientShift 6s ease infinite;
+  background-size: 200% auto;
+}
+
+/* 👇 Thêm animation gradient giống logo */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
+}
+
+
+/* Container của các category */
+.category-list {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin: 0 auto;
+  max-width: 1100px;
+}
+
+/* Card từng danh mục */
+.category-card {
+  width: 220px;
+  background: var(--color-white, #fff);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Hình ảnh danh mục */
+.category-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  border-bottom: 1px solid #f1f1f1;
+  background-color: #fff;
+}
+
+/* Tên danh mục */
+.category-card p {
+  margin: 15px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-rose-dark, #e8b4d1);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.category-card p:hover {
+  color: var(--color-blue, #aec6e5);
+}

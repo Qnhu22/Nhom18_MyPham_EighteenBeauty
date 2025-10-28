@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle}">Chi tiết sản phẩm</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/product-detail.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    /* ⭐ Sao nhỏ bên dưới tên sản phẩm */
+    .product-rating {
+      margin: 8px 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .product-rating i {
+      color: #f6b400;
+      font-size: 16px;
+    }
+    .product-rating a {
+      color: #b14d7d;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    /* 💬 Review section */
+    .review-section {
+      margin-top: 50px;
+      background: #fff8fa;
+      border-radius: 16px;
+      padding: 35px 45px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .review-section h3 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #b14d7d;
+      margin-bottom: 25px;
+    }
+
+    /* ⭐ Tổng quan sao */
+    .review-summary {
+      background: #fff;
+      border: 1px solid #f1d7e4;
+      border-radius: 12px;
+      padding: 18px 25px;
+      margin-bottom: 25px;
+    }
+    .review-summary .avg {
+      font-size: 32px;
+      font-weight: 700;
+      color: #b14d7d;
+    }
+    .review-summary .stars { color: #f6b400; font-size: 18px; margin: 4px 0; }
+    .review-summary .total { font-size: 14px; color: #555; }
+    .review-summary .bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 6px 0;
+      transition: background 0.3s;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    .review-summary .bar:hover {
+      background: #fde6f2;
+    }
+    .bar.active {
+      background: #fbe1ef;
+      box-shadow: 0 0 5px #f1c0da;
+    }
+    .bar .progress {
+      height: 6px;
+      background: #ffd6ec;
+      border-radius: 10px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .bar .progress span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #f09fc1, #a974e8);
+      border-radius: 10px;
+      transition: width 0.4s;
+    }
+    .bar span.filter {
+      width: 38px;
+      cursor: pointer;
+      color: #b14d7d;
+      font-weight: 600;
+    }
+
+    /* ⭐ Input chọn sao */
+    .star-input {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .star-input input { display: none; }
+    .star-input label {
+      font-size: 24px; color: #ccc; cursor: pointer; transition: color 0.2s;
+    }
+    .star-input input:checked ~ label,
+    .star-input label:hover,
+    .star-input label:hover ~ label {
+      color: #ffb400;
+    }
+
+    .review-form textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+    
+    .review-form {
+  margin-bottom: 20px; /* tạo khoảng cách trước phần danh sách */
+}
+    .review-form .btn-submit {
+      background: linear-gradient(90deg, #f09fc1, #a974e8);
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    /* 🗒️ Danh sách review */
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; 
+    }
+    .review-item {
+      background: #fff;
+      border: 1px solid #f1d7e4;
+      border-radius: 10px;
+      padding: 15px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+      margin: 0 auto;
+  	width: 95%;
+    }
+    .review-item:hover { transform: translateY(-2px); }
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      color: #b14d7d;
+      margin-bottom: 6px;
+    }
+    .review-stars i { color: #ffb400; font-size: 16px; }
+    .review-comment {
+      font-size: 15px;
+      color: #444;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* 🔢 Phân trang */
+    .review-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 15px;
+}
+
+.review-pagination span {
+  color: #b14d7d;
+  font-weight: 500;
+}
+
+    .review-pagination button {
+      background: linear-gradient(90deg, #f09fc1, #a974e8);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .review-pagination button[disabled] { opacity: 0.5; cursor: default; }
+  </style>
+</head>
+
+<body>
+<div th:replace="fragments/_header :: header"></div>
+
+<main class="product-detail">
+  <div class="container product-container">
+    <!-- Hình ảnh -->
+    <div class="gallery">
+      <img class="main-img" th:src="@{${mainImage}}" th:alt="${product.name}">
+      <div class="thumbs">
+        <img th:each="v : ${variants}"
+     th:src="@{${v.imageUrl}}"
+     th:data-variantid="${v.variantId}"
+     th:data-price="${v.price}"
+     th:data-color="${v.color}"
+     th:data-size="${v.size}"
+     onclick="selectVariant(this)" class="thumb">
+
+      </div>
+    </div>
+
+    <!-- Thông tin -->
+    <div class="info">
+      <h2 class="product-name" th:text="${product.name}"></h2>
+
+      <!-- ⭐ Rating -->
+      <div class="product-rating" th:if="${avgRating > 0}">
+        <span>
+          <i th:each="i : ${#numbers.sequence(1,5)}"
+             th:classappend="${i <= T(java.lang.Math).floor(avgRating)} ? 'fa-solid fa-star' :
+                             (${i - avgRating <= 0.5} ? 'fa-solid fa-star-half-stroke' : 'fa-regular fa-star')"></i>
+        </span>
+        <span th:text="'(' + ${reviewCount} + ' lượt đánh giá)'"></span>
+        <a href="#reviewSection">Xem đánh giá</a>
+      </div>
+
+      <!-- Giá -->
+      <div class="price">
+        <span id="priceDisplay"
+              th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+        <span id="oldPriceDisplay" class="old"
+              th:if="${maxPrice > minPrice}"
+              th:text="${#numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+      </div>
+
+      <!-- Biến thể -->
+      <div class="variant-options" th:if="${variants != null}">
+        <p><strong>Màu sắc:</strong> <span id="colorDisplay" class="tag" th:text="${variants[0].color}"></span></p>
+        <p><strong>Kích thước:</strong> <span id="sizeDisplay" class="tag" th:text="${variants[0].size}"></span></p>
+      </div>
+
+<!-- Số lượng bán & tồn -->
+<div class="stock-info">
+  <span class="sold" th:text="'Đã bán: ' + ${soldCount}"></span>
+  <span class="left" th:text="'Còn lại: ' + ${stockLeft}"></span>
+</div>
+
+<!-- Chọn số lượng & nút thêm -->
+<div class="action-area">
+  <form id="addToCartForm" th:action="@{/cart/add}" method="post" class="cart-form">
+    <input type="hidden" name="variantId" th:value="${variants[0].variantId}">
+    
+    <div class="quantity-box">
+      <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+      <input id="qtyInput" type="number" name="quantity" value="1" min="1">
+      <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <button type="submit" class="btn-addcart">
+      <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+    </button>
+  </form>
+
+  <button class="btn-wishlist"><i class="fa-regular fa-heart"></i> Yêu thích</button>
+</div>
+
+<!-- Thông báo -->
+<div id="cartMessage" class="cart-message">✅ Đã thêm vào giỏ hàng</div>
+
+    </div>
+  </div>
+
+  <!-- 💬 PHẦN ĐÁNH GIÁ -->
+  <section id="reviewSection" class="review-section">
+    <h3>Đánh giá sản phẩm</h3>
+
+    <!-- Tổng quan sao -->
+    <div class="review-summary" th:if="${reviewCount > 0}">
+      <div class="avg" th:text="${avgRating} + '/5'"></div>
+      <div class="stars">
+        <i th:each="i : ${#numbers.sequence(1,5)}"
+           th:classappend="${i <= T(java.lang.Math).floor(avgRating)} ? 'fa-solid fa-star' :
+                           (${i - avgRating <= 0.5} ? 'fa-solid fa-star-half-stroke' : 'fa-regular fa-star')"></i>
+      </div>
+      <div class="total" th:text="'Tổng cộng ' + ${reviewCount} + ' đánh giá'"></div>
+
+      <div th:each="n : ${#numbers.sequence(5,1)}" class="bar" th:data-star="${n}" onclick="filterByStars(this)">
+        <span class="filter" th:text="${n} + '★'"></span>
+        <div class="progress"><span th:style="'width:' + ${reviewPercent.get(n)} + '%'"></span></div>
+        <span th:text="${reviewPercent.get(n)} + '%'"></span>
+      </div>
+    </div>
+
+    <!-- Form thêm -->
+    <div class="review-form">
+      <form th:action="@{'/shop/product/' + ${product.productId} + '/review'}" method="post">
+        <label><strong>Đánh giá của bạn:</strong></label>
+        <div class="star-input">
+          <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+          <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+          <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+          <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+          <input type="radio" name="rating" value="1" id="star1" checked><label for="star1">★</label>
+        </div>
+        <textarea name="comment" placeholder="Nhập nhận xét của bạn..." required></textarea>
+        <button type="submit" class="btn-submit">Gửi đánh giá</button>
+      </form>
+    </div>
+
+    <!-- Danh sách -->
+     <div class="review-list" th:if="${reviews != null}">
+      <div th:each="r : ${reviews}" class="review-item" th:data-rating="${r.rating}">
+        <div class="review-header">
+          <span th:text="${r.user.username}"></span>
+          <span th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy')}"></span>
+        </div>
+        <div class="review-stars">
+          <i th:each="i : ${#numbers.sequence(1,5)}"
+             th:classappend="${i <= r.rating} ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
+        </div>
+        <div class="review-comment" th:text="${r.comment}"></div>
+      </div>
+    </div>
+    <div id="reviewPagination" class="review-pagination"></div>
+  </section>
+</main>
+
+<div th:replace="fragments/_footer :: footer"></div>
+
+
+
+<script>
+  // 🟢 Chọn variant
+  function selectVariant(element) {
+  document.querySelector(".main-img").src = element.src;
+  const price = parseFloat(element.dataset.price);
+  const color = element.dataset.color;
+  const size = element.dataset.size;
+  const id = element.dataset.variantid;
+
+  document.getElementById("priceDisplay").textContent =
+    new Intl.NumberFormat("vi-VN").format(price) + " ₫";
+  document.getElementById("colorDisplay").textContent = color;
+  document.getElementById("sizeDisplay").textContent = size;
+
+//✅ Cập nhật variantId vào form chính xác (dù DOM thay đổi)
+  const form = document.getElementById("addToCartForm");
+  if (form) {
+    const inputVariant = form.querySelector("input[name='variantId']");
+    if (inputVariant) inputVariant.value = id;
+  }
+
+}
+
+  // 🔢 Phân trang + Lọc sao
+  document.addEventListener("DOMContentLoaded", () => {
+    const reviews = Array.from(document.querySelectorAll(".review-item"));
+    const perPage = 3;
+    let currentPage = 1;
+    let currentFilter = 0;
+    const paginationDiv = document.getElementById("reviewPagination");
+
+    function renderPage(page) {
+      const filtered = currentFilter
+        ? reviews.filter(r => parseInt(r.dataset.rating) === currentFilter)
+        : reviews;
+      const totalPages = Math.ceil(filtered.length / perPage) || 1;
+      filtered.forEach((r, i) => {
+        r.style.display = (i >= (page - 1) * perPage && i < page * perPage) ? "block" : "none";
+      });
+      reviews.filter(r => !filtered.includes(r)).forEach(r => r.style.display = "none");
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      paginationDiv.innerHTML = "";
+      const prev = Object.assign(document.createElement("button"), {
+        textContent: "← Trước",
+        disabled: currentPage === 1,
+        onclick: () => { currentPage--; renderPage(currentPage); }
+      });
+      const next = Object.assign(document.createElement("button"), {
+        textContent: "Tiếp →",
+        disabled: currentPage === totalPages,
+        onclick: () => { currentPage++; renderPage(currentPage); }
+      });
+      const info = document.createElement("span");
+      info.textContent = `Trang ${currentPage}/${totalPages}`;
+      info.style.color = "#b14d7d";
+      paginationDiv.append(prev, info, next);
+    }
+
+    // ⭐ Lọc theo sao
+    window.filterByStars = (el) => {
+      const star = parseInt(el.dataset.star);
+      const bars = document.querySelectorAll(".review-summary .bar");
+      bars.forEach(b => b.classList.remove("active"));
+      if (currentFilter === star) {
+        currentFilter = 0; // bỏ lọc
+      } else {
+        currentFilter = star;
+        el.classList.add("active");
+      }
+      currentPage = 1;
+      renderPage(1);
+    };
+
+    // ✅ Khi load
+    if (reviews.length >= perPage) renderPage(1);
+    else reviews.forEach(r => r.style.display = "block");
+  });
+  
+//🔢 Thay đổi số lượng
+  function changeQty(delta) {
+    const input = document.getElementById("qtyInput");
+    let value = parseInt(input.value) || 1;
+    value = Math.max(1, value + delta);
+    input.value = value;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+	  const form = document.getElementById("addToCartForm");
+	  const msg = document.getElementById("cartMessage");
+
+	  if (!form) return;
+
+	  form.addEventListener("submit", async (e) => {
+	    e.preventDefault();
+	    const formData = new FormData(form);
+	    const color = document.getElementById("colorDisplay").textContent;
+	    const size = document.getElementById("sizeDisplay").textContent;
+	    const productName = document.querySelector(".product-name").textContent.trim();
+	    const variantName = `${productName} - ${color} / ${size}`;
+
+	    try {
+	      const response = await fetch(form.action, { method: "POST", body: formData });
+
+		    if (!response.ok) throw new Error("HTTP " + response.status);
+
+		    const data = await response.json();
+		    
+		 // 🔔 Phát event cho _header cập nhật realtime
+			window.dispatchEvent(new CustomEvent("cart-updated", {
+			  detail: {
+			    name: variantName,
+			    variantId: formData.get("variantId"),
+			    qty: parseInt(formData.get("quantity")),
+			    price: document.getElementById("priceDisplay").textContent,
+			    image: document.querySelector(".main-img").src,
+			    color: color,
+			    size: size,
+			    total: data.total,
+			    cartCount: data.cartCount
+			  }
+			}));
+
+		    // ✅ Hiện popup thông báo
+		    msg.style.display = "block";
+		    msg.textContent = "✅ Đã thêm sản phẩm vào giỏ hàng";
+		    setTimeout(() => (msg.style.display = "none"), 3000);
+
+		    // ✅ Hiệu ứng rung icon
+		    updateCartCountAnimation();
+
+		  } catch (err) {
+		    alert("Lỗi khi thêm sản phẩm vào giỏ hàng!");
+		    console.error(err);
+		  }
+		});
+
+	});
+  
+//🛒 Cập nhật số giỏ hàng + hiệu ứng rung
+  function updateCartCountAnimation() {
+  const icon = document.getElementById("cartIcon");
+  if (!icon) return;
+  icon.classList.add("cart-shake");
+  setTimeout(() => icon.classList.remove("cart-shake"), 600);
+}
+
+</script>
+<style>
+.cart-message {
+  display: none;
+  position: fixed;
+  top: 110px;
+  right: 30px;
+  background: linear-gradient(90deg, #f09fc1, #a974e8);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  z-index: 9999;
+  animation: fadeInOut 3s ease;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+</style>
+</body>
+</html>

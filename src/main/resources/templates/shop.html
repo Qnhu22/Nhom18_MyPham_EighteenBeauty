@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle}">Shop</title>
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/banner.css}">
+  <link rel="stylesheet" th:href="@{/css/shop.css}">
+  <script src="https://kit.fontawesome.com/a2e0e6ad8b.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- =============== HEADER =============== -->
+<div th:replace="fragments/_header :: header"></div>
+
+<main>
+  <!-- =============== CATEGORY FILTER =============== -->
+  <section class="shop-category-filter">
+    <div class="filter-header">
+      <h2 class="filter-title">Shop By Category:</h2>
+
+      <div class="category-buttons">
+        <!-- Nút All -->
+        <a th:href="@{'/shop'}"
+           class="category-btn"
+           th:classappend="${selectedCategory == null} ? 'active' : ''">All</a>
+
+        <!-- Danh mục -->
+        <a th:each="c : ${categories}"
+           th:href="@{'/shop'(category=${c.name})}"
+           th:text="${c.name}"
+           class="category-btn"
+           th:classappend="${selectedCategory == c.name} ? 'active' : ''"></a>
+
+        <!-- Nếu DB rỗng -->
+        <span th:if="${#lists.isEmpty(categories)}"
+              style="color:#999;font-style:italic;">
+          (Chưa có danh mục nào)
+        </span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =============== PRODUCT GRID =============== -->
+  <section class="shop-products">
+
+    <!-- Nếu có sản phẩm -->
+    <div th:unless="${#lists.isEmpty(products)}" class="product-grid">
+
+      <div th:each="p : ${products}" class="product-card-adv">
+
+        <!-- Hình ảnh -->
+        <div class="product-img-wrapper">
+          <a th:href="@{'/shop/product/' + ${p.productId}}">
+            <img th:src="@{${p.imageUrl}}" th:alt="${p.name}">
+          </a>
+
+          <!-- Nhãn “New” -->
+          <div class="product-labels">
+            <span class="new"
+                  th:if="${p.createdAt != null 
+                      and T(java.time.temporal.ChronoUnit).DAYS.between(p.createdAt, T(java.time.LocalDateTime).now()) < 14}">
+              New
+            </span>
+          </div>
+        </div>
+
+        <!-- Tên sản phẩm -->
+        <h3 class="product-name" th:text="${p.name}"></h3>
+
+        <!-- Giá sản phẩm -->
+        <div class="product-prices">
+
+          <!-- 🧮 Hiển thị khoảng giá tính từ service -->
+<span class="price-range"
+      th:if="${p.variants != null and !#lists.isEmpty(p.variants)}"
+      th:text="${@productServiceImpl.getPriceRange(p)}">
+</span>
+
+<!-- Nếu không có variants -->
+<span class="price-placeholder"
+      th:if="${p.variants == null or #lists.isEmpty(p.variants)}">
+  Liên hệ để xem giá
+</span>
+
+
+          <!-- Nếu chưa có variants -->
+          <span class="price-placeholder"
+                th:if="${p.variants == null or #lists.isEmpty(p.variants)}">
+            Liên hệ để xem giá
+          </span>
+        </div>
+
+        <!-- Rating -->
+        <div class="product-rating">
+          <i class="fa fa-star"
+             th:each="i : ${#numbers.sequence(1, (p.rating != null ? p.rating.intValue() : 5))}"></i>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Nếu DB rỗng -->
+    <div th:if="${#lists.isEmpty(products)}" class="no-products">
+      <p>Hiện chưa có sản phẩm nào trong danh mục này.</p>
+    </div>
+
+  </section>
+</main>
+
+<!-- =============== FOOTER =============== -->
+<div th:replace="fragments/_footer :: footer"></div>
+
+</body>
+</html>
