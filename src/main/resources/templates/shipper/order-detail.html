@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Chi tiết đơn hàng | OneShop</title>
+
+<link rel="stylesheet" th:href="@{/css/theme.css}" />
+<link rel="stylesheet" th:href="@{/css/header.css}" />
+<link rel="stylesheet" th:href="@{/css/footer.css}" />
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+main.container {
+	margin-top: 130px;
+}
+
+.order-detail p {
+	font-size: 16px;
+	margin-bottom: 8px;
+}
+
+h3 {
+	margin-top: 30px;
+	margin-bottom: 15px;
+	color: var(--color-dark);
+}
+
+table.table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+table.table th, table.table td {
+	border: 1px solid #ddd;
+	padding: 10px;
+	text-align: left;
+}
+
+table.table th {
+	background: var(--color-rose);
+	color: var(--color-white);
+}
+
+.text-right {
+	text-align: right;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.btn {
+	padding: 10px 20px;
+	border-radius: 25px;
+	text-decoration: none;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 0.3s;
+	border: none;
+}
+
+.btn-warning {
+	background: #ffb347;
+	color: #222;
+}
+
+.btn-warning:hover {
+	background: #ffa500;
+}
+
+.btn-success {
+	background: var(--color-rose);
+	color: #fff;
+}
+
+.btn-success:hover {
+	background: #e60073;
+}
+
+.btn-danger {
+	background: #dc3545;
+	color: #fff;
+}
+
+.btn-danger:hover {
+	background: #c82333;
+}
+
+.mt-3 {
+	margin-top: 15px;
+}
+
+.mt-4 {
+	margin-top: 25px;
+}
+
+.text-center {
+	text-align: center;
+}
+
+/* Modal */
+#failModal {
+	display: none;
+	position: fixed;
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%, 0);
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+	z-index: 999;
+}
+</style>
+</head>
+
+<body>
+	<header th:replace="fragments/_header :: header"></header>
+
+	<main class="container">
+		<h2>
+			Chi tiết đơn hàng #<span th:text="${order.orderId}"></span>
+		</h2>
+
+		<div class="order-detail">
+			<p>
+				<strong>Người nhận:</strong> <span
+					th:text="${order.address.receiverName}"></span>
+			</p>
+			<p>
+				<strong>Số điện thoại:</strong> <span
+					th:text="${order.address.phone}"></span>
+			</p>
+			<p>
+				<strong>Địa chỉ giao hàng:</strong> <span
+					th:text="${order.address != null ?
+                order.address.addressLine + ', ' + order.address.ward + ', ' +
+                order.address.district + ', ' + order.address.city :
+                'Chưa có địa chỉ'}"></span>
+			</p>
+			<p>
+				<strong>Phương thức thanh toán:</strong> <span
+					th:text="${order.paymentMethod}"></span>
+			</p>
+			<p>
+				<strong>Trạng thái thanh toán:</strong> <span
+					th:text="${order.paymentStatus}"></span>
+			</p>
+			<p>
+				<strong>Trạng thái:</strong> <span th:text="${order.status}"></span>
+				
+			</p>
+			<p>
+				<strong>Ngày đặt:</strong> <span
+					th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span>
+			</p>
+			<p>
+				<strong>Shipper phụ trách:</strong> <span
+					th:text="${order.shipper != null ? order.shipper.user.fullName : 'Chưa phân công'}"></span>
+			</p>
+			
+		</div>
+
+		<h3>Sản phẩm trong đơn</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Thương hiệu</th>
+					<th>Tên sản phẩm</th>
+					<th>Số lượng</th>
+					<th>Đơn giá</th>
+					<th>Giảm giá</th>
+					<th>Tổng</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${order.orderItems}">
+					<td th:text="${item.product.brand.name}"></td>
+					<td th:text="${item.product.name}"></td>
+					<td th:text="${item.quantity}"></td>
+					<td
+						th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
+					<td
+						th:text="${#numbers.formatDecimal(item.discount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
+					<td
+						th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="text-right mt-3">
+			<strong>Tổng tiền của các sản phẩm: </strong> <span
+				th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span><br>
+			<strong>Phí ship: </strong> <span
+				th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span><br>
+			<strong>Thành tiền: </strong> <span
+				th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+		</div>
+
+		<div class="mt-4 text-center">
+			<form th:action="@{'/shipper/order/' + ${order.orderId} + '/update'}"
+				method="post">
+
+				<!-- Khi đơn CONFIRMED -->
+				<button type="submit" name="status" value="SHIPPING"
+					class="btn btn-warning" th:if="${order.status == 'CONFIRMED'}">
+					Nhận giao hàng</button>
+
+				<!-- Khi đơn SHIPPING -->
+				<div th:if="${order.status == 'SHIPPING'}">
+					<button type="submit" name="status" value="DELIVERED"
+						class="btn btn-success">Giao hàng thành công</button>
+
+					<button type="button" class="btn btn-danger"
+						onclick="showFailModal()">Giao hàng thất bại</button>
+
+					<button type="submit" name="status" value="RETURNED"
+						class="btn btn-warning">Khách trả hàng</button>
+				</div>
+
+				<!-- Modal nhập lý do giao thất bại -->
+				<div id="failModal">
+					<h4>Lý do giao hàng thất bại</h4>
+					<textarea id="failNote" name="note" rows="3" cols="30"></textarea>
+					<!-- Không gán name cho hidden input ban đầu -->
+					<input type="hidden" id="failStatus" value="CANCELLED" /> <br>
+					<br>
+					<button type="submit" class="btn btn-success"
+						onclick="prepareFailSubmit()">Xác nhận</button>
+					<button type="button" class="btn btn-warning"
+						onclick="hideFailModal()">Hủy</button>
+				</div>
+
+			</form>
+			<a th:href="@{'/shipper/orders?status=' + ${order.status}}" class="btn btn-secondary">
+    <i class="fa-solid fa-arrow-left"></i> Trở về danh sách đơn hàng
+</a>
+		</div>
+	</main>
+
+	<footer th:replace="fragments/_footer :: footer"></footer>
+
+	<script>
+function showFailModal() {
+    const modal = document.getElementById('failModal');
+    modal.style.display = 'block';
+    modal.querySelector('#failNote').required = true;
+}
+
+function hideFailModal() {
+    const modal = document.getElementById('failModal');
+    modal.style.display = 'none';
+    modal.querySelector('#failNote').required = false;
+}
+
+// ✅ Khi nhấn "Xác nhận" trong modal, gán name cho input hidden
+function prepareFailSubmit() {
+    document.getElementById('failStatus').setAttribute('name', 'status');
+}
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê Shipper | OneShop</title>
+
+    <!-- CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <style>
+        main.container {
+            margin-top: 130px; /* tránh che header */
+        }
+
+        h2 {
+            color: var(--color-dark);
+        }
+
+        .card {
+            background: var(--color-cream);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h5 {
+            font-weight: 500;
+            color: var(--color-dark);
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 28px;
+            color: var(--color-rose);
+        }
+
+        #chartShipper {
+            max-width: 100%;
+            background: var(--color-cream);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .text-center { text-align: center; }
+        .mb-4 { margin-bottom: 20px; }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .col-md-4 {
+            flex: 1 1 250px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header th:replace="fragments/_header :: header"></header>
+
+    <!-- MAIN CONTENT -->
+    <main class="container">
+        <h2 class="text-center mb-4">Thống kê hiệu suất giao hàng</h2>
+
+        <div class="row mb-4 text-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <h5>Tổng đơn đã giao</h5>
+                    <h3 th:text="${totalDelivered}">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h5>Thất bại</h5>
+                    <h3 th:text="${totalFailed}">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h5>Tỷ lệ thành công</h5>
+                    <h3 th:text="${successRate}">0%</h3>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="chartShipper" height="100"></canvas>
+    </main>
+
+    <!-- CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /* <![CDATA[ */
+        const ctx = document.getElementById('chartShipper').getContext('2d');
+        const chartData = /*[[${chartData}]]*/ [];
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.map(d => d.label),
+                datasets: [{
+                    label: 'Đơn hàng giao thành công',
+                    data: chartData.map(d => d.value),
+                    backgroundColor: 'rgba(220, 146, 179, 0.7)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        /* ]]> */
+    </script>
+
+    <!-- FOOTER -->
+    <footer th:replace="fragments/_footer :: footer"></footer>
+</body>
+</html>

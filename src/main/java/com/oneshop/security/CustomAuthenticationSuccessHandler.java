@@ -25,11 +25,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if (roles.contains("ROLE_MANAGER")) {
             response.sendRedirect("/manager/dashboard");
         } else if (roles.contains("ROLE_SHIPPER")) {
+        	//System.out.println("✅ Đăng nhập thành công với role: " + roles);
             response.sendRedirect("/shipper/dashboard");
         } else if (roles.contains("ROLE_USER")) {
             response.sendRedirect("/user/dashboard");
         } else {
             response.sendRedirect("/");
         }
+        
+
     }
 }

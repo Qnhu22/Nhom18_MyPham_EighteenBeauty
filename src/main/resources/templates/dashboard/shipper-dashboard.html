@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Shipper Dashboard | OneShop</title>
+
+<!-- CSS -->
+<link rel="stylesheet" th:href="@{/css/theme.css}" />
+<link rel="stylesheet" th:href="@{/css/header.css}" />
+<link rel="stylesheet" th:href="@{/css/banner.css}" />
+<link rel="stylesheet" th:href="@{/css/footer.css}" />
+
+<!-- Font Awesome -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+main.container {
+	margin-top: 130px;
+}
+
+.dashboard-grid {
+	display: flex;
+	gap: 20px;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-top: 20px;
+}
+
+.card {
+	background: var(--color-white);
+	border-radius: 8px;
+	padding: 20px;
+	flex: 1 1 250px;
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	transition: 0.3s;
+}
+
+.card h4 {
+	margin-bottom: 10px;
+	color: var(--color-dark);
+}
+
+.card p {
+	font-size: 16px;
+	margin-bottom: 15px;
+	font-weight: 500;
+}
+
+.card .btn {
+	display: inline-block;
+	padding: 10px 20px;
+	background: var(--color-rose);
+	color: var(--color-white);
+	border-radius: 25px;
+	text-decoration: none;
+	transition: 0.3s;
+}
+
+.card .btn:hover {
+	background: #e60073;
+	transform: scale(1.05);
+}
+
+/* --- Thống kê mở rộng --- */
+.stats-section {
+	margin-top: 50px;
+	text-align: center;
+}
+
+.stats-section h3 {
+	color: var(--color-dark);
+	margin-bottom: 20px;
+}
+
+.charts-container {
+	display: flex;
+	justify-content: center;
+	gap: 50px;
+	flex-wrap: wrap;
+}
+
+.chart-box {
+	width: 400px;
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.total-amount {
+	margin-top: 30px;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--color-dark);
+}
+
+.export-btn {
+	margin-top: 20px;
+	background: var(--color-rose);
+	color: #fff;
+	border: none;
+	padding: 10px 25px;
+	border-radius: 25px;
+	cursor: pointer;
+	font-weight: 500;
+	transition: 0.3s;
+}
+
+.export-btn:hover {
+	background: #e60073;
+}
+</style>
+</head>
+<body>
+	<header th:replace="fragments/_header :: header"></header>
+
+	<main class="container">
+		<h2 class="text-center mb-4">
+			Xin chào, <span th:text="${shipperName}">Shipper</span>!
+		</h2>
+
+
+		<!-- Cards hiện có -->
+		<div class="dashboard-grid">
+
+			<div class="card">
+				<h4>Tất cả đơn hàng</h4>
+				<p th:text="|${totalOrders} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders}" class="btn">Xem tất cả</a>
+			</div>
+
+
+			<div class="card">
+				<h4>Đơn đang giao</h4>
+				<p th:text="|${shippingCount} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders(status='SHIPPING')}" class="btn">Xem
+					chi tiết</a>
+			</div>
+
+			<div class="card">
+				<h4>Đã giao thành công</h4>
+				<p th:text="|${deliveredCount} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders(status='DELIVERED')}" class="btn">Xem
+					chi tiết</a>
+			</div>
+
+			<div class="card">
+				<h4>Đơn giao thất bại</h4>
+				<p th:text="|${cancelledCount} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders(status='CANCELLED')}" class="btn">Xem
+					chi tiết</a>
+			</div>
+
+			<div class="card">
+				<h4>Đơn cần giao</h4>
+				<p th:text="|${confirmedCount} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders(status='CONFIRMED')}" class="btn">Xem
+					chi tiết</a>
+			</div>
+
+			<div class="card">
+				<h4>Đơn được trả về</h4>
+				<p th:text="|${returnedCount} đơn|">0 đơn</p>
+				<a th:href="@{/shipper/orders(status='RETURNED')}" class="btn">Xem
+					chi tiết</a>
+			</div>
+
+
+		</div>
+
+		<!-- Thống kê mở rộng -->
+		<section class="stats-section">
+			<h3>Thống kê hiệu suất giao hàng</h3>
+			<div class="charts-container">
+				<div class="chart-box">
+					<canvas id="orderStatusChart"></canvas>
+				</div>
+
+				<div class="chart-box">
+					<canvas id="revenueChart"></canvas>
+				</div>
+			</div>
+
+			<div class="total-amount">
+				💰 Tổng giá trị hàng đã giao thành công: <span
+					th:text="|${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}đ|">0đ</span>
+			</div>
+
+			<form th:action="@{/shipper/statistics/export}" method="get">
+				<button type="submit" class="export-btn">
+					<i class="fa-solid fa-file-export"></i> Xuất báo cáo doanh thu
+				</button>
+			</form>
+		</section>
+	</main>
+
+	<footer th:replace="fragments/_footer :: footer"></footer>
+<script th:inline="javascript">
+/*<![CDATA[*/
+    // an toàn: Thymeleaf sẽ thay /*[[...]]*/ bằng giá trị (số) hoặc để nguyên 0 nếu null
+    var shippingCount = /*[[${shippingCount} != null ? shippingCount : 0]]*/ 0;
+    var deliveredCount = /*[[${deliveredCount} != null ? deliveredCount : 0]]*/ 0;
+    var cancelledCount = /*[[${cancelledCount} != null ? cancelledCount : 0]]*/ 0;
+    var returnedCount = /*[[${returnedCount} != null ? returnedCount : 0]]*/ 0;
+    var confirmedCount = /*[[${confirmedCount} != null ? confirmedCount : 0]]*/ 0;
+
+    // kiểm tra nhanh (bỏ comment khi chạy ổn)
+    // console.log(shippingCount, deliveredCount, cancelledCount, returnedCount, confirmedCount);
+
+    const statusData = {
+        labels: ['Đang giao', 'Đã giao', 'Bị hủy', 'Trả về', 'Cần giao'],
+        datasets: [{
+            data: [shippingCount, deliveredCount, cancelledCount, returnedCount, confirmedCount],
+            backgroundColor: ['#36A2EB', '#4CAF50', '#FF6384', '#FFCE56', '#FF9800']
+        }]
+    };
+
+    new Chart(document.getElementById('orderStatusChart'), {
+        type: 'doughnut',
+        data: statusData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+/*]]>*/
+</script>
+
+
+
+
+</body>
+</html>

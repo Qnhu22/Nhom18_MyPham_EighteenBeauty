@@ -20,31 +20,30 @@ public class OrderAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addressId;
 
-    // 🔗 Nhiều địa chỉ thuộc về 1 user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "nvarchar(100)")
     private String receiverName;
 
     @Column(nullable = false, length = 20)
     private String phone;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "nvarchar(255)")
     private String addressLine;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "nvarchar(100)")
     private String ward;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "nvarchar(100)")
     private String district;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "nvarchar(100)")
     private String city;
 
     @Column(nullable = false)
-    private boolean isDefault = false;
+    private boolean isDefault;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -52,3 +51,4 @@ public class OrderAddress {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
+

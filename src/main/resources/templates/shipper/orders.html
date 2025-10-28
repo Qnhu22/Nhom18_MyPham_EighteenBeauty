@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đơn hàng được giao | OneShop</title>
+
+    <link rel="stylesheet" th:href="@{/css/theme.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <style>
+        main.container { margin-top: 130px; }
+        h2 { color: var(--color-dark); }
+
+        table.table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table.table th, table.table td {
+            border: 1px solid #ddd; padding: 10px; text-align: left;
+        }
+        table.table th { background: var(--color-rose); color: var(--color-white); }
+
+        .btn {
+            padding: 8px 16px; border-radius: 25px;
+            text-decoration: none; font-weight: 500; cursor: pointer;
+            transition: 0.3s; border: none;
+            background: var(--color-rose); color: #fff;
+        }
+        .btn:hover { background: #e60073; }
+
+        /* Trạng thái đơn hàng */
+        .status-confirmed   { background: #ffc107; color: #222; padding: 4px 8px; border-radius: 20px; }
+        .status-shipping { background: rgb(128, 255, 255); color: rgb(0, 64, 128); padding: 4px 8px; border-radius: 20px; }
+        .status-delivered { background: #28a745; color: #fff; padding: 4px 8px; border-radius: 20px; }
+        .status-cancelled   { background: #dc3545; color: #fff; padding: 4px 8px; border-radius: 20px; }
+        .status-returned   { background: rgb(0, 0, 64); color: #fff; padding: 4px 8px; border-radius: 20px; }
+
+        .text-center { text-align: center; }
+        .mb-4 { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/_header :: header"></header>
+
+<main class="container">
+    <h2 class="text-center mb-4" th:switch="${status}">
+    <span th:case="'CONFIRMED'">Đơn hàng được phân công cho bạn</span>
+    <span th:case="'SHIPPING'">Đơn hàng đang trên đường giao</span>
+    <span th:case="'DELIVERED'">Đơn đã giao thành công</span>
+    <span th:case="'CANCELLED'">Đơn giao thất bại</span>
+    <span th:case="'RETURNED'">Đơn được trả về</span>
+    <span th:case="*">Đơn hàng</span>
+</h2>
+
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Địa chỉ giao</th>
+            <th>Trạng thái</th>
+            <th>Ngày đặt</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderId}"></td>
+            <td th:text="${order.address.receiverName}"></td>
+            <td th:text="${order.address != null ? order.address.addressLine + ', ' + order.address.ward + ', ' + order.address.district + ', ' + order.address.city : 'Chưa có địa chỉ'}"></td>
+            <td>
+                <span th:text="${order.status}"
+                      th:classappend="${
+                        (order.status == 'CONFIRMED' ? 'status-confirmed' :
+                        (order.status == 'SHIPPING' ? 'status-shipping' :
+                        (order.status == 'DELIVERED' ? 'status-delivered' : 'status-cancelled')))}">
+                </span>
+            </td>
+            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+            <td>
+                <a th:href="@{'/shipper/order/' + ${order.orderId}}" class="btn">
+                    <i class="fa-solid fa-eye"></i> Xem chi tiết
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- ✅ Nút trở về Dashboard (hiển thị mọi lúc) -->
+    <div class="text-center mb-4">
+        <a th:href="@{/shipper/dashboard}" class="btn">
+            <i class="fa-solid fa-arrow-left"></i> Trở về Dashboard
+        </a>
+    </div>
+</main>
+
+<footer th:replace="fragments/_footer :: footer"></footer>
+</body>
+</html>
