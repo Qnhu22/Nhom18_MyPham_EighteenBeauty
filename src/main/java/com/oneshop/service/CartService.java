@@ -29,4 +29,9 @@ public interface CartService {
 
     /** 🔢 Đếm số lượng item trong giỏ */
     int countItems(User user);
+    
+    void updateItem(User user, Long variantId, int quantity);
+
+    double getItemSubtotal(User user, Long variantId);
+
 }

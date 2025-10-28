@@ -92,9 +92,36 @@ public class CartServiceImpl implements CartService {
                 .sum();
     }
 
-    // 🔢 Đếm số lượng item (cho badge icon)
+ // 🔢 Đếm tổng số lượng sản phẩm trong giỏ (dùng cho badge)
     @Override
     public int countItems(User user) {
-        return getCartItems(user).size();
+        return getCartItems(user).stream()
+                .mapToInt(CartItem::getQuantity)
+                .sum();
     }
+
+    
+    @Override
+    public void updateItem(User user, Long variantId, int quantity) {
+        Cart cart = getOrCreateCart(user);
+
+        cart.getItems().forEach(item -> {
+            if (item.getProductVariant().getVariantId().equals(variantId)) {
+                item.setQuantity(quantity);
+            }
+        });
+
+        cartRepository.save(cart);
+    }
+
+    @Override
+    public double getItemSubtotal(User user, Long variantId) {
+        Cart cart = getOrCreateCart(user);
+        return cart.getItems().stream()
+                .filter(i -> i.getProductVariant().getVariantId().equals(variantId))
+                .mapToDouble(i -> i.getProductVariant().getPrice().doubleValue() * i.getQuantity())
+                .findFirst()
+                .orElse(0.0);
+    }
+
 }

@@ -154,14 +154,44 @@ public class CartController {
         return "redirect:/cart";
     }
 
-    // 💳 Thanh toán (bắt buộc đăng nhập)
+ // 💳 Thanh toán (bắt buộc đăng nhập)
     @GetMapping("/checkout")
-    public String checkout(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+    public String checkout(HttpSession session, Model model) {
+        User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser == null) {
             return "redirect:/login?checkout=true";
         }
-        return "checkout";
+
+        // ✅ Dùng fetch join để load luôn defaultAddress & addresses
+        User user = userRepository.findById(sessionUser.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+
+        // 🧾 Lấy giỏ hàng
+        Cart cart = cartService.getOrCreateCart(user);
+        model.addAttribute("items", cart.getItems());
+        model.addAttribute("total", cart.getTotalPrice());
+
+        // 🏠 Xác định địa chỉ giao hàng mặc định
+        OrderAddress defaultAddress = user.getDefaultAddress();
+
+        if (defaultAddress == null) {
+            // Nếu user chưa có defaultAddressId -> tìm dòng có isDefault = 1
+            for (OrderAddress addr : user.getAddresses()) {
+                if (addr.isDefault()) {
+                    defaultAddress = addr;
+                    break;
+                }
+            }
+
+            // Nếu vẫn không có, lấy địa chỉ đầu tiên
+            if (defaultAddress == null && !user.getAddresses().isEmpty()) {
+                defaultAddress = user.getAddresses().iterator().next();
+            }
+        }
+
+        model.addAttribute("defaultAddress", defaultAddress);
+
+        return "account/checkout";
     }
 
     // 📦 API kiểm tra trạng thái giỏ (cho header mini-cart)
@@ -187,4 +217,52 @@ public class CartController {
         }
         return resp;
     }
+    
+ // 🔄 Cập nhật số lượng sản phẩm trong giỏ
+    @PostMapping("/update")
+    @ResponseBody
+    public Map<String, Object> updateQuantity(@RequestParam Long variantId,
+                                              @RequestParam int quantity,
+                                              HttpSession session) {
+        Map<String, Object> resp = new HashMap<>();
+        User user = (User) session.getAttribute("user");
+
+        if (user != null) {
+            // ✅ Nếu là user đã đăng nhập
+            cartService.updateItem(user, variantId, quantity);
+
+            double itemSubtotal = cartService.getItemSubtotal(user, variantId);
+            double total = cartService.calculateTotal(user);
+
+            resp.put("itemSubtotal", itemSubtotal);
+            resp.put("total", total);
+        } else {
+            // ✅ Nếu là khách (guest)
+            List<Map<String, Object>> guestCart =
+                    (List<Map<String, Object>>) session.getAttribute("guestCart");
+            if (guestCart == null) guestCart = new ArrayList<>();
+
+            guestCart.forEach(item -> {
+                if (item.get("variantId").equals(variantId)) {
+                    item.put("quantity", quantity);
+                    double price = (double) item.get("price");
+                    item.put("subtotal", price * quantity);
+                }
+            });
+
+            session.setAttribute("guestCart", guestCart);
+
+            double total = guestCart.stream().mapToDouble(i -> (Double) i.get("subtotal")).sum();
+            double itemSubtotal = guestCart.stream()
+                    .filter(i -> i.get("variantId").equals(variantId))
+                    .mapToDouble(i -> (Double) i.get("subtotal"))
+                    .findFirst().orElse(0.0);
+
+            resp.put("itemSubtotal", itemSubtotal);
+            resp.put("total", total);
+        }
+
+        return resp;
+    }
+
 }

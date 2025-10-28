@@ -35,52 +35,63 @@
             <th></th>
           </tr>
         </thead>
-        <tbody>
+<tbody>
+  <tr th:each="item : ${items}">
+    <!-- 🧩 Nếu là user đã đăng nhập -->
+    <td class="product-info" th:if="${item instanceof T(com.oneshop.entity.CartItem)}">
+      <img th:src="${item.productVariant.imageUrl}" alt="Ảnh sản phẩm">
+      <div>
+        <h4 th:text="${item.productVariant.product.name}"></h4>
+        <small th:text="'Màu: ' + ${item.productVariant.color}"></small><br>
+        <small th:text="'Kích thước: ' + ${item.productVariant.size}"></small>
+      </div>
+    </td>
 
-          <tr th:each="item : ${items}">
-            <!-- 🧩 User login -->
-            <th:block th:if="${item instanceof T(com.oneshop.entity.CartItem)}">
-              <td class="product-info">
-                <img th:src="${item.productVariant.imageUrl}" alt="Ảnh sản phẩm">
-                <div>
-                  <h4 th:text="${item.productVariant.product.name}"></h4>
-                  <small th:text="'Màu: ' + ${item.productVariant.color}"></small><br>
-                  <small th:text="'Kích thước: ' + ${item.productVariant.size}"></small>
-                </div>
-              </td>
-              <td th:text="${#numbers.formatDecimal(item.productVariant.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-              <td th:text="${item.quantity}"></td>
-              <td th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-              <td>
-                <form th:action="@{/cart/remove}" method="post">
-                  <input type="hidden" name="variantId" th:value="${item.productVariant.variantId}">
-                  <button type="submit" class="btn-remove"><i class="fa-solid fa-trash"></i></button>
-                </form>
-              </td>
-            </th:block>
+    <!-- 🧳 Nếu là khách -->
+    <td class="product-info" th:if="${!(item instanceof T(com.oneshop.entity.CartItem))}">
+      <img th:src="${item['image']}" alt="Ảnh sản phẩm">
+      <div>
+        <h4 th:text="${item['name']}"></h4>
+        <small th:if="${item['color'] != null}" th:text="'Màu: ' + ${item['color']}"></small><br>
+        <small th:if="${item['size'] != null}" th:text="'Kích thước: ' + ${item['size']}"></small>
+      </div>
+    </td>
 
-            <!-- 🧳 Guest -->
-            <th:block th:if="${!(item instanceof T(com.oneshop.entity.CartItem))}">
-              <td class="product-info">
-                <img th:src="${item['image']}" alt="Ảnh sản phẩm">
-                <div>
-                  <h4 th:text="${item['name']}"></h4>
-                  <small th:if="${item['color'] != null}" th:text="'Màu: ' + ${item['color']}"></small><br>
-                  <small th:if="${item['size'] != null}" th:text="'Kích thước: ' + ${item['size']}"></small>
-                </div>
-              </td>
-              <td th:text="${#numbers.formatDecimal(item['price'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-              <td th:text="${item['quantity']}"></td>
-              <td th:text="${#numbers.formatDecimal(item['subtotal'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-              <td>
-                <form th:action="@{/cart/remove}" method="post">
-                  <input type="hidden" name="variantId" th:value="${item['variantId']}">
-                  <button type="submit" class="btn-remove"><i class="fa-solid fa-trash"></i></button>
-                </form>
-              </td>
-            </th:block>
-          </tr>
-        </tbody>
+    <!-- Giá -->
+    <td th:if="${item instanceof T(com.oneshop.entity.CartItem)}"
+        th:text="${#numbers.formatDecimal(item.productVariant.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+    <td th:if="${!(item instanceof T(com.oneshop.entity.CartItem))}"
+        th:text="${#numbers.formatDecimal(item['price'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+
+    <!-- Số lượng -->
+    <td class="qty-cell">
+      <form th:action="@{/cart/update}" method="post" class="qty-form">
+        <input type="hidden" name="variantId"
+               th:value="${item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.variantId : item['variantId']}">
+        <button type="button" class="btn-qty minus">−</button>
+        <input type="number" name="quantity"
+               th:value="${item instanceof T(com.oneshop.entity.CartItem) ? item.quantity : item['quantity']}" min="1">
+        <button type="button" class="btn-qty plus">+</button>
+      </form>
+    </td>
+
+    <!-- Tạm tính -->
+    <td th:text="${#numbers.formatDecimal(
+        (item instanceof T(com.oneshop.entity.CartItem)) ? item.subtotal : item['subtotal'],
+        0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+
+    <!-- Xóa -->
+    <td>
+      <form th:action="@{/cart/remove}" method="post">
+        <input type="hidden" name="variantId"
+               th:value="${item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.variantId : item['variantId']}">
+        <button type="submit" class="btn-remove"><i class="fa-solid fa-trash"></i></button>
+      </form>
+    </td>
+  </tr>
+</tbody>
+
+
       </table>
     </div>
 
@@ -88,19 +99,94 @@
     <div th:if="${total > 0}" class="cart-summary">
       <p>Tổng cộng: <strong th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong></p>
       <div class="cart-actions">
-        <form th:action="@{/cart/clear}" method="post">
-          <button type="submit" class="btn-clear">
-            <i class="fa-solid fa-xmark"></i> Xóa tất cả
-          </button>
-        </form>
-        <a th:href="@{/cart/checkout}" class="btn-checkout">
-          <i class="fa-solid fa-credit-card"></i> Thanh toán
-        </a>
-      </div>
+  <!-- 🔙 Tiếp tục mua hàng -->
+  <button type="button" class="btn-continue" onclick="goBackOrShop()">
+    <i class="fa-solid fa-arrow-left"></i> Tiếp tục mua hàng
+  </button>
+
+  <form th:action="@{/cart/clear}" method="post">
+    <button type="submit" class="btn-clear">
+      <i class="fa-solid fa-xmark"></i> Xóa tất cả
+    </button>
+  </form>
+
+  <a th:href="@{/cart/checkout}" class="btn-checkout">
+  <i class="fa-solid fa-credit-card"></i> Thanh toán
+</a>
+
+</div>
+
     </div>
   </div>
 </main>
 
 <div th:replace="fragments/_footer :: footer"></div>
+
+<script>
+function goBackOrShop() {
+  const prev = document.referrer;
+  if (prev && !prev.includes('/cart')) {
+    window.history.back(); // quay lại trang trước
+  } else {
+    window.location.href = '/shop'; // hoặc vào trang shop
+  }
+}
+</script>
+
+<script>
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.btn-qty');
+  if (!btn) return;
+
+  const form = btn.closest('.qty-form');
+  const input = form.querySelector('input[name="quantity"]');
+  let qty = parseInt(input.value);
+
+  if (btn.classList.contains('plus')) qty++;
+  else if (btn.classList.contains('minus') && qty > 1) qty--;
+
+  input.value = qty;
+
+  // 🟣 Gửi AJAX cập nhật
+  const variantId = form.querySelector('input[name="variantId"]').value;
+  const res = await fetch('/cart/update', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({variantId, quantity: qty})
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+
+    // ✅ Cập nhật subtotal & tổng cộng
+    form.closest('tr').querySelector('td:nth-child(4)').textContent =
+      data.itemSubtotal.toLocaleString('vi-VN') + ' ₫';
+    document.querySelector('.cart-summary strong').textContent =
+      data.total.toLocaleString('vi-VN') + ' ₫';
+
+    // ✅ Luôn đồng bộ badge bằng API (fix triệt để lỗi header fragment)
+    try {
+      const statusRes = await fetch("/cart/api/status");
+      if (statusRes.ok) {
+        const status = await statusRes.json();
+        const badge = document.querySelector("#cartCount");
+        if (badge) badge.textContent = status.cartCount;
+      }
+    } catch (err) {
+      console.warn("Không thể đồng bộ badge realtime:", err);
+    }
+
+    // 💫 Hiệu ứng rung nhẹ giỏ hàng cho sinh động
+    const icon = document.getElementById('cartIcon');
+    if (icon) {
+      icon.classList.add('cart-shake');
+      setTimeout(() => icon.classList.remove('cart-shake'), 600);
+    }
+  } else {
+    console.error("Không thể cập nhật số lượng sản phẩm");
+  }
+});
+</script>
+
 </body>
 </html>

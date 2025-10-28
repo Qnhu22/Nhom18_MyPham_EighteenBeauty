@@ -1,0 +1,159 @@
+/* ==============================
+   CHECKOUT PAGE - ONESHOP
+   ============================== */
+
+main.checkout-page {
+  margin-top: 140px;
+  padding-bottom: 80px;
+  background: #fafaf9;
+}
+
+.checkout-container {
+  max-width: 1000px;
+  margin: auto;
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+h2.title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 26px;
+  color: #333;
+  letter-spacing: 0.5px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.section h3 {
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 20px;
+  border-left: 4px solid #b8c9e8;
+  padding-left: 10px;
+}
+
+/* 🏠 Địa chỉ giao hàng */
+.address-box {
+  background: #f8f9fc;
+  padding: 15px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.address-info p {
+  margin: 3px 0;
+  color: #444;
+}
+
+.btn-change {
+  background: #b8c9e8;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  color: #111;
+  transition: 0.2s ease;
+}
+
+.btn-change:hover {
+  background: #a7bce1;
+}
+
+/* 🛍 Bảng sản phẩm */
+table.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+table.order-table th,
+table.order-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+table.order-table th {
+  background: #f5f7fb;
+  color: #444;
+}
+
+/* 🎁 Voucher */
+.voucher-section a {
+  background: #b8c9e8;
+  color: #111;
+  padding: 8px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.voucher-section a:hover {
+  background: #a7bce1;
+}
+
+/* 💳 Phương thức thanh toán */
+.payment-methods label {
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* 💰 Tổng cộng */
+.summary-box {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.summary-box strong {
+  color: #8b5cf6;
+  font-size: 20px;
+}
+
+/* 🔘 Nút hành động */
+.action-buttons {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.btn-confirm {
+  background: linear-gradient(90deg, #c084fc, #8b5cf6);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.btn-confirm:hover {
+  opacity: 0.9;
+}
+
+.btn-back {
+  background: #eee;
+  border: none;
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: 0.25s ease;
+}
+
+.btn-back:hover {
+  background: #e3e3e3;
+}
