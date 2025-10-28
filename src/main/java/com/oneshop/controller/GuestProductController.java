@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class GuestProductController {
@@ -25,6 +26,8 @@ public class GuestProductController {
     // 🏠 Trang chủ
     @GetMapping({"/", "/index"})
     public String home(Model model) {
+
+        // ⚙️ Phần gốc của bạn — giữ nguyên
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("bestSellers", productService.getBestSellerProducts());
         model.addAttribute("bestDeals", productService.getBestDeals());
@@ -32,6 +35,16 @@ public class GuestProductController {
         model.addAttribute("highlightProducts", productService.getHighlightedProducts());
         model.addAttribute("guestProducts", productService.getTopProductsForGuest());
         model.addAttribute("pageTitle", "OneShop - Cửa hàng mỹ phẩm");
+
+        // 🌸 Thêm danh mục hiển thị ở phần “By Categories” (ảnh tĩnh)
+        List<Map<String, String>> featuredCategories = List.of(
+                Map.of("name", "Kem chống nắng", "image", "/images/categories/kemchongnang.jpeg"),
+                Map.of("name", "Kem nền", "image", "/images/categories/kemnen.jpeg"),
+                Map.of("name", "Phấn phủ", "image", "/images/categories/phanphu.jpeg"),
+                Map.of("name", "Son môi", "image", "/images/categories/sonmoi.jpeg")
+        );
+        model.addAttribute("featuredCategories", featuredCategories);
+
         return "index";
     }
 

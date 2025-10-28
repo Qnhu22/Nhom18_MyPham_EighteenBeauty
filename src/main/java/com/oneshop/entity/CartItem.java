@@ -5,7 +5,10 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "cart_items")
+@Table(
+    name = "cart_items",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"cart_id", "variant_id"})
+)
 @Getter
 @Setter
 @NoArgsConstructor

@@ -44,11 +44,9 @@ public class ShipperServiceImpl implements ShipperService {
 		return null;
 	}
 
-	@Override
 	public void save(Shipper shipper) {
-		// TODO Auto-generated method stub
-		
-	}
+        shipperRepository.save(shipper);
+    }
 
 	
 }

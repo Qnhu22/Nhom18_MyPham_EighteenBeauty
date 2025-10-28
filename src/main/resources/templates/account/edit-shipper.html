@@ -1,0 +1,149 @@
+<!-- templates/account/edit-shipper.html -->
+<div th:fragment="editShipperModal">
+  <div id="shipperModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeShipperModal()">&times;</span>
+      <h3 class="title">Cập nhật thông tin giao hàng</h3>
+
+      <form th:action="@{/account/update-shipper}" method="post" onsubmit="return handleShipperSubmit(event)">
+        <label>Khu vực giao hàng</label>
+        <input type="text" name="area" th:value="${shipper.area}" required>
+
+        <label>Trạng thái</label>
+        <select name="status" th:value="${shipper.status}">
+          <option value="AVAILABLE">Đang hoạt động</option>
+          <option value="OFFLINE">Không hoạt động</option>
+        </select>
+
+        <label>Tổng đơn giao thành công</label>
+        <input type="number" th:value="${shipper.totalDelivered}" readonly>
+
+        <label>Tổng đơn thất bại</label>
+        <input type="number" th:value="${shipper.totalFailed}" readonly>
+
+        <button type="submit" class="btn-submit">Cập nhật</button>
+      </form>
+    </div>
+  </div>
+
+<style>
+    :root {
+      --rose:#f3d5e2;
+      --rose-dark:#e8b4d1;
+      --cream:#fafaf2;
+      --dark:#222;
+      --white:#fff;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 30px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      font-family: 'Poppins', sans-serif;
+      animation: slideUp 0.3s ease;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes slideUp {
+      from {transform: translateY(50px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 16px;
+      font-size: 20px;
+      color: var(--dark);
+    }
+
+    .close {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 26px;
+      color: #999;
+      transition: 0.3s;
+    }
+    .close:hover { color: var(--rose-dark); }
+
+    .avatar-preview {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--rose-dark);
+      margin-bottom: 12px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .center { text-align: center; margin-bottom: 12px; }
+    label { display: block; margin-top: 10px; font-weight: 500; color: var(--dark); }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 4px;
+      outline: none;
+      transition: 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--rose-dark);
+      box-shadow: 0 0 3px var(--rose-dark);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      margin-top: 18px;
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: 0.2s;
+    }
+    .btn-submit:hover { filter: brightness(1.1); background: #000; }
+  </style>
+  <script>
+    function openShipperModal() {
+      document.getElementById('shipperModal').style.display = 'flex';
+    }
+
+    function closeShipperModal() {
+      document.getElementById('shipperModal').style.display = 'none';
+    }
+
+    function handleShipperSubmit(e) {
+      setTimeout(() => window.location.reload(), 600);
+      return true;
+    }
+
+    // Đóng modal khi click ra ngoài
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('shipperModal');
+      if (e.target === modal) closeShipperModal();
+    });
+  </script>
+</div>

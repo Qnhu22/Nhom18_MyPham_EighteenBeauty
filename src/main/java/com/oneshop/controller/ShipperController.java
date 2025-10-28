@@ -1,6 +1,10 @@
 package com.oneshop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.oneshop.dto.ChartData;
+import com.oneshop.dto.PerformanceStats;
 import com.oneshop.entity.Order;
 import com.oneshop.entity.Shipper;
 import com.oneshop.entity.User;
@@ -45,12 +49,14 @@ public class ShipperController {
         }
     }
 
-    // 🏠 Trang Dashboard Shipper
-    @GetMapping({"/dashboard", ""})
-    public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
+ // 🏠 Trang Dashboard Shipper
+    @SuppressWarnings("deprecation")
+	@GetMapping({"/dashboard", ""})
+    public String home(@AuthenticationPrincipal UserDetails principal, Model model) throws JsonProcessingException {
         Long userId = getCurrentUserId(principal);
         Shipper shipper = shipperService.getShipperByUserId(userId);
-
+    
+        
         if (shipper == null) {
             model.addAttribute("error", "Không tìm thấy thông tin shipper!");
             return "error";
@@ -58,21 +64,23 @@ public class ShipperController {
 
         Long shipperId = shipper.getShipperId();
 
-        // Đếm số đơn theo từng trạng thái
         long confirmedCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "CONFIRMED").size();
         long shippingCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "SHIPPING").size();
         long deliveredCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "DELIVERED").size();
         long cancelledCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "CANCELLED").size();
         long returnedCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "RETURNED").size();
-        
         long totalOrders = orderService.countTotalOrdersByShipper(shipperId);
-//        // Tổng tất cả đơn
-//        long totalOrders = confirmedCount + shippingCount + deliveredCount + cancelledCount + returnedCount;
 
-        // Tổng doanh thu (nếu có)
         BigDecimal totalRevenue = orderService.calculateTotalRevenueByShipper(shipperId);
 
-        // Truyền biến sang Thymeleaf
+        List<ChartData> chartData = orderService.getMonthlyDeliveredStats(shipperId);
+        PerformanceStats perfStats = orderService.getPerformanceStats(shipperId);
+
+        // ✅ chuyển chartData sang JSON
+        ObjectMapper mapper = new ObjectMapper();
+        String chartDataJson = mapper.writeValueAsString(chartData);
+        mapper.configure(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        
         model.addAttribute("shipperName", shipper.getUser().getFullName());
         model.addAttribute("shipperId", shipperId);
         model.addAttribute("confirmedCount", confirmedCount);
@@ -82,10 +90,9 @@ public class ShipperController {
         model.addAttribute("returnedCount", returnedCount);
         model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("totalRevenue", totalRevenue);
-        
-        List<ChartData> chartData = orderService.getMonthlyDeliveredStats(shipperId);
-        model.addAttribute("chartData", chartData);
 
+        model.addAttribute("chartDataJson", chartDataJson); // ✅ thêm dòng này
+        model.addAttribute("perfStats", perfStats);
 
         return "dashboard/shipper-dashboard";
     }

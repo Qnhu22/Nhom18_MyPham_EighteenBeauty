@@ -1,6 +1,7 @@
 package com.oneshop.service;
 
 import com.oneshop.dto.ChartData;
+import com.oneshop.dto.PerformanceStats;
 import com.oneshop.entity.Order;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public interface OrderService {
 	long countTotalOrdersByShipper(Long shipperId);
 	Order save(Order order);
 	List<ChartData> getMonthlyDeliveredStats(Long shipperId);
+	PerformanceStats getPerformanceStats(Long shipperId);
 
     
 }

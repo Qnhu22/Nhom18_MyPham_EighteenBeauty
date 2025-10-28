@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <meta charset="UTF-8">
 <title>Shipper Dashboard | OneShop</title>
 
@@ -184,11 +186,6 @@ main.container {
 				</div>
 			</div>
 
-			<div class="total-amount">
-				💰 Tổng giá trị hàng đã giao thành công: <span
-					th:text="|${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}đ|">0đ</span>
-			</div>
-
 			<form th:action="@{/shipper/statistics/export}" method="get">
 				<button type="submit" class="export-btn">
 					<i class="fa-solid fa-file-export"></i> Xuất báo cáo doanh thu
@@ -200,38 +197,72 @@ main.container {
 	<footer th:replace="fragments/_footer :: footer"></footer>
 <script th:inline="javascript">
 /*<![CDATA[*/
-    // an toàn: Thymeleaf sẽ thay /*[[...]]*/ bằng giá trị (số) hoặc để nguyên 0 nếu null
-    var shippingCount = /*[[${shippingCount} != null ? shippingCount : 0]]*/ 0;
-    var deliveredCount = /*[[${deliveredCount} != null ? deliveredCount : 0]]*/ 0;
-    var cancelledCount = /*[[${cancelledCount} != null ? cancelledCount : 0]]*/ 0;
-    var returnedCount = /*[[${returnedCount} != null ? returnedCount : 0]]*/ 0;
-    var confirmedCount = /*[[${confirmedCount} != null ? confirmedCount : 0]]*/ 0;
+    // --- Dữ liệu từ backend ---
+    const delivered = /*[[${perfStats.delivered}]]*/ 0;
+    const cancelled = /*[[${perfStats.cancelled}]]*/ 0;
+    const returned  = /*[[${perfStats.returned}]]*/ 0;
+    const chartData = JSON.parse(/*[[${chartDataJson}]]*/ "[]");
+    
 
-    // kiểm tra nhanh (bỏ comment khi chạy ổn)
-    // console.log(shippingCount, deliveredCount, cancelledCount, returnedCount, confirmedCount);
-
-    const statusData = {
-        labels: ['Đang giao', 'Đã giao', 'Bị hủy', 'Trả về', 'Cần giao'],
-        datasets: [{
-            data: [shippingCount, deliveredCount, cancelledCount, returnedCount, confirmedCount],
-            backgroundColor: ['#36A2EB', '#4CAF50', '#FF6384', '#FFCE56', '#FF9800']
-        }]
-    };
-
-    new Chart(document.getElementById('orderStatusChart'), {
-        type: 'doughnut',
-        data: statusData,
+    // --- Biểu đồ hiệu suất giao hàng ---
+    const orderStatusCtx = document.getElementById("orderStatusChart").getContext("2d");
+    new Chart(orderStatusCtx, {
+        type: 'pie',
+        data: {
+            labels: ["Giao thành công", "Đơn bị hủy", "Đơn trả về"],
+            datasets: [{
+                data: [delivered, cancelled, returned],
+                backgroundColor: ["#6BCB77", "#FF6B6B", "#FFD93D"]
+            }]
+        },
         options: {
-            responsive: true,
             plugins: {
-                legend: { position: 'bottom' }
+                legend: { position: "bottom" },
+                title: { display: true, text: "Hiệu suất giao hàng (%)" }
+            }
+        }
+    });
+
+    // --- Biểu đồ doanh thu giao hàng theo tháng ---
+    const months = [
+        "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+    ];
+
+    // Tạo map dữ liệu từ backend (VD: {"Tháng 1": 1000000, "Tháng 2": 0, ...})
+    const revenueMap = new Map(chartData.map(d => [d.month, Number(d.totalRevenue)]));
+    const revenues = months.map(m => revenueMap.get(m) || 0);
+
+    const revenueCtx = document.getElementById("revenueChart").getContext("2d");
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: "Doanh thu giao hàng (VNĐ)",
+                data: revenues,
+                borderColor: "rgba(220,146,179,1)",
+                backgroundColor: "rgba(220,146,179,0.2)",
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            plugins: {
+                title: { display: true, text: "Doanh thu theo tháng trong năm" }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => value.toLocaleString("vi-VN") + " đ"
+                    }
+                }
             }
         }
     });
 /*]]>*/
 </script>
-
-
 
 
 </body>

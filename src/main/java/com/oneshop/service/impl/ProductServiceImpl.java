@@ -6,25 +6,27 @@ import com.oneshop.entity.ProductVariant;
 import com.oneshop.repository.ProductRepository;
 import com.oneshop.repository.ProductVariantRepository;
 import com.oneshop.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductVariantRepository variantRepository) {
-        this.productRepository = productRepository;
-        this.variantRepository = variantRepository;
-    }
-
+    /* =====================================================
+       📦 Lấy thông tin sản phẩm
+       ===================================================== */
     @Override
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
@@ -33,40 +35,44 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm để xóa"));
 
-        // Xóa các variant trước để tránh lỗi khóa ngoại
+        // Xóa variant trước (tránh lỗi khóa ngoại)
         List<ProductVariant> variants = variantRepository.findByProduct(product);
         variantRepository.deleteAll(variants);
 
-        // Xóa sản phẩm
         productRepository.delete(product);
     }
 
-    // ---------- FEED TRANG CHỦ ----------
-
-    /** 🏆 Sản phẩm nổi bật (bán chạy) */
+    /* =====================================================
+       🏠 Feed trang chủ
+       ===================================================== */
+    /** 🏆 Sản phẩm nổi bật (Top bán chạy) */
     @Override
     public List<Product> getHighlightedProducts() {
-        return productRepository.findBestSellingProducts(); // tổng soldCount variant
+        return productRepository.findBestSellingProducts();
     }
 
-    /** 🏆 Top bán chạy */
+    /** 🔥 Top bán chạy */
     @Override
     public List<Product> getBestSellerProducts() {
         return productRepository.findBestSellingProducts();
     }
 
-    /** 🌸 Sản phẩm mới nhất */
+    /** 🆕 Sản phẩm mới nhất */
     @Override
     public List<Product> getNewProducts() {
         return productRepository.findTop8ByOrderByCreatedAtDesc();
     }
 
-    /** 💰 Sản phẩm giá tốt (tạm thời dùng theo thời gian, do giá nằm ở variant) */
+    /** 💰 Sản phẩm giá tốt (giảm giá hoặc variant có oldPrice > price) */
     @Override
     public List<Product> getBestDeals() {
-        return productRepository.findTopProductsForGuest(); // tạm hiển thị top guest
+        return productRepository.findAll().stream()
+                .filter(p -> p.getVariants() != null && p.getVariants().stream()
+                        .anyMatch(v -> v.getOldPrice() != null && v.getOldPrice().compareTo(v.getPrice()) > 0))
+                .limit(8)
+                .toList();
     }
 
     /** 👥 Feed cho khách (guest) */
@@ -75,8 +81,9 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findTopProductsForGuest();
     }
 
-    // ---------- TÌM KIẾM / PHÂN TRANG ----------
-
+    /* =====================================================
+       🔍 Tìm kiếm & phân trang
+       ===================================================== */
     @Override
     public Page<Product> getProductsByName(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -101,8 +108,9 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByStatus(status, pageable);
     }
 
-    // ---------- QUẢN LÝ ----------
-
+    /* =====================================================
+       ⚙️ Quản lý sản phẩm
+       ===================================================== */
     @Override
     public List<Product> getBestSellingProducts() {
         return productRepository.findBestSellingProducts();
@@ -110,13 +118,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product saveProduct(Product product) {
-        // Lưu product trước
+        // 🧩 Lưu product
         Product savedProduct = productRepository.save(product);
 
-        // Sau đó gán lại product cho các variant (nếu có)
+        // 🧩 Lưu variant kèm theo (nếu có)
         if (product.getVariants() != null && !product.getVariants().isEmpty()) {
             for (ProductVariant variant : product.getVariants()) {
                 variant.setProduct(savedProduct);
+                if (variant.getCreatedAt() == null) {
+                    variant.setCreatedAt(LocalDateTime.now());
+                }
                 variantRepository.save(variant);
             }
         }
@@ -130,7 +141,36 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /** Lấy danh sách variant theo sản phẩm */
+    @Override
     public List<ProductVariant> getVariantsByProduct(Product product) {
         return variantRepository.findByProduct(product);
+    }
+
+    /* =====================================================
+       💡 Hỗ trợ hiển thị giá min–max
+       ===================================================== */
+    @Override
+    public String getPriceRange(Product product) {
+        if (product.getVariants() == null || product.getVariants().isEmpty()) {
+            return "₫0";
+        }
+
+        double min = product.getVariants().stream()
+                .filter(v -> v.getPrice() != null)
+                .map(v -> v.getPrice().doubleValue())
+                .min(Comparator.naturalOrder())
+                .orElse(0.0);
+
+        double max = product.getVariants().stream()
+                .filter(v -> v.getPrice() != null)
+                .map(v -> v.getPrice().doubleValue())
+                .max(Comparator.naturalOrder())
+                .orElse(min);
+
+        if (min == max) {
+            return String.format("₫%,.0f", min);
+        } else {
+            return String.format("₫%,.0f - ₫%,.0f", min, max);
+        }
     }
 }

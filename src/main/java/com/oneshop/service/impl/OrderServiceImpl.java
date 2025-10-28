@@ -1,6 +1,7 @@
 package com.oneshop.service.impl;
 
 import com.oneshop.dto.ChartData;
+import com.oneshop.dto.PerformanceStats;
 import com.oneshop.entity.Order;
 import com.oneshop.repository.OrderRepository;
 import com.oneshop.service.OrderService;
@@ -82,18 +83,51 @@ public class OrderServiceImpl implements OrderService {
     public long countTotalOrdersByShipper(Long shipperId) {
         return orderRepository.countByShipper(shipperId);
     }
+//    @Override
+//    public List<ChartData> getMonthlyDeliveredStats(Long shipperId) {
+//        List<Object[]> results = orderRepository.countMonthlyDeliveredByShipper(shipperId);
+//
+//        List<ChartData> chartData = new ArrayList<>();
+//        for (Object[] row : results) {
+//            String month = row[0].toString();
+//            long count = ((Number) row[1]).longValue();
+//            chartData.add(new ChartData(month, count));
+//        }
+//
+//        return chartData;
+//    }
+//    
+    
     @Override
     public List<ChartData> getMonthlyDeliveredStats(Long shipperId) {
-        List<Object[]> results = orderRepository.countMonthlyDeliveredByShipper(shipperId);
-
+        List<Object[]> results = orderRepository.getMonthlyDeliveredStats(shipperId);
         List<ChartData> chartData = new ArrayList<>();
-        for (Object[] row : results) {
-            String month = row[0].toString();
-            long count = ((Number) row[1]).longValue();
-            chartData.add(new ChartData(month, count));
+
+        for (Object[] r : results) {
+            Integer monthNum = (Integer) r[0];
+            String month = "Tháng " + monthNum;
+            long deliveredCount = ((Number) r[1]).longValue();
+            BigDecimal totalRevenue = r[2] != null ? (BigDecimal) r[2] : BigDecimal.ZERO;
+
+            chartData.add(new ChartData(month, deliveredCount, totalRevenue));
         }
 
         return chartData;
     }
 
-}
+    @Override
+    public PerformanceStats getPerformanceStats(Long shipperId) {
+        List<Object[]> results = orderRepository.getPerformanceStats(shipperId);
+        if (results.isEmpty()) return new PerformanceStats(0, 0, 0);
+
+        Object[] row = results.get(0);
+        return new PerformanceStats(
+            ((Number) row[0]).longValue(),
+            ((Number) row[1]).longValue(),
+            ((Number) row[2]).longValue()
+        );
+    }
+
+    }
+
+

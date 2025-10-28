@@ -51,19 +51,25 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Guest & public
-                .requestMatchers("/", "/index", "/category/**", "/product/**",
-                                 "/register", "/verify-otp", "/forgot-password", "/reset-password",
-                                 "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                // ✅ Cho phép truy cập công khai (không cần login)
+                .requestMatchers(
+                    "/", "/index", 
+                    "/shop", "/shop/**",      // ⚙️ thêm dòng này
+                    "/category/**", "/product/**",
+                    "/register", "/verify-otp", 
+                    "/forgot-password", "/reset-password",
+                    "/login",
+                    "/css/**", "/js/**", "/images/**", "/uploads/**"
+                ).permitAll()
 
-                // Role-based
+                // 🔐 Các đường dẫn yêu cầu role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
                 .requestMatchers("/user/**").hasRole("USER")
 
-                // Các request khác cần login
-                .anyRequest().authenticated()
+                // ✅ Cho phép các request còn lại (nếu có)
+                .anyRequest().permitAll()
             )
             .formLogin(form -> form
             	    .loginPage("/login")
