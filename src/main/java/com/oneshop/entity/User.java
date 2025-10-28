@@ -91,5 +91,9 @@ public class User {
     
     @OneToOne(mappedBy = "manager")
     private Shop shop;
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Shipper shipper;
+
 
 }
