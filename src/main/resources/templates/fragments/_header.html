@@ -211,11 +211,10 @@
 					if (cartBadge) cartBadge.textContent = data.cartCount;
 
 					if (data.cartCount > 0) {
-						const empty = miniList?.querySelector("p");
-						if (empty && empty.textContent.includes("Giỏ hàng trống")) {
-							empty.remove();
+						  const emptyWrap = miniList?.querySelector(".empty-cart");
+						  if (emptyWrap) emptyWrap.remove();         // ❗ Xóa cả block rỗng
 						}
-					}
+
 				}
 			} catch (e) {
 				console.warn("Không thể lấy trạng thái giỏ hàng:", e);
@@ -227,8 +226,9 @@
 				if (!miniList) return;
 
 				// Ẩn dòng "Giỏ hàng trống"
-				const empty = miniList.querySelector("p");
-				if (empty && empty.textContent.includes("Giỏ hàng trống")) empty.remove();
+				const emptyWrap = miniList.querySelector(".empty-cart");
+if (emptyWrap) emptyWrap.remove();           // ❗ Xóa cả block rỗng
+
 
 				// 🔄 Gộp theo variantId (KHÔNG gộp chỉ theo tên)
 				const exist = Array.from(miniList.querySelectorAll(".mini-cart-item"))
@@ -239,42 +239,42 @@
 					const oldQty = parseInt(small.textContent.split("×")[0].trim()) || 0;
 					small.textContent = `${oldQty + qty} × ${price}`;
 				} else {
-					const html = `
-    		  <div class="mini-cart-item" data-variantid="${variantId}">
-    		    <img src="${image}" alt="">
-    		    <div class="details">
-    		      <p>${name}</p>
-    		      <small>${qty} × ${price}</small>
-    		    </div>
-    		    <form action="/cart/remove" method="post" class="remove-form">
-    		      <input type="hidden" name="variantId" value="${variantId}">
-    		      <button type="submit"><i class="fa fa-trash"></i></button>
-    		    </form>
-    		  </div>`;
+					  const html = `
+						    <div class="mini-cart-item" data-variantid="${variantId}">
+						      <img src="${image}" alt="">
+						      <div class="details">
+						        <p>${name}</p>
+						        <small>${qty} × ${price}</small>
+						      </div>
+						      <form action="/cart/remove" method="post" class="remove-form">
+						        <input type="hidden" name="variantId" value="${variantId}">
+						        <button type="submit"><i class="fa fa-trash"></i></button>
+						      </form>
+						    </div>`;
+						  miniList.insertAdjacentHTML("beforeend", html);
+						}
 
-					miniList.insertAdjacentHTML("beforeend", html);
-				}
+				let totalBlock = miniCart.querySelector(".mini-cart-total"); // scope trong miniCart
+				let totalEl = totalBlock?.querySelector("strong");
 
-				// 🧾 Cập nhật tổng cộng + badge
-				let totalEl = document.querySelector(".mini-cart-total strong");
 
-				if (totalEl) {
-					// Đã có block tổng → chỉ cập nhật số tiền
-					totalEl.textContent = total.toLocaleString("vi-VN") + " ₫";
+				if (totalBlock && totalEl) {
+				  // ✅ Nếu block đã tồn tại → chỉ cập nhật số tiền
+				  totalEl.textContent = total.toLocaleString("vi-VN") + " ₫";
 				} else {
-					// Chưa có block tổng → tạo mới (chỉ còn nút Xem giỏ hàng)
-					const oldTotal = miniCart.querySelector(".mini-cart-total");
-					if (oldTotal) oldTotal.remove(); // tránh trùng
-
-					const wrapper = document.createElement("div");
-					wrapper.classList.add("mini-cart-total");
-					wrapper.innerHTML = `
-          <p>Tổng cộng: <strong>${total.toLocaleString("vi-VN")} ₫</strong></p>
-          <div class="mini-cart-actions">
-            <a href="/cart" class="btn-view">XEM GIỎ HÀNG</a>
-          </div>`;
-					miniCart.appendChild(wrapper);
+				  // 🚀 Nếu chưa có (trường hợp giỏ trống ban đầu) → tạo mới
+				  const wrapper = document.createElement("div");
+				  wrapper.classList.add("mini-cart-total");
+				  wrapper.innerHTML = `
+				    <p>Tổng cộng: <strong>${total.toLocaleString("vi-VN")} ₫</strong></p>
+				    <div class="mini-cart-actions">
+				      <a href="/cart" class="btn-view">XEM GIỎ HÀNG</a>
+				    </div>`;
+				  miniCart.appendChild(wrapper);
 				}
+
+				miniCart.classList.add("active"); // 🔹 luôn đảm bảo hiển thị
+
 
 				if (cartBadge) cartBadge.textContent = parseInt(cartBadge.textContent || 0) + qty;
 
