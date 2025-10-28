@@ -92,9 +92,12 @@
 						</div>
 					</div>
 
-    // Hiện ô tìm kiếm nhỏ
-    const searchToggle = document.getElementById("searchToggle");
-    const miniSearch = document.getElementById("miniSearch");
+					<!-- 🛍 Giỏ hàng -->
+					<div class="cart-wrapper">
+						<a href="#" class="cart-btn" id="cartIcon">
+							<img th:src="@{/images/icons/shopping-cart.png}" alt="Giỏ hàng" class="icon-btn">
+							<span class="badge" id="cartCount" th:text="${cartCount != null ? cartCount : 0}">0</span>
+						</a>
 
 						<!-- MINI CART DROPDOWN -->
 						<div class="mini-cart" id="miniCart">

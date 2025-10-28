@@ -35,7 +35,7 @@ public class ShipperController {
     private final OrderService orderService;
     private final ShipperService shipperService;
     private final UserRepository userRepository;
-    private final ReportService reportService; // ⚠️ Thêm dòng này (có service xuất file)
+    private final ReportService reportService; 
 
     
 
@@ -91,7 +91,7 @@ public class ShipperController {
         model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("totalRevenue", totalRevenue);
 
-        model.addAttribute("chartDataJson", chartDataJson); // ✅ thêm dòng này
+        model.addAttribute("chartDataJson", chartDataJson); 
         model.addAttribute("perfStats", perfStats);
 
         return "dashboard/shipper-dashboard";
@@ -150,14 +150,7 @@ public class ShipperController {
         return "redirect:/shipper/orders";
     }
 
-    // 👤 Hồ sơ Shipper
-    @GetMapping("/profile")
-    public String profile(@AuthenticationPrincipal UserDetails principal, Model model) {
-        Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperByUserId(userId);
-        model.addAttribute("shipper", shipper);
-        return "shipper/profile";
-    }
+    
 
     // 📝 Cập nhật hồ sơ Shipper
     @PostMapping("/profile/update")
