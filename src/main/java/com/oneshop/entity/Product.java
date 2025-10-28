@@ -55,4 +55,10 @@ public class Product {
     // 🔗 Ảnh phụ
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images;
+    
+ // 🔗 Khuyến mãi áp dụng cho sản phẩm này
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promotion_id", referencedColumnName = "promotionId")
+    private Promotion promotion;
+
 }

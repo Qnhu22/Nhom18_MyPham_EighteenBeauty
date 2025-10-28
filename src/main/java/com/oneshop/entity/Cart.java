@@ -30,8 +30,14 @@ public class Cart {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> items = new HashSet<>();
+    @OneToMany(
+    	    mappedBy = "cart",
+    	    cascade = CascadeType.ALL,
+    	    orphanRemoval = true,
+    	    fetch = FetchType.EAGER // ✅ load luôn danh sách item khi load cart
+    	)
+    	private Set<CartItem> items = new HashSet<>();
+
 
     // ✅ Tổng giá trị giỏ hàng
     @Transient
