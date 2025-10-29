@@ -64,9 +64,9 @@ public class SecurityConfig {
 
                 // 🔐 Các đường dẫn yêu cầu role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/manager/**").hasRole("MANAGER")
-                .requestMatchers("/shipper/**").hasRole("SHIPPER")
-                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                .requestMatchers("/shipper/**").hasAnyRole("SHIPPER", "ADMIN")
+                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER", "SHIPPER")
 
                 // ✅ Cho phép các request còn lại (nếu có)
                 .anyRequest().permitAll()

@@ -1,105 +1,132 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
 <meta charset="UTF-8">
 <title>Đăng nhập</title>
 <style>
+:root {
+    --color-rose: #f3d5e2;
+    --color-rose-dark: #e8b4d1;
+    --color-blue: #aec6e5;
+    --color-white: #fff;
+    --color-cream: #fafaf2;
+    --color-dark: #222;
+}
+
 body {
-	font-family: Arial, sans-serif;
-	background: #f4f6f8;
-	margin: 0;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: var(--color-cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
 }
 
-header {
-	background: #2c3e50;
-	color: white;
-	padding: 15px 30px;
+/* HEADER */
+.login-header {
+    background-color: var(--color-rose-dark);
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
-header h1 {
-	margin: 0;
-	font-size: 22px;
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
-nav {
-	background: #34495e;
-	padding: 10px 30px;
-	display: flex;
-	gap: 15px;
+.logo-img {
+    height: 40px;
+    margin-right: 10px;
 }
 
-nav a, nav button {
-	color: white;
-	text-decoration: none;
-	font-weight: bold;
-	background: none;
-	border: none;
-	cursor: pointer;
-	font-size: 14px;
+.brand-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-white);
 }
 
-nav a:hover, nav button:hover {
-	text-decoration: underline;
+/* FORM */
+.form-container {
+    background-color: var(--color-white);
+    border: 3px solid var(--color-rose-dark);
+    border-radius: 12px;
+    padding: 30px;
+    width: 360px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-top: 60px;
 }
 
-.container {
-	padding: 30px;
-	max-width: 400px;
-	margin: auto;
-	background: white;
-	border-radius: 8px;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.form-group {
-	margin-bottom: 15px;
+h2 {
+    color: var(--color-blue);
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 label {
-	display: block;
-	margin-bottom: 5px;
-	font-weight: bold;
+    font-weight: bold;
+    color: var(--color-rose-dark);
+    display: block;
+    margin-top: 15px;
 }
 
-input {
-	width: 100%;
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 5px;
 }
 
-.btn {
-	padding: 8px 15px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	background: #27ae60;
-	color: white;
-	width: 100%;
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: var(--color-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.btn:hover {
-	opacity: 0.9;
+button:hover {
+    background-color: var(--color-rose-dark);
 }
 
-.message {
-	margin-bottom: 15px;
+.extra-links {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
 }
+
+.extra-links a {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+.extra-links a:hover {
+    text-decoration: underline;
+}
+
 </style>
 </head>
 <body>
+	<header class="login-header">
+        <div class="logo-container">
+            <a th:href="@{/}">
+                <span class="brand-name">EighteenBeauty</span>
+            </a>
+        </div>
+    </header>
 
-	<header>
-		<h1>🔑 Đăng nhập</h1>
-	</header>
-
-	<nav>
-		<button onclick="history.back()">⬅️ Quay lại</button>
-		<a th:href="@{/register}">📝 Đăng ký</a> <a
-			th:href="@{/forgot-password}">❓ Quên mật khẩu</a>
-	</nav>
-
-	<div class="container">
+    <!-- FORM -->
+    <div class="form-container">
 		<!-- Thông báo -->
 		<div class="message" th:if="${error}" style="color: red;"
 			th:text="${error}"></div>
@@ -120,7 +147,10 @@ input {
 
 			<button type="submit" class="btn">Đăng nhập</button>
 		</form>
+		<div class="extra-links">
+			<p>Chưa có tài khoản? <a th:href="@{/register}">Đăng ký</a></p>
+			<p><a th:href="@{/forgot-password}">Quên mật khẩu</a></p>
+		</div>
 	</div>
-
 </body>
 </html>
