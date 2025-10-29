@@ -1,0 +1,123 @@
+<!-- template/contact.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>OneShop - Contact</title>
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a2e0e6ad8b.js" crossorigin="anonymous"></script>
+
+   
+    <link rel="stylesheet" th:href="@{/css/theme.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+    <!-- CSS Contact -->
+    <link rel="stylesheet" th:href="@{assets/css/contact.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<div th:replace="fragments/_header :: header"></div>
+
+<main class="main">
+    <!-- BREADCRUMB -->
+    <section class="main__breadcrumb">
+        <h1>CONTACT</h1>
+        <p>Home - Contact</p>
+    </section>
+
+    <!-- GOOGLE MAP -->
+    <section class="contact-map">
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4797381056537!2d106.77107767451818!3d10.851069457813548!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752774d7ef06ef%3A0xe1f3dda94d3fde26!2zc-G7kSAxIMSQLiBWw7UgVsSDbiBOZ8OibiwgTGluaCBDaGnhu4N1LCBUaOG7pyDEkOG7qWMsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1761726261604!5m2!1svi!2s" 
+            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </section>
+
+    <section class="divider">
+     <!-- THÔNG BÁO GỬI THÀNH CÔNG -->
+    <div th:if="${successMessage}" 
+         style="background-color: #e6ffed; color: #155724; padding: 12px 16px; 
+                border-radius: 8px; border: 1px solid #b6e3b6; margin-bottom: 18px; 
+                text-align: center; font-size: 1.5rem; font-weight: 500;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: 0.3s;">
+        <p th:text="${successMessage}"></p>
+    </div>
+    </section>
+    <!-- CONTACT INFO & FORM -->
+    <section class="contact__wrap">
+    <!-- INFO -->
+ <div class="contact__info">
+    <h2>Contact Information</h2>
+    
+    <ul>
+        <li>
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+                <strong>Địa chỉ:</strong>
+                Số 1 Võ Văn Ngân, Phường Linh Chiểu, TP. Thủ Đức, TP.HCM
+            </div>
+        </li>
+
+        <li>
+            <i class="fas fa-phone"></i>
+            <div>
+                <strong>Số điện thoại:</strong>
+                <a href="tel:+84337275206">0337 275 206</a>
+                <span class="social-icon"><i class="fab fa-whatsapp"></i></span>
+                <span class="social-icon"><i class="fab fa-line"></i></span>
+            </div>
+        </li>
+
+        <li>
+            <i class="fas fa-envelope"></i>
+            <div>
+                <strong>Email:</strong>
+                <a href="mailto:support@oneshop.vn">support@oneshop.vn</a>
+            </div>
+        </li>
+    </ul>
+
+    <div class="social-links">
+        <a href="https://www.facebook.com/oneshop" target="_blank"><i class="fab fa-facebook-square"></i></a>
+        <a href="https://www.instagram.com/oneshop" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+</div>
+
+
+
+    <!-- FORM -->
+   <div class="about-us">
+    <h2>Drop us a line</h2>
+    <form th:action="@{/contact}" method="post">
+        <div class="form-row">
+            <input type="text" name="firstName" placeholder="Họ*" required>
+            <input type="text" name="lastName" placeholder="Tên*" required>
+        </div>
+
+        <div class="form-row">
+            <input type="email" name="email" placeholder="Email*" required>
+            <input type="text" name="subject" placeholder="Chủ đề*" required>
+        </div>
+
+        <div class="form-row full-width">
+            <textarea name="message" placeholder="Nhập nội dung tin nhắn..." required></textarea>
+        </div>
+
+        <div class="form-row full-width btn-row">
+            <button type="submit" class="btn">Gửi tin nhắn</button>
+        </div>
+    </form>
+</div>
+
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<div th:replace="fragments/_footer :: footer"></div>
+
+</body>
+</html>

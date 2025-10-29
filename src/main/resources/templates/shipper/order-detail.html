@@ -198,40 +198,38 @@ table.table th {
 		</div>
 
 		<div class="mt-4 text-center">
-			<form th:action="@{'/shipper/order/' + ${order.orderId} + '/update'}"
-				method="post">
+			<form th:action="@{'/shipper/order/' + ${order.orderId} + '/update'}" method="post">
 
-				<!-- Khi đơn CONFIRMED -->
-				<button type="submit" name="status" value="SHIPPING"
-					class="btn btn-warning" th:if="${order.status == 'CONFIRMED'}">
-					Nhận giao hàng</button>
+    <!-- Khi đơn CONFIRMED -->
+<button type="submit" name="status" value="SHIPPING"
+        class="btn btn-warning"
+        th:if="${order.status.toString() == 'CONFIRMED'}">
+    Nhận giao hàng
+</button>
 
-				<!-- Khi đơn SHIPPING -->
-				<div th:if="${order.status == 'SHIPPING'}">
-					<button type="submit" name="status" value="DELIVERED"
-						class="btn btn-success">Giao hàng thành công</button>
+<!-- Khi đơn SHIPPING -->
+<div th:if="${order.status.toString() == 'SHIPPING'}">
+    <button type="submit" name="status" value="DELIVERED"
+        class="btn btn-success">Giao hàng thành công</button>
 
-					<button type="button" class="btn btn-danger"
-						onclick="showFailModal()">Giao hàng thất bại</button>
+    <button type="button" class="btn btn-danger"
+        onclick="showFailModal()">Giao hàng thất bại</button>
 
-					<button type="submit" name="status" value="RETURNED"
-						class="btn btn-returned">Khách trả hàng</button>
-				</div>
+    <button type="submit" name="status" value="RETURNED"
+        class="btn btn-dark">Khách trả hàng</button>
+</div>
 
-				<!-- Modal nhập lý do giao thất bại -->
-				<div id="failModal">
-					<h4>Lý do giao hàng thất bại</h4>
-					<textarea id="failNote" name="note" rows="3" cols="30"></textarea>
-					<!-- Không gán name cho hidden input ban đầu -->
-					<input type="hidden" id="failStatus" value="CANCELLED" /> <br>
-					<br>
-					<button type="submit" class="btn btn-success"
-						onclick="prepareFailSubmit()">Xác nhận</button>
-					<button type="button" class="btn btn-warning"
-						onclick="hideFailModal()">Hủy</button>
-				</div>
 
-			</form>
+    <!-- Modal nhập lý do giao thất bại -->
+    <div id="failModal">
+        <h4>Lý do giao hàng thất bại</h4>
+        <textarea id="failNote" name="note" rows="3" cols="30"></textarea>
+        <input type="hidden" id="failStatus" value="CANCELLED" /> <br><br>
+        <button type="submit" class="btn btn-success" onclick="prepareFailSubmit()">Xác nhận</button>
+        <button type="button" class="btn btn-warning" onclick="hideFailModal()">Hủy</button>
+    </div>
+</form>
+
 			<a th:href="@{'/shipper/orders?status=' + ${order.status}}" class="btn btn-secondary">
     <i class="fa-solid fa-arrow-left"></i> Trở về danh sách đơn hàng
 </a>

@@ -1,3 +1,4 @@
+<!-- template/account/ info.html -->
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
@@ -190,7 +191,10 @@
 </main>
 <!-- Gọi modal chỉnh sửa -->
 <div th:replace="~{account/edit-profile :: editProfileModal}"></div>
-<div th:replace="~{account/edit-shipper :: editShipperModal}"></div>
+<div sec:authorize="hasRole('SHIPPER')">
+    <div th:replace="~{account/edit-shipper :: editShipperModal}"></div>
+</div>
+
 <!-- Gọi modal đổi mật khẩu -->
 <div th:replace="~{account/change-password :: changePassModal}"></div>
 <div th:replace="~{fragments/_footer :: footer}"></div>

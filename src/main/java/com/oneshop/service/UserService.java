@@ -19,4 +19,5 @@ public interface UserService {
     User activateUser(Long userId);  // kích hoạt tài khoản bằng OTP
     boolean verifyOtp(String email, String otpCode); // xác thực OTP
     void updatePassword(Long userId, String newPassword); // đổi mật khẩu
+	User getByUsername(String name);
 }

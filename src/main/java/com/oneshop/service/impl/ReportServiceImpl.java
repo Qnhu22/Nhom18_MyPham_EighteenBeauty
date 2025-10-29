@@ -20,12 +20,13 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public byte[] generateRevenueReport(Long shipperId) {
-        List<Order> orders = orderRepository.findByShipper_User_UserId(shipperId);
+    	List<Order> orders = orderRepository.findByShipper_ShipperId(shipperId);
+
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Doanh thu giao hàng");
 
-            // 🔹 Header row
+            // Header
             Row header = sheet.createRow(0);
             header.createCell(0).setCellValue("Mã đơn");
             header.createCell(1).setCellValue("Khách hàng");
@@ -39,8 +40,8 @@ public class ReportServiceImpl implements ReportService {
                 row.createCell(0).setCellValue(order.getOrderId());
                 row.createCell(1).setCellValue(order.getAddress() != null ? order.getAddress().getReceiverName() : "N/A");
                 row.createCell(2).setCellValue(order.getAddress() != null ? order.getAddress().getAddressLine() : "N/A");
-                row.createCell(3).setCellValue(order.getStatus());
-                row.createCell(4).setCellValue(order.getTotalAmount() != null ? order.getTotalAmount().doubleValue() : 0.0);
+                row.createCell(3).setCellValue(order.getStatus().toString());
+                row.createCell(4).setCellValue(order.getFinalAmount() != null ? order.getFinalAmount().doubleValue() : 0.0);
             }
 
             workbook.write(out);

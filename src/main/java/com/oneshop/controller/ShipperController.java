@@ -12,6 +12,8 @@ import com.oneshop.repository.UserRepository;
 import com.oneshop.service.OrderService;
 import com.oneshop.service.ReportService;
 import com.oneshop.service.ShipperService;
+import com.oneshop.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -36,6 +39,8 @@ public class ShipperController {
     private final ShipperService shipperService;
     private final UserRepository userRepository;
     private final ReportService reportService; 
+    private final UserService userService;
+
 
     
 
@@ -64,11 +69,11 @@ public class ShipperController {
 
         Long shipperId = shipper.getShipperId();
 
-        long confirmedCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "CONFIRMED").size();
-        long shippingCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "SHIPPING").size();
-        long deliveredCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "DELIVERED").size();
-        long cancelledCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "CANCELLED").size();
-        long returnedCount = orderService.getOrdersByShipperUserIdAndStatus(userId, "RETURNED").size();
+        long confirmedCount = orderService.getOrdersByShipperUserIdAndStatus(shipperId, "CONFIRMED").size();
+        long shippingCount = orderService.getOrdersByShipperUserIdAndStatus(shipperId, "SHIPPING").size();
+        long deliveredCount = orderService.getOrdersByShipperUserIdAndStatus(shipperId, "DELIVERED").size();
+        long cancelledCount = orderService.getOrdersByShipperUserIdAndStatus(shipperId, "CANCELLED").size();
+        long returnedCount = orderService.getOrdersByShipperUserIdAndStatus(shipperId, "RETURNED").size();
         long totalOrders = orderService.countTotalOrdersByShipper(shipperId);
 
         BigDecimal totalRevenue = orderService.calculateTotalRevenueByShipper(shipperId);
@@ -107,11 +112,15 @@ public class ShipperController {
         Long userId = getCurrentUserId(principal);
         List<Order> orders;
 
+        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Long shipperId = shipper.getShipperId();
+
         if (status == null || status.isBlank()) {
-            orders = orderService.getOrdersByShipperUserId(userId);
+            orders = orderService.getOrdersByShipperUserId(shipperId);
         } else {
-            orders = orderService.getOrdersByShipperUserIdAndStatus(userId, status);
+            orders = orderService.getOrdersByShipperUserIdAndStatus(shipperId, status);
         }
+
 
         model.addAttribute("orders", orders);
         model.addAttribute("status", status);
@@ -124,14 +133,15 @@ public class ShipperController {
 
     // 🔍 Chi tiết đơn hàng
     @GetMapping("/order/{orderId}")
-    public String orderDetail(@AuthenticationPrincipal UserDetails principal,
-                              @PathVariable Long orderId,
-                              Model model) {
-        Long userId = getCurrentUserId(principal);
-        Order order = orderService.getOrderByIdForShipper(orderId, userId);
+    public String viewOrderDetail(@PathVariable Long orderId, Model model, Principal principal) {
+        User user = userService.getByUsername(principal.getName());
+        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+        
+        Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
         model.addAttribute("order", order);
         return "shipper/order-detail";
     }
+
 
     // 🔄 Cập nhật trạng thái đơn hàng (CONFIRMED → SHIPPING → DELIVERED / RETURNED / CANCELLED)
     @PostMapping("/order/{orderId}/update")
@@ -141,13 +151,14 @@ public class ShipperController {
                                @RequestParam(required = false) String note,
                                RedirectAttributes redirectAttributes) {
         Long userId = getCurrentUserId(principal);
+        Shipper shipper = shipperService.getShipperByUserId(userId);
+     // Lấy order hiện tại
+      //  Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
 
-        // Cập nhật trạng thái đơn hàng
-        orderService.updateOrderStatusHistoryByShipper(orderId, userId, status, note);
+        orderService.updateOrderStatusByShipper(orderId, shipper.getShipperId(), status, note);
 
-        // Thêm thông báo khi quay lại danh sách
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công!");
-        return "redirect:/shipper/orders";
+        return "redirect:/shipper/orders?status=" + status;
     }
 
     

@@ -130,11 +130,13 @@ table.table th {
 						th:text="${order.address != null ? order.address.addressLine + ', ' + order.address.ward + ', ' + order.address.district + ', ' + order.address.city : 'Chưa có địa chỉ'}"></td>
 					<td><span th:text="${order.status}"
 						th:classappend="${
-        (order.status == 'CONFIRMED' ? 'status-confirmed' :
-        (order.status == 'SHIPPING' ? 'status-shipping' :
-        (order.status == 'DELIVERED' ? 'status-delivered' :
-        (order.status == 'RETURNED' ? 'status-returned' : 'status-cancelled'))))}">
+          (order.status?.toString().equalsIgnoreCase('CONFIRMED') ? 'status-confirmed' :
+          (order.status?.toString().equalsIgnoreCase('SHIPPING') ? 'status-shipping' :
+          (order.status?.toString().equalsIgnoreCase('DELIVERED') ? 'status-delivered' :
+          (order.status?.toString().equalsIgnoreCase('CANCELLED') ? 'status-cancelled' :
+          (order.status?.toString().equalsIgnoreCase('RETURNED') ? 'status-returned' : '')))))}">
 					</span></td>
+
 					<td
 						th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
 					<td><a th:href="@{'/shipper/order/' + ${order.orderId}}"

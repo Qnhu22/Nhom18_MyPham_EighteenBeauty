@@ -1,6 +1,7 @@
 package com.oneshop.repository;
 
 import com.oneshop.entity.Order;
+import com.oneshop.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,55 +14,53 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-	// Lấy danh sách đơn được gán cho shipper (theo userId của bảng users)
-	List<Order> findByShipper_User_UserId(Long userId);
+    // 🔹 Lấy danh sách đơn theo shipperId
+    List<Order> findByShipper_ShipperId(Long shipperId);
 
-	// Lấy theo shipper + trạng thái
-	List<Order> findByShipper_User_UserIdAndStatus(Long userId, String status);
+    // 🔹 Lấy danh sách đơn theo shipperId + trạng thái
+    List<Order> findByShipper_ShipperIdAndStatus(Long shipperId, OrderStatus status);
 
-	// Kiểm tra quyền truy cập (tìm order theo id và shipper)
-	Optional<Order> findByOrderIdAndShipper_User_UserId(Long orderId, Long userId);
+    // 🔹 Lấy 1 đơn cụ thể để kiểm tra quyền truy cập
+    Optional<Order> findByOrderIdAndShipper_ShipperId(Long orderId, Long shipperId);
 
-	@Query("SELECT COUNT(o) FROM Order o WHERE o.shipper.shipperId = :shipperId")
-	long countByShipper(@Param("shipperId") Long shipperId);
+    // 🔹 Đếm số đơn của shipper
+    long countByShipper_ShipperId(Long shipperId);
 
-	@Query("SELECT COUNT(o) FROM Order o WHERE o.shipper.shipperId = :shipperId AND o.status = :status")
-	long countByShipperAndStatus(@Param("shipperId") Long shipperId, @Param("status") String status);
+    // 🔹 Đếm số đơn theo trạng thái
+    long countByShipper_ShipperIdAndStatus(Long shipperId, OrderStatus status);
 
-	@Query("SELECT COALESCE(SUM(o.finalAmount), 0) FROM Order o WHERE o.shipper.shipperId = :shipperId AND o.status = 'DELIVERED'")
-	BigDecimal sumTotalDeliveredAmountByShipper(@Param("shipperId") Long shipperId);
+    // 🔹 Tổng doanh thu đơn giao thành công
+    @Query("""
+        SELECT COALESCE(SUM(o.finalAmount), 0)
+        FROM Order o
+        WHERE o.shipper.id = :shipperId
+          AND o.status = 'DELIVERED'
+    """)
+    BigDecimal sumTotalDeliveredAmountByShipper(@Param("shipperId") Long shipperId);
 
-	@Query("SELECT FUNCTION('MONTH', o.orderDate) AS month, COUNT(o) " + "FROM Order o "
-			+ "WHERE o.shipper.shipperId = :shipperId AND o.status = 'DELIVERED' "
-			+ "GROUP BY FUNCTION('MONTH', o.orderDate) " + "ORDER BY FUNCTION('MONTH', o.orderDate)")
-	List<Object[]> countMonthlyDeliveredByShipper(@Param("shipperId") Long shipperId);
+    // 🔹 Thống kê đơn giao hàng theo tháng
+    @Query("""
+        SELECT 
+            MONTH(o.orderDate),
+            COUNT(o.orderId),
+            SUM(o.finalAmount)
+        FROM Order o
+        WHERE o.shipper.id = :shipperId
+          AND o.status = 'DELIVERED'
+          AND YEAR(o.orderDate) = YEAR(CURRENT_DATE)
+        GROUP BY MONTH(o.orderDate)
+        ORDER BY MONTH(o.orderDate)
+    """)
+    List<Object[]> getMonthlyDeliveredStats(@Param("shipperId") Long shipperId);
 
-	@Query("""
-		    SELECT 
-		        MONTH(o.orderDate) AS month,
-		        COUNT(o.orderId) AS deliveredCount,
-		        SUM(o.finalAmount) AS totalRevenue
-		    FROM Order o
-		    WHERE o.shipper.shipperId = :shipperId
-		      AND o.status = 'DELIVERED'
-		      AND YEAR(o.orderDate) = YEAR(CURRENT_DATE)
-		    GROUP BY MONTH(o.orderDate)
-		    ORDER BY MONTH(o.orderDate)
-		""")
-		List<Object[]> getMonthlyDeliveredStats(@Param("shipperId") Long shipperId);
-
-
-
-		@Query("""
-			    SELECT
-			        SUM(CASE WHEN o.status = 'DELIVERED' THEN 1 ELSE 0 END),
-			        SUM(CASE WHEN o.status = 'CANCELLED' THEN 1 ELSE 0 END),
-			        SUM(CASE WHEN o.status = 'RETURNED' THEN 1 ELSE 0 END)
-			    FROM Order o
-			    WHERE o.shipper.shipperId = :shipperId
-			""")
-			List<Object[]> getPerformanceStats(@Param("shipperId") Long shipperId);
-
-
-
+    // 🔹 Thống kê hiệu suất giao hàng
+    @Query("""
+        SELECT
+            SUM(CASE WHEN o.status = 'DELIVERED' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN o.status = 'CANCELLED' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN o.status = 'RETURNED' THEN 1 ELSE 0 END)
+        FROM Order o
+        WHERE o.shipper.id = :shipperId
+    """)
+    List<Object[]> getPerformanceStats(@Param("shipperId") Long shipperId);
 }
