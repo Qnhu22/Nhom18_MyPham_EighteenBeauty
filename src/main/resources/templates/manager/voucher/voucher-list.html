@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{decorators/manager-layout}">
+<head>
+<title>Quản lý Voucher</title>
+<style>
+.badge-status {
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: capitalize;
+}
+.status-INACTIVE {
+	background: #f8f0f2;
+	color: #ad3b63;
+}
+
+.status-ACTIVE {
+	background: #DC92B3;
+	color: #fff;
+}
+
+.status-EXPIRED {
+	background: #f3f3f3;
+	color: #6c6c6c;
+}
+
+.status-USED_UP {
+	background: #ffe6e9;
+	color: #a61f3a;
+}
+
+.status-DISABLED {
+	background: #eeeaf0;
+	color: #6b546f;
+}
+
+.tab-status .nav-link.active {
+	background-color: #DC92B3;
+	color: white !important;
+	border-radius: 10px;
+}
+.btn-rose {
+	background: #DC92B3;
+	color: #fff;
+	border-radius: 8px;
+	border: none;
+}
+
+.btn-rose:hover {
+	background: #C97BA4;
+}
+
+.progress {
+	height: 10px;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #f1e7ea;
+}
+
+.progress>.bar {
+	height: 100%;
+	background: #DC92B3;
+	display: block;
+}
+
+.filter-row .form-control, .filter-row .form-select {
+	border-radius: 8px;
+}
+
+.pagination {
+	gap: 6px;
+}
+
+.pagination .page-link {
+	border-radius: 10px;
+	border: 1px solid #E5C1D1;
+	color: #DC92B3;
+	font-weight: 500;
+	transition: all 0.25s ease;
+	padding: 0.5rem 0.9rem;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #DC92B3;
+	border-color: #DC92B3;
+	color: white;
+	box-shadow: 0 2px 6px rgba(220, 146, 179, 0.4);
+}
+
+.pagination .page-link:hover {
+	background-color: #FAD1CE;
+	color: white;
+}
+</style>
+</head>
+<body>
+	<section layout:fragment="content" class="px-4 mt-3">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="fw-bold" style="color: #DC92B3;">Quản lý Voucher</h4>
+			<a th:href="@{/manager/vouchers/add}" class="btn btn-rose">+ Thêm
+				Voucher</a>
+		</div>
+		<!-- Tabs trạng thái -->
+		<ul class="nav nav-pills mb-3 tab-status">
+			<li class="nav-item"><a class="nav-link"
+				th:classappend="${selectedStatus == null} ? 'active'"
+				th:href="@{/manager/vouchers}">Tất cả</a></li>
+			<li class="nav-item" th:each="s : ${allStatuses}"><a
+				class="nav-link" th:text="${s.label}"
+				th:classappend="${selectedStatus == s} ? 'active'"
+				th:href="@{'/manager/vouchers?status=' + ${s}}"></a></li>
+		</ul>
+		<!-- Filter -->
+		<form class="row g-2 mb-3 filter-row" method="get"
+			th:action="@{/manager/vouchers}">
+			<div class="col-md-3">
+				<input name="keyword" class="form-control"
+					placeholder="Tìm mã / tên" th:value="${keyword}" />
+			</div>
+			<div class="col-md-2">
+				<select name="discountType" class="form-select">
+					<option value="">Loại (tất cả)</option>
+					<option th:each="dt: ${allTypes}" th:value="${dt.name()}"
+						th:text="${dt.label}" th:selected="${selectedType == dt}"></option>
+				</select>
+			</div>
+			<div class="col-md-3">
+				<button class="btn btn-rose w-100" type="submit">
+					<i class="fa fa-filter me-1"></i> Lọc
+				</button>
+			</div>
+		</form>
+
+		<!-- Table -->
+		<div class="table-responsive bg-white shadow-sm p-3 rounded-3">
+			<table class="table table-hover align-middle">
+				<thead class="table-light">
+					<tr>
+						<th>Mã</th>
+						<th>Tên</th>
+						<th>Loại</th>
+						<th>Giá trị</th>
+						<th>Usage</th>
+						<th>Khoảng thời gian</th>
+						<th>Trạng thái</th>
+						<th class="text-center">Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="v : ${vouchers}">
+						<!-- Mã & Tên & Loại -->
+						<td th:text="${v.code}">CODE</td>
+						<td th:text="${v.name}">Tên Voucher</td>
+						<td th:text="${v.discountType.label}">Loại</td>
+
+						<td><span
+							th:if="${v.discountType != null and v.discountType.name() == 'PERCENT'}"
+							th:text="${v.discountPercent + '%'}"></span> <span
+							th:if="${v.discountType != null and v.discountType.name() == 'AMOUNT'}"
+							th:text="${#numbers.formatDecimal(v.discountAmount,0,'COMMA',0,'POINT') + ' ₫'}"></span>
+							<span
+							th:if="${v.discountType != null and v.discountType.name() == 'FREESHIP'}"></span>
+
+							<div
+								th:if="${v.maxDiscountValue != null and v.discountType != null and v.discountType.name() == 'PERCENT'}"
+								class="small text-muted">
+								Max: <span
+									th:text="${#numbers.formatDecimal(v.maxDiscountValue,0,'COMMA',0,'POINT') + ' ₫'}"></span>
+							</div></td>
+
+						<!-- Sử dụng / Giới hạn -->
+						<td style="min-width: 150px;">
+							<div class="small mb-1"
+								th:text="|${v.usedCount} / ${v.usageLimit != null ? v.usageLimit : '∞'}|"></div>
+							<div class="progress">
+								<span class="bar"
+									th:style="|width: ${v.usageLimit != null && v.usageLimit > 0 ? ((v.usedCount != null ? v.usedCount : 0) * 100.0 / v.usageLimit) : 0}%;|"></span>
+							</div>
+						</td>
+
+						<!-- Thời gian -->
+						<td>
+							<div
+								th:text="${v.startDate != null ? #temporals.format(v.startDate,'dd/MM/yyyy HH:mm') : '—'}"></div>
+							<div
+								th:text="${v.endDate != null ? #temporals.format(v.endDate,'dd/MM/yyyy HH:mm') : '—'}"></div>
+						</td>
+
+						<!-- Trạng thái -->
+						<td><span class="badge-status"
+							th:classappend="${v.status != null ? ' status-' + v.status : ''}"
+							th:text="${v.status != null ? v.status : '—'}"></span></td>
+
+						<!-- Hành động -->
+						<td class="text-center">
+							<button class="btn btn-sm btn-outline-info"
+								th:attr="data-id=${v.voucherId}" onclick="viewDetail(this)">
+								<i class="fa fa-eye"></i>
+							</button> <a th:href="@{'/manager/vouchers/edit/' + ${v.voucherId}}"
+							class="btn btn-sm btn-outline-primary ms-1"> <i
+								class="fa fa-edit"></i>
+						</a>
+							<button class="btn btn-sm btn-outline-danger ms-1"
+								th:attr="data-id=${v.voucherId}" onclick="deleteVoucher(this)">
+								<i class="fa fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+		<!-- Pagination  -->
+		<nav class="mt-3">
+			<ul class="pagination justify-content-center">
+				<li class="page-item"
+					th:classappend="${currentPage == 0} ? 'disabled'"><a
+					class="page-link"
+					th:href="@{'/manager/vouchers?(page=' + ${currentPage - 1}
+                                 + (${keyword} != null ? '&keyword=' + ${keyword} : '')
+                                 + (${selectedType} != null ? '&discountType=' + ${selectedType} : '')
+                                 + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '')
+                                 + ')' }">&laquo;</a>
+				</li>
+
+				<li class="page-item"
+					th:each="i : ${#numbers.sequence(1, totalPages)}"
+					th:classappend="${i - 1 == currentPage} ? 'active'"><a
+					class="page-link"
+					th:href="@{'/manager/vouchers?(page=' + ${i - 1}
+                                 + (${keyword} != null ? '&keyword=' + ${keyword} : '')
+                                 + (${selectedType} != null ? '&discountType=' + ${selectedType} : '')
+                                 + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '')
+                                 + ')' }"
+					th:text="${i}"></a></li>
+
+				<li class="page-item"
+					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+					<a class="page-link"
+					th:href="@{'/manager/vouchers?(page=' + ${currentPage + 1}
+                                 + (${keyword} != null ? '&keyword=' + ${keyword} : '')
+                                 + (${selectedType} != null ? '&discountType=' + ${selectedType} : '')
+                                 + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '')
+                                 + ')' }">&raquo;</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- Modal chi tiết -->
+		<div class="modal fade" id="voucherDetailModal" tabindex="-1">
+			<div class="modal-dialog modal-lg modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Chi tiết Voucher</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body" id="voucherDetailBody">
+						<!-- content loaded by AJAX -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+        function viewDetail(btn) {
+            const id = btn.getAttribute('data-id');
+            fetch(`/manager/vouchers/detail/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const body = document.getElementById('voucherDetailBody');
+                    body.innerHTML = `
+                      <p><strong>Mã:</strong> ${data.code}</p>
+                      <p><strong>Tên:</strong> ${data.name}</p>
+                      <p><strong>Loại:</strong> ${data.discountType}</p>
+                      <p><strong>Chi tiết:</strong> ${data.description ?? '—'}</p>
+                      <p><strong>Giảm:</strong> ${data.discountPercent ? data.discountPercent + '%' : (data.discountAmount ? new Intl.NumberFormat('vi-VN').format(data.discountAmount) + ' ₫' : '—')}</p>
+                      <p><strong>Ngày:</strong> ${data.startDate ?? '—'} → ${data.endDate ?? '—'}</p>
+                      <p><strong>Usage:</strong> ${data.usedCount ?? 0} / ${data.usageLimit ?? '∞'}</p>
+                      <div class="mt-2">
+                        <div class="progress"><span class="bar" style="width:${data.usageLimit ? (data.usedCount*100.0/data.usageLimit) : 0}%"></span></div>
+                      </div>
+                    `;
+                    new bootstrap.Modal(document.getElementById('voucherDetailModal')).show();
+                })
+                .catch(()=> alert('Lỗi tải chi tiết'));
+        }
+
+        function deleteVoucher(btn) {
+            if(!confirm('Xác nhận xóa voucher này?')) return;
+            const id = btn.getAttribute('data-id');
+            fetch(`/manager/vouchers/delete/${id}`, { method: 'POST' })
+                .then(r => { if(r.ok) location.reload(); else alert('Xóa thất bại'); })
+                .catch(()=> alert('Lỗi'));
+        }
+    </script>
+	</section>
+</body>
+</html>

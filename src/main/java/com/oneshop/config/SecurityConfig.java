@@ -58,7 +58,8 @@ public class SecurityConfig {
                     "/register", "/verify-otp", 
                     "/forgot-password", "/reset-password",
                     "/login",
-                    "/css/**", "/js/**", "/images/**", "/uploads/**"
+                    "/css/**", "/js/**", "/images/**", "/uploads/**",
+                    "/decorators/**"
                 ).permitAll()
 
                 // 🔐 Các đường dẫn yêu cầu role

@@ -7,6 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "order_addresses")
@@ -55,4 +57,19 @@ public class OrderAddress {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    
+    @Transient
+    public String getFullAddress() {
+        StringJoiner sj = new StringJoiner(", ");
+
+        if (addressLine != null && !addressLine.isBlank()) sj.add(addressLine.trim());
+        if (ward != null && !ward.isBlank()) sj.add(ward.trim());
+        if (district != null && !district.isBlank()) sj.add(district.trim());
+        if (city != null && !city.isBlank()) sj.add(city.trim());
+
+        return sj.length() == 0 ? "—" : sj.toString();
+    }
+    
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders;
 }

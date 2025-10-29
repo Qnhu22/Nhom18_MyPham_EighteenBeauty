@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{decorators/manager-layout}">
+<head>
+<title>Quản lý Reviews</title>
+<style>
+.review-card {
+	border: 1px solid #ddd;
+	padding: 15px;
+	border-radius: 8px;
+	margin-bottom: 15px;
+	background: #fff;
+}
+
+.review-card.hidden {
+	opacity: 0.6;
+	background: #f8f8f8;
+}
+
+.review-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.review-user {
+	font-weight: bold;
+}
+
+.review-comment {
+	margin-top: 8px;
+}
+
+.review-actions button {
+	margin-right: 5px;
+}
+
+.review-img {
+	max-width: 80px;
+	margin-top: 5px;
+}
+
+.star {
+	color: #ccc;
+}
+
+.star.filled {
+	color: #f5c518;
+}
+
+.pagination {
+	gap: 6px;
+}
+
+.pagination .page-link {
+	border-radius: 10px;
+	border: 1px solid #E5C1D1;
+	color: #DC92B3;
+	font-weight: 500;
+	transition: all 0.25s ease;
+	padding: 0.5rem 0.9rem;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #DC92B3;
+	border-color: #DC92B3;
+	color: white;
+	box-shadow: 0 2px 6px rgba(220, 146, 179, 0.4);
+}
+
+.pagination .page-link:hover {
+	background-color: #FAD1CE;
+	color: white;
+}
+.btn-rose {
+	background: #DC92B3;
+	color: #fff;
+	border-radius: 8px;
+	border: none;
+}
+
+.btn-rose:hover {
+	background: #C97BA4;
+}
+.tab-status .nav-link.active {
+	background-color: #DC92B3;
+	color: white !important;
+	border-radius: 10px;
+}
+
+</style>
+</head>
+<body>
+	<section layout:fragment="content" class="px-4 mt-3">
+
+		<h4 class="fw-bold mb-3" style="color: #DC92B3">Quản lý Đánh giá</h4>
+	    <!-- TAB FILTER -->
+
+		<ul class="nav nav-pills mb-3 tab-status">
+			<li class="nav-item"><a class="nav-link"
+				th:classappend="${selectedStatus == null} ? 'active'"
+				th:href="@{/manager/reviews}">Tất cả</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:classappend="${selectedStatus == true} ? 'active'"
+				th:href="@{/manager/reviews(status=true)}">Hiển thị</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:classappend="${selectedStatus == false} ? 'active'"
+				th:href="@{/manager/reviews(status=false)}">Ẩn</a></li>
+		</ul>
+
+		<!-- FILTER -->
+		<form class="row g-3 mb-3" method="get"
+			th:action="@{/manager/reviews}">
+			<div class="col-md-3">
+				<select class="form-select" name="productId">
+					<option value="">Sản phẩm (tất cả)</option>
+					<option th:each="p : ${allProducts}" th:value="${p.productId}"
+						th:text="${p.name}" th:selected="${p.productId == selectedProductId}"></option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<select class="form-select" name="rating">
+					<option value="">Rating (tất cả)</option>
+					<option th:each="r : ${allRatings}" th:value="${r}" th:text="${r}"
+						th:selected="${r == selectedRating}"></option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<input type="datetime-local" class="form-control" name="fromDate"
+					th:value="${#dates.format(fromDate,'yyyy-MM-dd HH:mm')}"
+					placeholder="Từ ngày">
+			</div>
+			<div class="col-md-2">
+				<input type="datetime-local" class="form-control" name="toDate"
+					th:value="${#dates.format(toDate,'yyyy-MM-dd HH:mm')}"
+					placeholder="Đến ngày">
+			</div>
+			<div class="col-md-3">
+				<button class="btn btn-rose w-100" type="submit">
+					<i class="fa fa-filter me-1"></i> Lọc
+				</button>
+			</div>
+		</form>
+
+		<!-- LIST OF REVIEWS -->
+		<div th:each="r : ${reviews}"
+			th:classappend="${!r.status} ? ' hidden'" class="review-card">
+			<div class="review-header">
+				<div>
+					<span class="review-user"
+						th:text="|${r.user.fullName} (${r.user.email})|"></span> <span
+						class="text-muted"> - <span th:text="${r.product.name}"></span></span>
+				</div>
+				<div>
+					<!-- Hiển thị rating dạng sao -->
+					<span th:each="i : ${#numbers.sequence(1,5)}" class="star"
+						th:classappend="${i <= r.rating} ? ' filled'"> &#9733; </span>
+				</div>
+			</div>
+
+			<div class="review-comment" th:text="${r.comment}"></div>
+
+			<div th:if="${r.imageUrl != null}">
+				<img th:src="@{${r.imageUrl}}" class="review-img" />
+			</div>
+
+			<div class="review-reply mt-2" th:if="${r.reply != null}">
+				<strong>Reply:</strong> <span th:text="${r.reply}"></span>
+			</div>
+
+			<div class="review-actions mt-2">
+				<button class="btn btn-sm btn-outline-info"
+					th:attr="data-id=${r.reviewId}" onclick="showReplyModal(this)">Phản hồi</button>
+				<button class="btn btn-sm btn-outline-warning"
+					th:attr="data-id=${r.reviewId}" onclick="toggleStatus(this)">Ẩn</button>
+				<button class="btn btn-sm btn-outline-danger"
+					th:attr="data-id=${r.reviewId}" onclick="deleteReview(this)">Xóa</button>
+			</div>
+
+			<div class="text-muted mt-1"
+				th:text="${#temporals.format(r.createdAt,'dd/MM/yyyy HH:mm')}"></div>
+		</div>
+
+		<!-- Phân trang -->
+		<nav class="mt-4">
+			<ul class="pagination justify-content-center">
+
+				<!-- Nút Trang trước -->
+				<li class="page-item"
+					th:classappend="${currentPage == 0} ? 'disabled'"><a
+					class="page-link"
+					th:href="@{'/manager/reviews?(page=' + ${currentPage - 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
+                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
+                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
+                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}">&laquo;</a>
+				</li>
+
+				<!-- Các số trang -->
+				<li class="page-item"
+					th:each="i : ${#numbers.sequence(1, totalPages)}"
+					th:classappend="${i - 1 == currentPage} ? 'active'"><a
+					class="page-link"
+					th:href="@{'/manager/reviews?(page=' + ${i - 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
+                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
+                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
+                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}"
+					th:text="${i}"></a></li>
+
+				<!-- Nút Trang sau -->
+				<li class="page-item"
+					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+					<a class="page-link"
+					th:href="@{'/manager/reviews?(page=' + ${currentPage + 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
+                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
+                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
+                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}">&raquo;</a>
+				</li>
+
+			</ul>
+		</nav>
+
+
+	<!-- REPLY MODAL -->
+	<div class="modal" id="replyModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form id="replyForm" method="post">
+					<div class="modal-header">
+						<h5 class="modal-title">Phản hồi Review</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<textarea class="form-control" name="reply" rows="3"></textarea>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-rose">Gửi</button>
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Hủy</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+    function showReplyModal(btn){
+        const id = btn.getAttribute('data-id');
+        const modal = new bootstrap.Modal(document.getElementById('replyModal'));
+        const form = document.getElementById('replyForm');
+        form.action = '/manager/reviews/reply/' + id;
+        modal.show();
+    }
+
+    function toggleStatus(btn){
+        const id = btn.getAttribute('data-id');
+        fetch('/manager/reviews/toggle-status/' + id, {method:'POST'})
+            .then(()=>location.reload());
+    }
+
+    function deleteReview(btn){
+        const id = btn.getAttribute('data-id');
+        if(confirm('Bạn có chắc muốn xóa review này?')){
+            fetch('/manager/reviews/delete/' + id, {method:'POST'})
+                .then(()=>location.reload());
+        }
+    }
+</script>
+</section>
+</body>
+</html>

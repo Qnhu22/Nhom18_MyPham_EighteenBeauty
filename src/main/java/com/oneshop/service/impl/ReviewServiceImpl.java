@@ -7,13 +7,24 @@ import com.oneshop.repository.ProductRepository;
 import com.oneshop.repository.ReviewRepository;
 import com.oneshop.repository.UserRepository;
 import com.oneshop.service.ReviewService;
+
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,4 +86,63 @@ public class ReviewServiceImpl implements ReviewService {
 
         productRepository.save(product);
     }
+    
+    @Override
+	public Page<Review> filterReviews(Long productId, Boolean status, Integer rating, LocalDateTime fromDate,
+			LocalDateTime toDate, String keyword, int page) {
+		Pageable pageable = PageRequest.of(Math.max(page, 0), 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Specification<Review> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (productId != null) {
+                predicates.add(cb.equal(root.get("product").get("id"), productId));
+            }
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
+            if (rating != null) {
+                predicates.add(cb.equal(root.get("rating"), rating));
+            }
+
+            if (fromDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), fromDate));
+            }
+
+            if (toDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), toDate));
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String kw = "%" + keyword.toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("comment")), kw),
+                        cb.like(cb.lower(root.get("user").get("name")), kw),
+                        cb.like(cb.lower(root.get("user").get("email")), kw)
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return reviewRepository.findAll(spec, pageable);
+	}
+
+	@Override
+	public Optional<Review> getById(Long reviewId) {
+		return reviewRepository.findById(reviewId);
+	}
+
+	@Override
+	public Review saveOrUpdate(Review review) {
+		return reviewRepository.save(review);
+	}
+
+	@Override
+	public void deleteById(Long reviewId) {
+		reviewRepository.deleteById(reviewId);
+	
+	}
 }

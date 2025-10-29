@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
 	Shop findByManager(User manager);
+	default Shop getSingleShop() {
+        return findAll().stream().findFirst().orElse(null);
+    }
 }

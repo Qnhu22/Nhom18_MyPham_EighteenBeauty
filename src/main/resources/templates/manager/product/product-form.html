@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{decorators/manager-layout}">
+
+<head>
+<meta charset="UTF-8">
+<title
+	th:text="${product.productId == null ? 'Thêm sản phẩm' : 'Chỉnh sửa sản phẩm'}"></title>
+
+
+<style>
+.form-container {
+	background-color: #fff;
+	border-radius: 15px;
+	padding: 1.5rem;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.btn-rose {
+	background-color: #DC92B3;
+	color: white;
+	border: none;
+	border-radius: 10px;
+	padding: 0.5rem 1rem;
+	transition: all 0.3s ease;
+}
+
+.btn-rose:hover {
+	background-color: #C97BA4;
+}
+
+.variant-table th {
+	background-color: #F8F1F1;
+	color: #333;
+}
+
+.variant-table td input {
+	width: 100%;
+	border: 1px solid #E5C1D1;
+	border-radius: 8px;
+	padding: 4px 6px;
+}
+
+.variant-table td {
+	vertical-align: middle;
+}
+
+.img-preview {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.img-preview img {
+	width: 90px;
+	height: 90px;
+	object-fit: cover;
+	border-radius: 10px;
+	border: 1px solid #ddd;
+}
+
+.select2-container--default .select2-selection--single {
+	border-radius: 10px;
+	height: 38px;
+	border: 1px solid #E5C1D1;
+}
+
+.select2-container--default .select2-selection__rendered {
+	line-height: 38px;
+	padding-left: 10px;
+}
+</style>
+</head>
+
+<body>
+	<section layout:fragment="content" class="px-4 mt-3">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="fw-bold" style="color: #DC92B3;"
+				th:text="${product.productId == null ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}"></h4>
+
+			<a th:href="@{/manager/products}" class="btn btn-outline-secondary">
+				<i class="fa fa-arrow-left me-1"></i> Quay lại
+			</a>
+		</div>
+
+		<!-- Thông báo -->
+		<div th:if="${success}" class="alert alert-success"
+			th:text="${success}"></div>
+		<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+		<div class="form-container">
+			<form th:action="@{/manager/products/save}" method="post"
+				enctype="multipart/form-data" th:object="${product}">
+
+				<input type="hidden" th:field="*{productId}" />
+
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label fw-semibold">Tên sản phẩm</label> <input
+							type="text" th:field="*{name}" class="form-control" required>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label fw-semibold">Trạng thái</label> <select
+							th:field="*{status}" class="form-select">
+							<option th:value="true">Hoạt động</option>
+							<option th:value="false">Ẩn</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label fw-semibold">Mô tả</label>
+					<textarea th:field="*{description}" class="form-control" rows="4"></textarea>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label fw-semibold">Danh mục</label> <select
+							name="categoryId" class="form-select select2" required>
+							<option value="">-- Chọn danh mục --</option>
+							<option th:each="c : ${categories}" th:value="${c.categoryId}"
+								th:text="${c.name}"
+								th:selected="${product.category?.categoryId == c.categoryId}"></option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label fw-semibold">Thương hiệu</label> <select
+							name="brandId" class="form-select select2" required>
+							<option value="">-- Chọn thương hiệu --</option>
+							<option th:each="b : ${brands}" th:value="${b.brandId}"
+								th:text="${b.name}"
+								th:selected="${product.brand?.brandId == b.brandId}"></option>
+						</select>
+					</div>
+				</div>
+
+				<!-- Upload hình ảnh -->
+				<div class="mb-3">
+					<label class="form-label fw-semibold">Ảnh sản phẩm</label>
+
+					<!-- Ảnh hiện tại -->
+					<div class="mb-2">
+						<label class="form-label">Ảnh hiện tại</label>
+						<div id="existingImagePreview"
+							class="img-preview mt-2 d-flex flex-wrap gap-3">
+							<div th:each="img : ${product.images}" class="position-relative">
+								<img th:src="@{${img.imageUrl}}"
+									th:id="'existingImg_' + ${img.imageId}" class="rounded border"
+									style="width: 90px; height: 90px; object-fit: cover; cursor: pointer;">
+
+								<button type="button" th:id="'removeBtn_' + ${img.imageId}"
+									class="btn btn-sm btn-danger position-absolute top-0 end-0"
+									style="border-radius: 50%; width: 22px; height: 22px; line-height: 0.8;"
+									th:onclick="'removeExistingImage(' + ${img.imageId} + ')'">×</button>
+
+								<input type="hidden" name="existingImageIds"
+									th:value="${img.imageId}" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Chọn ảnh mới -->
+					<div class="mb-2">
+						<label class="form-label">Thêm ảnh mới (tùy chọn)</label> <input
+							type="file" name="imageFiles" class="form-control" multiple
+							accept="image/*" onchange="previewNewImages(event)">
+						<div id="newImagePreview"
+							class="img-preview mt-2 d-flex flex-wrap gap-3"></div>
+					</div>
+				</div>
+
+				<!-- Bảng biến thể -->
+				<div class="mt-4">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<h5 class="fw-bold" style="color: #DC92B3;">Biến thể sản phẩm</h5>
+						<button type="button" class="btn btn-sm btn-rose"
+							id="addVariantBtn">
+							<i class="fa fa-plus me-1"></i> Thêm biến thể
+						</button>
+					</div>
+
+					<table class="table variant-table align-middle" id="variantTable">
+						<thead>
+							<tr>
+								<th>Tên biến thể</th>
+								<th>Giá</th>
+								<th>Giá cũ</th>
+								<th>Tồn kho</th>
+								<th>Màu sắc</th>
+								<th>Kích cỡ</th>
+								<th>Ảnh</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="v, i : ${product.variants}">
+								<<input type="hidden"
+									th:name="${'variants[' + i.index + '].variantId'}"
+									th:value="${v.variantId}" />
+								<td><input type="text"
+									th:name="${'variants[' + i.index + '].name'}"
+									th:value="${v.name}" required></td>
+								<td><input type="number" step="0.01"
+									th:name="${'variants[' + i.index + '].price'}"
+									th:value="${v.price}" required></td>
+								<td><input type="number" step="0.01"
+									th:name="${'variants[' + i.index + '].oldPrice'}"
+									th:value="${v.oldPrice}"></td>
+								<td><input type="number"
+									th:name="${'variants[' + i.index + '].stock'}"
+									th:value="${v.stock}" required></td>
+								<td><input type="text"
+									th:name="${'variants[' + i.index + '].color'}"
+									th:value="${v.color}"></td>
+								<td><input type="text"
+									th:name="${'variants[' + i.index + '].size'}"
+									th:value="${v.size}"></td>
+								<td><input type="file"
+									th:name="${'variantImages[' + i.index + ']'}"
+									class="form-control form-control-sm" accept="image/*">
+									<img th:if="${v.imageUrl != null}" th:src="@{${v.imageUrl}}"
+									width="50" class="mt-1 rounded"></td>
+								<td>
+									<button type="button" class="btn btn-sm btn-outline-danger"
+										onclick="removeVariantRow(this)">
+										<i class="fa fa-trash"></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Nút hành động -->
+				<div class="d-flex justify-content-end mt-4 gap-2">
+					<button type="submit" class="btn btn-rose fw-semibold">
+						<i class="fa fa-save me-1"></i> Lưu sản phẩm
+					</button>
+					<a th:href="@{/manager/products}" class="btn btn-outline-secondary">
+						Hủy </a>
+				</div>
+			</form>
+		</div>
+
+		<!-- ================= JS SCRIPT ================= -->
+		<script>
+		// ✅ Select2 init
+		$(document).ready(function () {
+			$('.select2').select2({
+				placeholder: "Chọn...",
+				allowClear: true,
+				width: '100%'
+			});
+		});
+
+		function previewNewImages(event) {
+	        const preview = document.getElementById('newImagePreview');
+	        preview.innerHTML = '';
+	        const files = event.target.files;
+	        for (let file of files) {
+	            const reader = new FileReader();
+	            reader.onload = e => {
+	                const img = document.createElement('img');
+	                img.src = e.target.result;
+	                img.className = 'rounded border';
+	                img.style = 'width: 80px; height: 80px; object-fit: cover; margin-right: 6px;';
+	                preview.appendChild(img);
+	            };
+	            reader.readAsDataURL(file);
+	        }
+	    }
+
+		function removeExistingImage(id) {
+			  if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+			  const imgDiv = document.getElementById('existingImg_' + id)?.parentElement;
+			  if (imgDiv) imgDiv.style.display = 'none';
+
+			  // tạo input hidden để gửi ID cần xóa
+			  const hidden = document.createElement('input');
+			  hidden.type = 'hidden';
+			  hidden.name = 'removeImageIds';
+			  hidden.value = id;
+			  document.querySelector('form').appendChild(hidden);
+			}
+	</script>
+		<script>
+		// ✅ Thêm biến thể động
+		document.getElementById('addVariantBtn').addEventListener('click', () => {
+			const table = document.querySelector('#variantTable tbody');
+			const index = table.rows.length;
+			const row = document.createElement('tr');
+			row.innerHTML = `
+				<td><input type="text" name="variants[${index}].name" required></td>
+				<td><input type="number" step="0.01" name="variants[${index}].price" required></td>
+				<td><input type="number" step="0.01" name="variants[${index}].oldPrice"></td>
+				<td><input type="number" name="variants[${index}].stock" required></td>
+				<td><input type="text" name="variants[${index}].color"></td>
+				<td><input type="text" name="variants[${index}].size"></td>
+				<td><input type="file" name="variantImages[${index}]" class="form-control form-control-sm" accept="image/*"></td>
+				<td>
+					<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeVariantRow(this)">
+						<i class="fa fa-trash"></i>
+					</button>
+				</td>`;
+			table.appendChild(row);
+		});
+
+		// ✅ Xóa dòng biến thể và cập nhật index
+		function removeVariantRow(btn) {
+			const row = btn.closest('tr');
+			row.remove();
+			const rows = document.querySelectorAll('#variantTable tbody tr');
+			rows.forEach((r, i) => {
+				r.querySelectorAll('input[name]').forEach(input => {
+					if (input.name.startsWith("variants[")) {
+				        input.name = input.name.replace(/\variants\[\d+\]/, `variants[${i}]`);
+				      } else if (input.name.startsWith("variantImages[")) {
+				        input.name = input.name.replace(/\variantImages\[\d+\]/, `variantImages[${i}]`);
+				      }
+				});
+			});
+		}
+	</script>
+	</section>
+</body>
+</html>

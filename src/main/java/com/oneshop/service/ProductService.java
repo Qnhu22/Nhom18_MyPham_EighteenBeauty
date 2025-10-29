@@ -4,6 +4,7 @@ import com.oneshop.entity.Category;
 import com.oneshop.entity.Product;
 import com.oneshop.entity.ProductVariant;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +32,15 @@ public interface ProductService {
     Product saveProduct(Product product);
     void deleteProduct(Long productId);
     boolean existsById(Long productId);
+    Product findById(Long productId);
 
     // 🔗 Biến thể
     List<ProductVariant> getVariantsByProduct(Product product);
 
     // 💡 Hỗ trợ hiển thị giá
     String getPriceRange(Product product);
+    
+    Page<Product> filterProducts(String keyword, Long categoryId, Long brandId, String status, int page);
+    
+    Product saveOrUpdateProduct(Product product, MultipartFile[] productImages, MultipartFile[] variantImages, Long[] removeImageIds);
 }

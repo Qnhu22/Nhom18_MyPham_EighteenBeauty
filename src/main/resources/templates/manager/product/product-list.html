@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{decorators/manager-layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>Quản lý sản phẩm</title>
+<style>
+.product-container {
+	background-color: #fff;
+	border-radius: 15px;
+	padding: 1.5rem;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tab-filter {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 1rem;
+	text-decoration: none;
+}
+
+.tab-filter a {
+	text-decoration: none; /* ❌ bỏ gạch chân */
+	border: none;
+	background-color: #FAFAF2;
+	color: #555;
+	font-weight: 500;
+	padding: 0.5rem 1rem;
+	border-radius: 20px;
+	transition: all 0.3s ease;
+	display: inline-block;
+}
+
+.tab-filter a.active, .tab-filter a:hover {
+	background-color: #DC92B3;
+	color: #fff;
+	text-decoration: none;
+}
+
+.filter-section {
+	background-color: #FAFAF2;
+	border-radius: 12px;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.filter-section select, .filter-section input {
+	border-radius: 10px;
+	border: 1px solid #E5C1D1;
+}
+
+.btn-add {
+	background-color: #DC92B3;
+	color: #fff;
+	border: none;
+	border-radius: 10px;
+	padding: 0.5rem 1rem;
+	transition: all 0.3s ease;
+}
+
+.btn-add:hover {
+	background-color: #C97BA4;
+}
+
+table th {
+	background-color: #F8F1F1;
+	color: #333;
+	font-weight: 600;
+}
+
+table td {
+	vertical-align: middle;
+}
+
+.action-btn {
+	border: none;
+	background: none;
+	padding: 5px 8px;
+	border-radius: 8px;
+	transition: all 0.2s ease;
+}
+
+.action-btn i {
+	font-size: 1.1rem;
+}
+
+.btn-view:hover {
+	background-color: #A9CBEE;
+	color: #fff;
+}
+
+.btn-edit:hover {
+	background-color: #FAD1CE;
+	color: #fff;
+}
+
+.btn-delete:hover {
+	background-color: #DC92B3;
+	color: #fff;
+}
+
+.pagination {
+	gap: 6px;
+}
+
+.pagination .page-link {
+	border-radius: 10px;
+	border: 1px solid #E5C1D1;
+	color: #DC92B3;
+	font-weight: 500;
+	transition: all 0.25s ease;
+	padding: 0.5rem 0.9rem;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #DC92B3;
+	border-color: #DC92B3;
+	color: white;
+	box-shadow: 0 2px 6px rgba(220, 146, 179, 0.4);
+}
+
+.pagination .page-link:hover {
+	background-color: #FAD1CE;
+	color: white;
+}
+
+#mainImage {
+	transition: opacity 0.4s ease, transform 0.3s ease;
+}
+
+/* Khi ảnh đang được thay đổi */
+#mainImage.fade-out {
+	opacity: 0;
+}
+
+#mainImage.fade-in {
+	opacity: 1;
+}
+
+/* Hiệu ứng zoom khi hover */
+#mainImage:hover {
+	transform: scale(1.05);
+}
+
+/* Thumbnail ảnh nhỏ */
+#thumbContainer img {
+	border: 2px solid transparent;
+	transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+#thumbContainer img:hover {
+	border-color: #DC92B3;
+	transform: scale(1.1);
+}
+
+/* Biến thể */
+#variantList div {
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#variantList div:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
+</head>
+
+<body>
+	<section layout:fragment="content" class="px-4 mt-3">
+
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="fw-bold" style="color: #DC92B3;">Quản lý sản phẩm</h4>
+			<a th:href="@{/manager/products/add}" class="btn btn-add fw-semibold">
+				<i class="fa fa-plus me-1"></i> Thêm sản phẩm
+			</a>
+		</div>
+
+		<div class="tab-filter">
+			<a th:href="@{/manager/products(status='all')}"
+				th:classappend="${status == 'all'} ? 'active' : ''">Tất cả</a> <a
+				th:href="@{/manager/products(status='active')}"
+				th:classappend="${status == 'active'} ? 'active' : ''">Hoạt động</a>
+			<a th:href="@{/manager/products(status='inactive')}"
+				th:classappend="${status == 'inactive'} ? 'active' : ''">Đã ẩn</a>
+		</div>
+
+
+		<!-- Bộ lọc -->
+		<div class="filter-section">
+			<form class="row g-3" method="get" th:action="@{/manager/products}">
+				<input type="hidden" name="status" th:value="${status}" />
+
+				<div class="col-md-3">
+					<select class="form-select" name="categoryId">
+						<option value="">-- Danh mục --</option>
+						<option th:each="c : ${categories}" th:value="${c.categoryId}"
+							th:text="${c.name}"
+							th:selected="${categoryId} == ${c.categoryId}"></option>
+					</select>
+				</div>
+
+				<div class="col-md-3">
+					<select class="form-select" name="brandId">
+						<option value="">-- Thương hiệu --</option>
+						<option th:each="b : ${brands}" th:value="${b.brandId}"
+							th:text="${b.name}" th:selected="${brandId} == ${b.brandId}"></option>
+					</select>
+				</div>
+
+				<div class="col-md-4">
+					<input type="text" class="form-control" name="keyword"
+						placeholder="Tìm kiếm sản phẩm..." th:value="${keyword}">
+				</div>
+
+				<div class="col-md-2 d-grid">
+					<button class="btn btn-rose fw-semibold"
+						style="background-color: #A9CBEE; color: white;">Lọc</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Danh sách sản phẩm -->
+		<div class="product-container">
+			<table class="table table-hover align-middle">
+				<thead>
+					<tr>
+						<th>Ảnh</th>
+						<th>Tên sản phẩm</th>
+						<th>Mô tả</th>
+						<th>Biến thể</th>
+						<th>Danh mục</th>
+						<th>Thương hiệu</th>
+						<th class="text-center">Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="p : ${products}">
+						<td><img th:src="@{${p.images[0].imageUrl}}"
+							class="img-thumbnail"
+							style="width: 100px; height: 100px; border-radius: 10px;"></td>
+						<td th:text="${p.name}"></td>
+						<td th:text="${#strings.abbreviate(p.description, 40)}"></td>
+						<td th:text="${#lists.size(p.variants)} + ' biến thể'"></td>
+						<td th:text="${p.category.name}"></td>
+						<td th:text="${p.brand.name}"></td>
+						<td class="text-center">
+							<button class="action-btn btn-view"
+								th:onclick="'showProductDetail(' + ${p.productId} + ')'">
+								<i class="fa fa-eye"></i>
+							</button>
+							<button class="action-btn btn-edit"
+								th:onclick="'window.location.href=\'/manager/products/edit/' + ${p.productId} + '\''">
+								<i class="fa fa-edit"></i>
+							</button>
+							<button class="action-btn btn-delete"
+								th:onclick="'if(confirm(\'Xóa sản phẩm này?\')) window.location.href=\'/manager/products/delete/' + ${p.productId} + '\''">
+								<i class="fa fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- Phân trang -->
+		<nav class="mt-4">
+			<ul class="pagination justify-content-center">
+
+				<!-- Nút Trang trước -->
+				<li class="page-item"
+					th:classappend="${currentPage == 0} ? 'disabled'"><a
+					class="page-link"
+					th:href="@{'/manager/products?(page=' + ${currentPage - 1} 
+                   + (${status} != null ? '&status=' + ${status} : '') 
+                   + (${categoryId} != null ? '&categoryId=' + ${categoryId} : '') 
+                   + (${brandId} != null ? '&brandId=' + ${brandId} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}">&laquo;</a>
+				</li>
+
+				<!-- Các số trang -->
+				<li class="page-item"
+					th:each="i : ${#numbers.sequence(1, totalPages)}"
+					th:classappend="${i - 1 == currentPage} ? 'active'"><a
+					class="page-link"
+					th:href="@{'/manager/products?(page=' + ${i - 1} 
+                   + (${status} != null ? '&status=' + ${status} : '') 
+                   + (${categoryId} != null ? '&categoryId=' + ${categoryId} : '') 
+                   + (${brandId} != null ? '&brandId=' + ${brandId} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}"
+					th:text="${i}"></a></li>
+
+				<!-- Nút Trang sau -->
+				<li class="page-item"
+					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+					<a class="page-link"
+					th:href="@{'/manager/products?(page=' + ${currentPage + 1} 
+                   + (${status} != null ? '&status=' + ${status} : '') 
+                   + (${categoryId} != null ? '&categoryId=' + ${categoryId} : '') 
+                   + (${brandId} != null ? '&brandId=' + ${brandId} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + ')'}">&raquo;</a>
+				</li>
+
+			</ul>
+		</nav>
+		<!-- Modal xem chi tiết sản phẩm -->
+		<div class="modal fade" id="productDetailModal" tabindex="-1"
+			aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-centered">
+				<div class="modal-content p-3" style="border-radius: 16px;">
+					<div class="modal-header border-0">
+						<h5 class="modal-title fw-bold" style="color: #DC92B3;">Chi
+							tiết sản phẩm</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Đóng"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<!-- Bên trái: hình ảnh -->
+							<div class="col-md-6 text-center">
+								<img id="mainImage" src="" alt="Ảnh sản phẩm"
+									class="img-fluid rounded border mb-3"
+									style="max-height: 300px; object-fit: contain;">
+								<div id="thumbContainer"
+									class="d-flex justify-content-center flex-wrap gap-2"></div>
+							</div>
+
+							<!-- Bên phải: thông tin -->
+							<div class="col-md-6">
+								<h5 id="productName" class="fw-bold mb-2"></h5>
+								<p id="productCategory" class="mb-1 text-muted"></p>
+								<p id="productBrand" class="mb-1 text-muted"></p>
+								<p id="productStatus" class="mb-2"></p>
+								<p id="productDesc" style="font-size: 0.95rem;"></p>
+								<hr>
+								<h6 class="fw-semibold">
+									Giá: <span id="productPrice" class="text-danger fw-bold"></span>
+								</h6>
+								<p class="mb-1">
+									Kho: <span id="productStock"></span>
+								</p>
+								<p class="mb-3">
+									Đã bán: <span id="productSold"></span>
+								</p>
+								<div id="variantList" class="d-flex flex-wrap gap-2"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+async function showProductDetail(productId) {
+  const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+  const mainImage = document.getElementById('mainImage');
+  const thumbContainer = document.getElementById('thumbContainer');
+  const variantList = document.getElementById('variantList');
+
+  try {
+    const res = await fetch(`/manager/products/details/${productId}`);
+    if (!res.ok) throw new Error("Lỗi khi tải sản phẩm");
+    const p = await res.json();
+
+    // Hiển thị thông tin cơ bản
+    document.getElementById('productName').textContent = p.name;
+    document.getElementById('productCategory').textContent = "Danh mục: " + p.category;
+    document.getElementById('productBrand').textContent = "Thương hiệu: " + p.brand;
+    document.getElementById('productStatus').innerHTML = p.status
+        ? '<span class="badge bg-success">Hoạt động</span>'
+        : '<span class="badge bg-secondary">Đã ẩn</span>';
+    document.getElementById('productDesc').textContent = p.description;
+
+    // Ảnh chính
+    mainImage.src = p.images.length > 0 ? p.images[0] : '/images/no-image.png';
+
+    // Thumbnail ảnh
+    thumbContainer.innerHTML = '';
+    [...p.images, ...p.variants.map(v => v.imageUrl)].forEach((url, i) => {
+      if (!url) return;
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'border rounded';
+      img.style = 'width: 60px; height: 60px; cursor:pointer; object-fit:cover;';
+      img.onclick = () => {
+    	  // Hiệu ứng fade khi đổi ảnh
+    	  	mainImage.classList.add('fade-out');
+    	  	setTimeout(() => {
+    	    		mainImage.src = url;
+    	    		mainImage.classList.remove('fade-out');
+    	    		mainImage.classList.add('fade-in');
+    	    		setTimeout(() => mainImage.classList.remove('fade-in'), 400);
+    	  }, 200);	
+
+    	  // Cập nhật giá khi chọn ảnh variant
+    	  const variant = p.variants.find(v => v.imageUrl === url);
+    	  if (variant) {
+    	    document.getElementById('productPrice').textContent = variant.price.toLocaleString() + "₫";
+    	  }
+    	};
+
+      thumbContainer.appendChild(img);
+    });
+
+    // Tính tổng stock, sold + giá cao nhất
+    const totalStock = p.variants.reduce((s, v) => s + (v.stock || 0), 0);
+    const totalSold = p.variants.reduce((s, v) => s + (v.soldCount || 0), 0);
+    const maxPrice = Math.max(...p.variants.map(v => v.price || 0));
+
+    document.getElementById('productStock').textContent = totalStock;
+    document.getElementById('productSold').textContent = totalSold;
+    document.getElementById('productPrice').textContent = maxPrice.toLocaleString() + "₫";
+
+    // Danh sách biến thể
+    variantList.innerHTML = '';
+    p.variants.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'border rounded p-2 text-center';
+      div.style = 'width:100px; cursor:pointer;';
+      div.innerHTML = `
+        <img src="${v.imageUrl}" class="rounded mb-1" style="width:70px; height:70px; object-fit:cover;">
+        <p class="mb-0 small">${v.name}</p>
+      `;
+      div.onclick = () => {
+        mainImage.src = v.imageUrl;
+        document.getElementById('productPrice').textContent = v.price.toLocaleString() + "₫";
+      };
+      variantList.appendChild(div);
+    });
+
+    modal.show();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+</script>
+
+
+	</section>
+
+</body>
+
+</html>

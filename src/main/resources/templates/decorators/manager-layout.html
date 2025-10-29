@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title layout:title-pattern="$CONTENT_TITLE - OneShop Manager">OneShop
+	Manager</title>
+
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+	integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link
+	href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+	rel="stylesheet">
+
+<style>
+body {
+	background-color: #F8F1F1;
+	font-family: 'Poppins', sans-serif;
+	color: #333;
+	margin: 0;
+	display: flex;
+	min-height: 100vh;
+	overflow-x: hidden;
+	transition: all 0.3s ease;
+}
+
+/* HEADER */
+.custom-header {
+	background-color: #A9CBEE;
+	padding: 0.5rem 1rem;
+	height: 60px;
+	min-height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+}
+
+.custom-header:hover {
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header-left, .header-right {
+	display: flex;
+	align-items: center;
+}
+
+.brand-logo {
+	font-size: 1.5rem;
+	color: #333;
+	letter-spacing: 0.3px;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: color 0.3s ease;
+	font-weight: bold;
+	margin-left: 0.5rem;
+}
+
+.brand-logo span {
+	color: #DC92B3;
+}
+
+.brand-logo:hover {
+	color: #DC92B3;
+}
+
+.toggle-btn {
+	font-size: 1.2rem;
+	color: #333;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0.2rem 0.5rem;
+	margin-right: 0;
+	transition: color 0.3s ease;
+}
+
+.toggle-btn:hover {
+	color: #DC92B3;
+}
+
+.account-btn, .lang-btn {
+	color: #333;
+	border-color: #DC92B3;
+	background-color: transparent;
+	font-size: 0.9rem;
+	padding: 0.2rem 0.5rem;
+	line-height: 1;
+	height: 100%;
+	margin: 0 0.5rem;
+	display: flex;
+	align-items: center;
+	transition: all 0.3s ease;
+	border-radius: 20px;
+}
+
+.account-btn:hover, .lang-btn:hover {
+	background-color: #FDC9B3;
+	border-color: #CEA7C2;
+}
+
+.dropdown-menu {
+	min-width: 150px;
+	font-size: 0.9rem;
+	top: 100%;
+	margin-top: 0.2rem;
+	background-color: #F8F1F1;
+	border: 1px solid #CEA7C2;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	padding: 0.5rem;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	transform-origin: top;
+}
+
+.dropdown-menu.show {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.dropdown-menu[data-bs-popper] {
+	opacity: 0;
+	transform: scale(0.95);
+}
+
+.dropdown-item {
+	color: #333;
+	padding: 0.4rem 1rem;
+	border-radius: 5px;
+	transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+	background-color: #FDC9B3;
+	color: #333;
+}
+
+.dropdown-divider {
+	border-top-color: #CEA7C2;
+	margin: 0.3rem 0;
+}
+
+.avatar {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: #FDC9B3;
+	display: inline-block;
+	margin-right: 0.5rem;
+	vertical-align: middle;
+}
+
+.account-info {
+	display: flex;
+	align-items: center;
+}
+
+/* SIDEBAR */
+.sidebar {
+	background-color: #FAD1CE;
+	width: 250px;
+	height: calc(100vh - 100px);
+	position: fixed;
+	top: 60px;
+	left: 0;
+	bottom: 40px;
+	padding: 1rem;
+	overflow-y: auto;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+	transition: width 0.3s ease, padding 0.3s ease;
+	z-index: 900;
+}
+
+.sidebar.collapsed {
+	width: 70px;
+	padding: 1rem 0.5rem;
+}
+
+.sidebar.collapsed h5, .sidebar.collapsed .nav-link {
+	display: none;
+}
+
+.sidebar h5 {
+	color: #DC92B3;
+	font-size: 1.2rem;
+	margin-bottom: 1.5rem;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	transition: opacity 0.3s ease;
+}
+
+.nav-link {
+	color: #333;
+	padding: 0.75rem 1rem;
+	margin-bottom: 0.5rem;
+	border-radius: 10px;
+	font-size: 0.95rem;
+	display: flex;
+	align-items: center;
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+	background-color: #FDC9B3;
+	color: #DC92B3;
+	transform: translateX(8px);
+	box-shadow: 0 2px 5px rgba(220, 146, 179, 0.3);
+}
+
+.nav-link.active {
+	background-color: #FAFAF2;
+	color: rgb(203, 95, 143);
+	font-weight: 600;
+	border-left: 5px solid #DC92B3;
+	box-shadow: 0 2px 5px rgba(220, 146, 179, 0.3);
+}
+
+.nav-link i {
+	margin-right: 0.75rem;
+	font-size: 1.1rem;
+	color: inherit;
+	transition: color 0.3s ease;
+}
+
+.nav-link:hover i, .nav-link.active i {
+	background-color: #FAFAF2;
+	color: rgb(203, 95, 143);
+	font-weight: 600;
+	box-shadow: 0 2px 5px rgba(220, 146, 179, 0.3);
+}
+
+section {
+	background-color: #F8F1F1; /* Trắng nhạt */
+	padding: 0.5rem;
+	border-radius: 0;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	/*flex: 1 0 auto;  Chiếm phần còn lại, không co lại */
+	margin-left: 250px;
+	padding-top: 60px; /* Đảm bảo không bị che bởi header */
+	padding-bottom: 40px; /* Đảm bảo không bị che bởi footer */
+	/* Ban đầu không margin, điều chỉnh khi sidebar hiển thị */
+	transition: margin-left 0.3s ease;
+	width: 100%; /* Điều chỉnh chiều rộng ban đầu */
+	/*flex: 1 0 auto;*/
+}
+
+.sidebar.collapsed ~section {
+	margin-left: 70px;
+}
+
+.container-fluid {
+	display: flex;
+	flex: 1;
+	margin-top: 0; /* Đẩy nội dung xuống dưới header đã fix */
+	margin-bottom: 0; /* Đẩy nội dung lên trên footer đã fix */
+	padding-top: 60px; /* Đảm bảo không bị che bởi header */
+	padding-bottom: 40px; /* Đảm bảo không bị che bởi footer */
+}
+
+.row {
+	flex: 1;
+	display: flex;
+	width: 100%;
+}
+
+/* Đảm bảo footer dính đáy */
+.custom-footer {
+	flex-shrink: 0;
+	background-color: #FAD1CE;
+	color: #555;
+	font-size: 0.9rem;
+	border-top: 2px solid #F8F1F1;
+	border-radius: 0 0 0 0;
+	padding: 1rem 0;
+	box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+	width: 100%;
+	flex-shrink: 0;
+	
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 800;
+	
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.custom-footer:hover {
+	background-color: #FDC9B3;
+	box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.footer-text {
+	color: #DC92B3;
+	font-weight: 600;
+}
+
+.custom-footer img {
+	height: 40px;
+	border-radius: 5px;
+}
+
+.footer-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+@media ( max-width : 576px) {
+	.sidebar {
+		width: 0;
+		padding: 0;
+		overflow: hidden;
+	}
+	main {
+		margin-left: 250px;
+	}
+	.custom-header .search-bar {
+		width: 150px;
+	}
+	.custom-header .search-bar input:focus {
+		width: 150px;
+	}
+	.custom-footer {
+		flex-direction: column;
+		text-align: center;
+	}
+}
+</style>
+
+</head>
+
+<body>
+	<header>
+		<!-- HEADER -->
+		<div th:replace="~{manager/fragments/header :: header}"></div>
+	</header>
+	<!-- SIDEBAR -->
+	<div class="col-md-2 p-0"
+		style="position: fixed; width: 250px; top: 60px; bottom: 0; overflow-y: auto; z-index: 900;">
+		<div th:replace="~{manager/fragments/sidebar :: sidebar}"></div>
+	</div>
+	<!-- MAIN CONTENT -->
+	<main class="col-md-10" layout:fragment="content">
+		<!-- Nội dung trang con sẽ được chèn ở đây -->
+	</main>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous">
+		
+	</script>
+	<script>
+	document.getElementById('sidebarToggle').addEventListener('click',
+			function() {
+				const sidebar = document.querySelector('.sidebar');
+				sidebar.classList.toggle('collapsed');
+		});
+	</script>
+	<footer>
+		<!-- FOOTER -->
+		<div th:replace="~{manager/fragments/footer :: footer}"></div>
+	</footer>
+</body>
+</html>

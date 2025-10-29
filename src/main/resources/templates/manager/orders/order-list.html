@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{decorators/manager-layout}">
+<head>
+<title>Quản lý đơn hàng</title>
+<style>
+.status-badge {
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: capitalize;
+}
+
+.status-NEW {
+	background-color: #ffeeba;
+	color: #856404;
+}
+
+.status-CONFIRMED {
+	background-color: #cce5ff;
+	color: #004085;
+}
+
+.status-SHIPPING {
+	background-color: #d1ecf1;
+	color: #0c5460;
+}
+
+.status-DELIVERED {
+	background-color: #d4edda;
+	color: #155724;
+}
+
+.status-CANCELLED {
+	background-color: #f8d7da;
+	color: #721c24;
+}
+
+.status-RETURNED {
+	background-color: #e2e3e5;
+	color: #383d41;
+}
+
+.tab-status .nav-link.active {
+	background-color: #DC92B3;
+	color: white !important;
+	border-radius: 10px;
+}
+
+.btn-rose {
+	background-color: #DC92B3;
+	color: #fff;
+	border-radius: 8px;
+	border: none;
+}
+
+.btn-rose:hover {
+	background-color: #C97BA4;
+}
+
+.modal-lg {
+	max-width: 850px;
+}
+
+.table th, .table td {
+	vertical-align: middle;
+}
+
+.filter-box {
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 1rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pagination {
+	gap: 6px;
+}
+
+.pagination .page-link {
+	border-radius: 10px;
+	border: 1px solid #E5C1D1;
+	color: #DC92B3;
+	font-weight: 500;
+	transition: all 0.25s ease;
+	padding: 0.5rem 0.9rem;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #DC92B3;
+	border-color: #DC92B3;
+	color: white;
+	box-shadow: 0 2px 6px rgba(220, 146, 179, 0.4);
+}
+
+.pagination .page-link:hover {
+	background-color: #FAD1CE;
+	color: white;
+}
+</style>
+</head>
+
+<body>
+	<section layout:fragment="content" class="px-4 mt-3">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="fw-bold" style="color: #DC92B3;">Quản lý đơn hàng</h4>
+		</div>
+
+		<!-- Tabs trạng thái -->
+		<ul class="nav nav-pills mb-3 tab-status">
+			<li class="nav-item"><a class="nav-link"
+				th:classappend="${selectedStatus == null} ? 'active'"
+				th:href="@{/manager/orders}">Tất cả</a></li>
+			<li class="nav-item" th:each="s : ${allStatuses}"><a
+				class="nav-link" th:text="${s.label}"
+				th:classappend="${selectedStatus == s} ? 'active'"
+				th:href="@{'/manager/orders?status=' + ${s}}"></a></li>
+		</ul>
+
+		<!-- Bộ lọc -->
+		<div class="filter-box mb-3">
+			<form class="row g-2" method="get" th:action="@{/manager/orders}">
+				<div class="col-md-3">
+					<input type="text" name="keyword" class="form-control"
+						placeholder="Tìm theo mã / khách hàng" th:value="${keyword}">
+				</div>
+				<div class="col-md-3">
+					<input type="date" name="start" class="form-control"
+						th:value="${start}">
+				</div>
+				<div class="col-md-3">
+					<input type="date" name="end" class="form-control"
+						th:value="${end}">
+				</div>
+				<div class="col-md-3">
+					<button class="btn btn-rose w-100" type="submit">
+						<i class="fa fa-filter me-1"></i>Lọc
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Bảng danh sách -->
+		<div class="table-responsive bg-white shadow-sm p-3 rounded-3">
+			<table class="table align-middle table-bordered">
+				<thead class="table-light">
+					<tr>
+						<th>Mã ĐH</th>
+						<th>Khách hàng</th>
+						<th>Ngày đặt hàng</th>
+						<th>Tổng tiền</th>
+						<th>Trạng thái</th>
+						<th>Shipper</th>
+						<th>Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="order : ${orders}">
+						<td th:text="${order.orderId}"></td>
+						<td
+							th:text="${order.user != null ? order.user.fullName : 'Khách lẻ'}"></td>
+						<td
+							th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+						<td
+							th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+						<td><span class="status-badge"
+							th:classappend="'status-' + ${order.status}"
+							th:text="${order.status.label}"></span></td>
+						<td
+							th:text="${order.shipper != null ? order.shipper.user.fullName : '—'}"></td>
+						<td>
+							<button class="btn btn-sm btn-outline-info"
+								th:attr="data-id=${order.orderId}"
+								onclick="viewOrderDetail(this)">
+								<i class="fa fa-eye"></i>
+							</button> <select class="form-select form-select-sm d-inline w-auto ms-1"
+							th:attr="data-id=${order.orderId}" onchange="updateStatus(this)">
+								<option value="">Trạng thái...</option>
+								<option th:each="st : ${allStatuses}" th:value="${st}"
+									th:text="${st.label}"></option>
+						</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Phân trang -->
+		<nav class="mt-4">
+			<ul class="pagination justify-content-center">
+
+				<!-- Nút Trang trước -->
+				<li class="page-item"
+					th:classappend="${currentPage == 0} ? 'disabled'"><a
+					class="page-link"
+					th:href="@{'/manager/orders?(page=' + ${currentPage - 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + (${start} != null ? '&start=' + ${start} : '') 
+                   + (${end} != null ? '&end=' + ${end} : '') 
+                   + ')'}">
+						&laquo; </a></li>
+
+				<!-- Các số trang -->
+				<li class="page-item"
+					th:each="i : ${#numbers.sequence(1, totalPages)}"
+					th:classappend="${i - 1 == currentPage} ? 'active'"><a
+					class="page-link"
+					th:href="@{'/manager/orders?(page=' + ${i - 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + (${start} != null ? '&start=' + ${start} : '') 
+                   + (${end} != null ? '&end=' + ${end} : '') 
+                   + ')'}"
+					th:text="${i}"> </a></li>
+
+				<!-- Nút Trang sau -->
+				<li class="page-item"
+					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+					<a class="page-link"
+					th:href="@{'/manager/orders?(page=' + ${currentPage + 1} 
+                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
+                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
+                   + (${start} != null ? '&start=' + ${start} : '') 
+                   + (${end} != null ? '&end=' + ${end} : '') 
+                   + ')'}">
+						&raquo; </a>
+				</li>
+			</ul>
+		</nav>
+
+
+		<!-- Modal Chi tiết -->
+		<div class="modal fade" id="orderDetailModal" tabindex="-1">
+			<div class="modal-dialog modal-lg modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Chi tiết đơn hàng</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<div id="orderDetailContent">
+							<p>
+								<strong>Mã đơn:</strong> <span id="detailOrderId"></span>
+							</p>
+							<p>
+								<strong>Khách hàng:</strong> <span id="detailCustomer"></span>
+							</p>
+							<p>
+								<strong>Email:</strong> <span id="detailEmail"></span>
+							</p>
+							<p>
+								<strong>Địa chỉ:</strong> <span id="detailAddress"></span>
+							</p>
+							<p>
+								<strong>Ngày tạo:</strong> <span id="detailDate"></span>
+							</p>
+							<p>
+								<strong>Shipper:</strong> <select id="assignShipperSelect"
+									class="form-select form-select-sm w-auto d-inline"></select>
+								<button class="btn btn-sm btn-rose ms-2" id="assignShipperBtn">Lưu</button>
+							</p>
+							<h6 class="mt-3 fw-bold">Danh sách sản phẩm:</h6>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Sản phẩm</th>
+										<th>Số lượng</th>
+										<th>Đơn giá</th>
+										<th>Tổng</th>
+									</tr>
+								</thead>
+								<tbody id="detailItems"></tbody>
+							</table>
+							<p class="fw-bold text-end">
+								Tổng cộng: <span id="detailTotal"></span> ₫
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script th:inline="javascript">
+		const shippers = /*[[${shippers}]]*/ [];
+        // Xem chi tiết đơn hàng
+        function viewOrderDetail(btn) {
+            const id = btn.getAttribute("data-id");
+            fetch(`/manager/orders/detail/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('detailOrderId').textContent = data.orderId;
+                    document.getElementById('detailCustomer').textContent = data.customer;
+                    document.getElementById('detailEmail').textContent = data.email;
+                    document.getElementById('detailAddress').textContent = data.address;
+                    document.getElementById('detailDate').textContent = new Date(data.orderDate).toLocaleString('vi-VN');
+                    document.getElementById('detailTotal').textContent = data.total.toLocaleString('vi-VN');
+
+                    const tbody = document.getElementById('detailItems');
+                    tbody.innerHTML = '';
+                    data.items.forEach(i => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${i.variantName ?? '-'}</td>
+                                <td>${i.quantity}</td>
+                                <td>${i.price.toLocaleString('vi-VN')}</td>
+                                <td>${(i.price * i.quantity).toLocaleString('vi-VN')}</td>
+                            </tr>`;
+                    });
+
+                    const shipperSelect = document.getElementById('assignShipperSelect');
+                    shipperSelect.innerHTML = '<option value="">-- Chọn shipper --</option>';
+                    
+                    shippers.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.userId;
+                        opt.textContent = s.fullName;
+                        if (s.fullName === data.shipper) opt.selected = true;
+                        shipperSelect.appendChild(opt);
+                    });
+
+                    document.getElementById('assignShipperBtn').onclick = () => {
+                        const shipperId = shipperSelect.value;
+                        fetch(`/manager/orders/assign-shipper/${id}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: `shipperUserId=${shipperId}`
+                        })
+                            .then(r => r.text())
+                            .then(() => { alert('Cập nhật shipper thành công!'); location.reload(); });
+                    };
+
+                    new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+                })
+                .catch(() => alert('Lỗi khi tải chi tiết đơn hàng!'));
+        }
+
+        // Cập nhật trạng thái trực tiếp
+        function updateStatus(select) {
+            const id = select.getAttribute("data-id");
+            const status = select.value;
+            if (!status) return;
+
+            fetch(`/manager/orders/update-status/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${status}`
+            })
+                .then(r => r.text())
+                .then(() => { alert('Cập nhật trạng thái thành công!'); location.reload(); })
+                .catch(() => alert('Lỗi khi cập nhật trạng thái!'));
+        }
+    </script>
+	</section>
+</body>
+</html>

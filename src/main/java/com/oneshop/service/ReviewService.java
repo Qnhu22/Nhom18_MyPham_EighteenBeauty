@@ -3,7 +3,11 @@ package com.oneshop.service;
 import com.oneshop.entity.Product;
 import com.oneshop.entity.Review;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
 
 public interface ReviewService {
 
@@ -21,4 +25,11 @@ public interface ReviewService {
      * Cập nhật lại điểm rating trung bình cho sản phẩm
      */
     void updateProductRating(Product product);
+    
+    Page<Review> filterReviews(Long productId, Boolean status, Integer rating,
+            LocalDateTime fromDate, LocalDateTime toDate,
+            String keyword, int page);
+    Optional<Review> getById(Long reviewId);
+    Review saveOrUpdate(Review review);
+    void deleteById(Long reviewId);
 }

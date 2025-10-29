@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+	<aside th:fragment="sidebar" class="sidebar shadow-sm">
+		<!-- TIÊU ĐỀ -->
+		<h5 class="fw-bold mb-4">Danh mục</h5>
+
+		<!-- MENU ITEMS -->
+		<nav class="nav flex-column w-100">
+			<a th:href="@{/manager/dashboard}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/dashboard')} ? 'active' : ''">
+				<i class="fas fa-tachometer-alt me-2"></i> Tổng quan
+			</a> 
+			<a th:href="@{/manager/products}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/products')} ? 'active' : ''">
+				<i class="fas fa-box me-2"></i> Sản phẩm
+			</a> 
+			<a th:href="@{/manager/orders}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/orders')} ? 'active' : ''">
+				<i class="fas fa-receipt me-2"></i> Đơn hàng
+			</a> <a th:href="@{/manager/vouchers}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/vouchers')} ? 'active' : ''">
+				<i class="fas fa-percent me-2"></i> Khuyến mãi
+			</a> <a th:href="@{/manager/reviews}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/reviews')} ? 'active' : ''">
+				<i class="fas fa-comments me-2"></i> Đánh giá
+			</a> <a th:href="@{/manager/shop}"
+				class="nav-link px-3 py-2 rounded-3 mb-1 text-dark"
+				th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI.startsWith('/manager/shop')} ? 'active' : ''">
+				<i class="fas fa-store me-2"></i> Thông tin cửa hàng
+			</a>
+
+		</nav>
+	</aside>
+</body>
+</html>
