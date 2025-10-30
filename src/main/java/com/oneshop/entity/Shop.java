@@ -19,10 +19,10 @@ public class Shop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shopId;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "nvarchar(255)")
     private String name; // Tên cửa hàng
 
-    @Column(length = 500)
+    @Column(columnDefinition = "nvarchar(max)")
     private String description; // Mô tả ngắn
 
     @Column(length = 255)

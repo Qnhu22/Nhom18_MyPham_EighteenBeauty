@@ -18,10 +18,10 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
-    @Column(nullable = false, length = 255)
+    @Column(columnDefinition = "nvarchar(255)", nullable = false)
     private String name;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "nvarchar(max)")
     private String description;
 
     // 🔗 Thương hiệu

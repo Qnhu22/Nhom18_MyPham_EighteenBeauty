@@ -19,10 +19,10 @@ public class Promotion {
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long promotionId;
 
-@Column(nullable = false, length = 255)
+@Column(nullable = false, columnDefinition = "nvarchar(255)")
 private String name; // Tên khuyến mãi (VD: "Sale 11.11", "Deal Cuối Tuần")
 
-@Column(length = 2000)
+@Column(columnDefinition = "nvarchar(255)")
 private String description; // Mô tả nội dung khuyến mãi
 
 @Column(precision = 5, scale = 2)

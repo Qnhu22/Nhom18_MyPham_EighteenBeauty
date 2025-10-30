@@ -30,12 +30,12 @@ public class Review {
     @Column(nullable = false)
     private int rating; // 1-5 sao
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "nvarchar(max)")
     private String comment;
 
     private String imageUrl; // URL hình ảnh kèm theo đánh giá
 
-    @Column(columnDefinition = "nvarchar(500)")
+    @Column(columnDefinition = "nvarchar(max)")
     private String reply; // Phản hồi từ manager
 
     private LocalDateTime replyDate;

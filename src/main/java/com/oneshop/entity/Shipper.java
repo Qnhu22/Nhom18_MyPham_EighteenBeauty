@@ -15,7 +15,7 @@ public class Shipper {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipperId;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "nvarchar(100)")
     private String area;
 
     @Column(nullable = false, length = 20)

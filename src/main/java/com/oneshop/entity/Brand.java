@@ -28,7 +28,7 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long brandId;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "nvarchar(255)")
     private String name;
 
     @Column(columnDefinition = "nvarchar(max)")

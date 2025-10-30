@@ -34,7 +34,7 @@ public class ProductVariant {
 	@JoinColumn(name = "productId", nullable = false)
 	private Product product;
 
-	@Column(length = 200)
+	@Column(columnDefinition = "nvarchar(255)")
 	private String name; // ex: "Hồng đất 3.5g"
 
 	@Column(precision = 12, scale = 2, nullable = false)
@@ -52,11 +52,11 @@ public class ProductVariant {
 	private String imageUrl;
 	
 	// tùy chọn, không bắt buộc
-	@Column(length = 50)
+	@Column(columnDefinition = "nvarchar(100)")
 	private String color;
 
 	// tùy chọn, không bắt buộc
-	@Column(length = 50)
+	@Column(columnDefinition = "nvarchar(100)")
 	private String size;
 
 	private LocalDateTime createdAt;
