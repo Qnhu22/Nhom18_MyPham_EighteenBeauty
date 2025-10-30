@@ -28,8 +28,6 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipper_id")
     private Shipper shipper;
@@ -82,5 +80,4 @@ public class Order {
     // 🔹 Danh sách sản phẩm trong đơn
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
-
 }

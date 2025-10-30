@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    // 🏆 Top sản phẩm bán chạy (dựa trên tổng soldCount của các variant)
+    /* ================== 🏆 TOP BÁN CHẠY ================== */
     @Query("""
         SELECT p 
         FROM Product p 
@@ -23,20 +23,27 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     """)
     List<Product> findBestSellingProducts();
 
-    // 🌸 Sản phẩm mới nhất
+    /* ================== 🌸 SẢN PHẨM MỚI ================== */
     List<Product> findTop8ByOrderByCreatedAtDesc();
 
-    // 💰 Sản phẩm giá tốt (tùy theo cột price trong ProductVariant hoặc Product)
-    // Nếu Product không có price, có thể bỏ dòng này
-    // List<Product> findTop8ByOrderByPriceAsc();
+    /* ================== 💸 SẢN PHẨM CÓ GIẢM GIÁ ==================
+       (Lưu ý: giảm giá được lấy qua ProductVariant.oldPrice) */
+    @Query("""
+        SELECT DISTINCT p
+        FROM Product p
+        JOIN p.variants v
+        WHERE v.oldPrice IS NOT NULL
+        ORDER BY v.createdAt DESC
+    """)
+    List<Product> findTop8DiscountedProducts();
 
-    // 🔍 Tìm theo tên
+    /* ================== 🔍 TÌM THEO TÊN ================== */
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    // 📂 Theo danh mục
+    /* ================== 📂 THEO DANH MỤC ================== */
     Page<Product> findByCategory(Category category, Pageable pageable);
 
-    // 💡 Dành cho trang guest: chọn sản phẩm có tổng soldCount > 10
+    /* ================== 👥 TOP SẢN PHẨM CHO GUEST ================== */
     @Query("""
         SELECT p 
         FROM Product p 
@@ -47,13 +54,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     """)
     List<Product> findTopProductsForGuest();
 
-    // ⚙️ Lấy tất cả sản phẩm (phân trang)
+    /* ================== ⚙️ PHÂN TRANG & TRẠNG THÁI ================== */
     @Override
     Page<Product> findAll(Pageable pageable);
 
-    // ⚙️ Lọc theo trạng thái hiển thị
     Page<Product> findByStatus(Boolean status, Pageable pageable);
 
-    // ⚙️ Lấy thông tin chi tiết sản phẩm
+    /* ================== 📦 CHI TIẾT ================== */
     Product findByProductId(Long productId);
 }

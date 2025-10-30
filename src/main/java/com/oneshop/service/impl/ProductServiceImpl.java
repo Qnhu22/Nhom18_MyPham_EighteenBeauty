@@ -48,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
        ===================================================== */
     @Override
     public Optional<Product> getProductById(Long id) {
+        // Lấy chi tiết sản phẩm theo ID
         return productRepository.findById(id);
     }
 
@@ -69,10 +70,16 @@ public class ProductServiceImpl implements ProductService {
     /** 🏆 Sản phẩm nổi bật (Top bán chạy) */
     @Override
     public List<Product> getHighlightedProducts() {
-        return productRepository.findBestSellingProducts();
+        // Ưu tiên rating cao > sau đó lấy thời gian tạo mới nhất
+        return productRepository.findAll().stream()
+                .sorted(Comparator
+                        .comparing(Product::getRating, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Product::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(8)
+                .toList();
     }
 
-    /** 🔥 Top bán chạy */
+    /** 🏆 Top bán chạy */
     @Override
     public List<Product> getBestSellerProducts() {
         return productRepository.findBestSellingProducts();
@@ -87,9 +94,15 @@ public class ProductServiceImpl implements ProductService {
     /** 💰 Sản phẩm giá tốt (giảm giá hoặc variant có oldPrice > price) */
     @Override
     public List<Product> getBestDeals() {
+        // Lọc sản phẩm có ít nhất 1 variant giảm giá
         return productRepository.findAll().stream()
                 .filter(p -> p.getVariants() != null && p.getVariants().stream()
-                        .anyMatch(v -> v.getOldPrice() != null && v.getOldPrice().compareTo(v.getPrice()) > 0))
+                        .anyMatch(v -> v.getOldPrice() != null &&
+                                v.getPrice() != null &&
+                                v.getOldPrice().compareTo(v.getPrice()) > 0))
+                .sorted(Comparator.comparing(
+                        (Product p) -> p.getCreatedAt(), Comparator.nullsLast(Comparator.reverseOrder()))
+                )
                 .limit(8)
                 .toList();
     }
@@ -128,7 +141,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /* =====================================================
-       ⚙️ Quản lý sản phẩm
+       ⚙️ Quản lý sản phẩm (admin)
        ===================================================== */
     @Override
     public List<Product> getBestSellingProducts() {
@@ -159,7 +172,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.existsById(productId);
     }
 
-    /** Lấy danh sách variant theo sản phẩm */
+    /** 🔗 Lấy danh sách variant theo sản phẩm */
     @Override
     public List<ProductVariant> getVariantsByProduct(Product product) {
         return variantRepository.findByProduct(product);
@@ -355,7 +368,7 @@ public class ProductServiceImpl implements ProductService {
 	                if (newVar.getImageUrl() != null) {
 	                    oldVar.setImageUrl(newVar.getImageUrl());
 	                }
-	            } 
+	            }
 	            // 🧩 Nếu là variant mới → tạo mới hoàn toàn (tránh vòng lặp)
 	            else {
 	                ProductVariant variant = new ProductVariant();
@@ -374,7 +387,7 @@ public class ProductServiceImpl implements ProductService {
 	    }
 	    //if (isNew) targetProduct.setCreatedAt(LocalDateTime.now());
 
-		
+
 		try {
 		    Product saved = productRepository.save(targetProduct);
 		    productRepository.flush();
@@ -385,4 +398,57 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 	}
+
+    @Override
+    public Page<Product> getAllProducts(int page, int size, String sortKey) {
+        List<Product> all = productRepository.findAll();
+        all.sort(getComparator(sortKey));
+        int start = page * size;
+        int end = Math.min(start + size, all.size());
+        List<Product> paged = all.subList(start, end);
+        return new PageImpl<>(paged, PageRequest.of(page, size), all.size());
+    }
+
+    @Override
+    public Page<Product> getProductsByCategory(Category category, int page, int size, String sortKey) {
+        // Tạo bản sao có thể sắp xếp
+        List<Product> list = new ArrayList<>(productRepository.findByCategory(category, Pageable.unpaged()).getContent());
+
+        list.sort(getComparator(sortKey)); // sắp xếp an toàn
+        int start = page * size;
+        int end = Math.min(start + size, list.size());
+        List<Product> paged = list.subList(start, end);
+        return new PageImpl<>(paged, PageRequest.of(page, size), list.size());
+    }
+
+
+    /* 🔍 Comparator hỗ trợ sort theo variant price */
+    private Comparator<Product> getComparator(String sortKey) {
+        if (sortKey == null || sortKey.isBlank()) {
+            return Comparator.comparing(Product::getProductId).reversed();
+        }
+
+        return switch (sortKey) {
+            case "newest" -> Comparator.comparing(Product::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()));
+            case "bestseller" -> Comparator.comparing(
+                    (Product p) -> p.getVariants() != null
+                            ? p.getVariants().stream().mapToInt(v -> v.getSoldCount() != null ? v.getSoldCount() : 0).sum()
+                            : 0
+            ).reversed();
+            case "priceAsc" -> Comparator.comparingDouble(this::getMinPrice);
+            case "priceDesc" -> Comparator.comparingDouble(this::getMinPrice).reversed();
+            case "nameAsc" -> Comparator.comparing(Product::getName, String.CASE_INSENSITIVE_ORDER);
+            default -> Comparator.comparing(Product::getProductId).reversed();
+        };
+    }
+
+    /* 🧮 Lấy giá nhỏ nhất của product để sort */
+    private double getMinPrice(Product p) {
+        if (p.getVariants() == null || p.getVariants().isEmpty()) return 0;
+        return p.getVariants().stream()
+                .filter(v -> v.getPrice() != null)
+                .mapToDouble(v -> v.getPrice().doubleValue())
+                .min().orElse(0);
+    }
+
 }

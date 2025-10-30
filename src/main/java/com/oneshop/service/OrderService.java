@@ -37,10 +37,14 @@ public interface OrderService {
 
     // Xóa đơn hàng
     void deleteOrder(Long orderId);
-    
-    Page<Order> filterOrders(OrderStatus status, String keyword, LocalDate date, LocalDate startDate, LocalDate endDate, int page);
-    
-    Order findById(Long orderId);
-    
 
+    Page<Order> filterOrders(OrderStatus status, String keyword, LocalDate date, LocalDate startDate, LocalDate endDate, int page);
+
+    Order findById(Long orderId);
+
+
+    List<Order> getOrdersByUser(User user);
+    List<Order> getOrdersByUserAndStatus(User user, OrderStatus status);
+    Order saveOrder(Order order);
+    boolean changeStatus(Long orderId, User owner, OrderStatus toStatus, String note);
 }

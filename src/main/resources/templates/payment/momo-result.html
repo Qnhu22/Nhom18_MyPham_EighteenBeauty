@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Kết quả thanh toán | OneShop</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <style>
+    body { background: #fafaf9; text-align: center; padding-top: 150px; font-family: sans-serif; }
+    .result-box {
+      display: inline-block; background: #fff; padding: 30px 50px;
+      border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .success { color: #22c55e; font-size: 20px; }
+    .fail { color: #ef4444; font-size: 20px; }
+    a.btn { display:inline-block; margin-top:20px; background:#8b5cf6;
+            color:#fff; padding:10px 20px; border-radius:999px; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="result-box">
+    <h2>🔔 Kết quả thanh toán MoMo</h2>
+    <p><b>Mã đơn hàng:</b> <span th:text="${orderId}"></span></p>
+
+    <p th:if="${resultCode == '0'}" class="success">✅ Thanh toán thành công!</p>
+    <p th:if="${resultCode != '0'}" class="fail">❌ Thanh toán thất bại! <br> (<span th:text="${message}"></span>)</p>
+
+    <a href="/" class="btn">Về trang chủ</a>
+  </div>
+
+  <!-- 🟢 Thông báo popup khi load trang -->
+  <script th:if="${resultCode == '0'}">
+    window.addEventListener('DOMContentLoaded', () => {
+      alert("🎉 Thanh toán MoMo thành công!\nCảm ơn bạn đã mua hàng tại OneShop 💜");
+    });
+  </script>
+</body>
+</html>

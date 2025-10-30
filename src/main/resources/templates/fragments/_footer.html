@@ -1,38 +1,48 @@
-<!-- templates/fragments/_footer.html -->
+
 <div th:fragment="footer">
 <footer class="oneshop-footer">
-    <div class="container footer-content">
-        <div class="footer-col">
-            <h4>ABOUT ONESHOP</h4>
-            <p>Chúng tôi mang đến những sản phẩm mỹ phẩm chính hãng, giúp các nàng tỏa sáng tự nhiên và tự tin hơn mỗi ngày.</p>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-tiktok"></i></a>
-            </div>
-        </div>
+  <div class="container footer-content">
 
-        <div class="footer-col">
-            <h4>INFORMATION</h4>
-            <ul>
-                <li><a href="#">Returns</a></li>
-                <li><a href="#">Delivery</a></li>
-                <li><a href="#">Gift Cards</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-col">
-            <h4>CONTACT US</h4>
-            <ul>
-                <li><i class="fa fa-map-marker-alt"></i> 123 Nguyễn Văn Linh, Q.7, TP.HCM</li>
-                <li><i class="fa fa-phone"></i> (08) 123 456 7890</li>
-                <li><i class="fa fa-envelope"></i> support@oneshop.vn</li>
-            </ul>
-        </div>
+    <!-- CỘT 1: ABOUT -->
+    <div class="footer-col about">
+      <h4>ABOUT EIGHTEEN BEAUTY</h4>
+      <p>
+        Chúng tôi mang đến những sản phẩm mỹ phẩm chính hãng,
+        giúp các nàng tỏa sáng tự nhiên và tự tin hơn mỗi ngày.
+      </p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-tiktok"></i></a>
+      </div>
     </div>
 
-    <div class="footer-bottom">
-        © 2025 OneShop. All rights reserved.
+    <!-- CỘT 2: ACCOUNT (ở giữa) -->
+    <div class="footer-col account" sec:authorize="isAuthenticated()">
+      <h4>TÀI KHOẢN CỦA BẠN</h4>
+      <ul>
+        <li><a th:href="@{/account}"><i class="fa fa-id-card"></i> Thông tin tài khoản</a></li>
+        <li><a th:href="@{/account/orders}"><i class="fa fa-shopping-bag"></i> Lịch sử đơn hàng</a></li>
+        <li><a th:href="@{/account/vouchers}"><i class="fa fa-gift"></i> Ví Voucher</a></li>
+        <li><a th:href="@{/account/addresses}"><i class="fa fa-map-marker-alt"></i> Địa chỉ giao hàng</a></li>
+        <li><a th:href="@{/account/wishlist}"><i class="fa fa-heart"></i> Danh sách yêu thích</a></li>
+      </ul>
     </div>
+
+    <!-- CỘT 3: CONTACT (bên phải) -->
+    <div class="footer-col contact">
+      <h4>CONTACT US</h4>
+      <ul>
+        <li><i class="fa fa-map-marker-alt"></i> Số 1 VVN, Linh Chiểu, Thủ Đức, TP.HCM</li>
+        <li><i class="fa fa-phone"></i> (08) 123 456 7890</li>
+        <li><i class="fa fa-envelope"></i> support@oneshop.vn</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Eighteen Beauty. All rights reserved.
+  </div>
 </footer>
 </div>

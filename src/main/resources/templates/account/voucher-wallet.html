@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Ví Voucher | OneShop</title>
+
+  <!-- Đồng bộ giao diện OneShop -->
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/voucher-wallet.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.voucher-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+.voucher-card {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: 0.25s;
+}
+.voucher-card:hover { transform: translateY(-3px); }
+.voucher-code { font-size: 18px; font-weight: 600; color: #222; }
+.voucher-details { list-style: none; padding-left: 0; margin: 10px 0; font-size: 14px; }
+.voucher-details li { margin-bottom: 4px; color: #333; }
+.voucher-date { font-size: 13px; color: #666; }
+.voucher-actions { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+.btn-apply {
+  background: #b8c9e8;
+  color: #111;
+  border-radius: 999px;
+  padding: 6px 16px;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: 0.25s;
+}
+.btn-apply:hover { background: #9fb7e0; }
+.btn-disabled {
+  background: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
+}
+.note-disabled {
+  color: #c2410c;
+  font-size: 13px;
+  margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+  <div th:replace="~{fragments/_header :: header}"></div>
+  <p th:text="'Voucher size: ' + ${#lists.size(vouchers)}"></p>  <!-- Giữ để debug, sau xóa nếu OK -->
+  
+<main class="account-page container" style="margin-top: 140px; padding-bottom: 60px;">
+  <div class="account-wrapper">
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+      <ul>
+        <li><a th:href="@{/account}">Thông tin tài khoản</a></li>
+        <li><a th:href="@{/account/orders}">Lịch sử đơn hàng</a></li>
+        <li class="active"><a th:href="@{/account/vouchers}">Ví Voucher</a></li>
+        <li><a th:href="@{/account/addresses}">Địa chỉ giao hàng</a></li>
+        <li><a th:href="@{/account/wishlist}">Danh sách yêu thích</a></li>
+        <li><a th:href="@{/logout}">Đăng xuất</a></li>
+      </ul>
+    </aside>
+
+    <!-- Nội dung chính -->
+    <section class="account-content">
+      <!-- Thông báo -->
+      <div th:if="${err}" style="background:#fee2e2; color:#b91c1c; padding:10px 15px; border-radius:8px; margin-bottom:15px;">
+        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${err}"></span>
+      </div>
+      <div th:if="${msg}" style="background:#dcfce7; color:#166534; padding:10px 15px; border-radius:8px; margin-bottom:15px;">
+        <i class="fa-solid fa-circle-check"></i> <span th:text="${msg}"></span>
+      </div>
+
+      <h2 class="page-title">🎁 Ví Voucher</h2>
+
+      <div class="voucher-list" th:if="${vouchers != null and !vouchers.isEmpty()}">
+        <div class="voucher-card" th:each="v : ${vouchers}"
+             th:attr="data-min=${v.minOrderValue}, data-id=${v.voucherId}">
+          <div class="voucher-info">
+            <h3 class="voucher-code" th:text="${v.code}">CODE123</h3>
+            <p class="voucher-name" th:text="${v.name ?: ''}"></p>
+            <ul class="voucher-details">
+              <li th:if="${v.discountType?.name() == 'PERCENT'}">
+                Giảm <span th:text="${v.discountPercent}"></span>%
+                (tối đa <span th:text="${v.maxDiscountValue != null ? #numbers.formatDecimal(v.maxDiscountValue, 0, 'COMMA', 0, 'POINT') + '₫' : 'Không giới hạn'}"></span>)
+              </li>
+              <li th:if="${v.discountType?.name() == 'AMOUNT'}">
+                Giảm <span th:text="${v.discountAmount != null ? #numbers.formatDecimal(v.discountAmount, 0, 'COMMA', 0, 'POINT') + '₫' : '0₫'}"></span>
+              </li>
+              <li th:if="${v.discountType?.name() == 'FREESHIP'}">Miễn phí vận chuyển 🚚</li>
+              <li th:text="${'Đơn tối thiểu: ' + (v.minOrderValue != null ? #numbers.formatDecimal(v.minOrderValue, 0, 'COMMA', 0, 'POINT') + ' ₫' : '0 ₫')}"></li>
+            </ul>
+            <p class="voucher-date">HSD: <span th:text="${#temporals.format(v.endDate, 'dd/MM/yyyy')}"></span></p>
+          </div>
+
+          <div class="voucher-actions">
+            <div class="voucher-usage-row">
+<div class="voucher-usage-row">
+  <p class="voucher-usage" th:text="'Còn ' + (${v.usageLimit - v.usedCount})"></p>
+</div>
+
+<div class="voucher-actions">
+  <a href="#" class="voucher-condition">Điều kiện</a>
+  <a th:href="@{'/account/vouchers/apply/' + ${v.voucherId}}" class="btn-apply">Chọn</a>
+</div>
+
+<p class="note-disabled" style="display:none;">❌ Đơn chưa đủ điều kiện</p>
+
+
+          </div>
+        </div>
+      </div>
+
+      <div class="empty" th:if="${vouchers == null or vouchers.isEmpty()}">
+        <p>Hiện bạn chưa có voucher nào 💜</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+
+  <div class="modal-overlay" id="voucherModal">
+    <div class="modal-box">
+      <h3 id="modalTitle">Thông tin Voucher</h3>
+      <p><strong>Mã:</strong> <span id="mCode"></span></p>
+      <p><strong>Tên:</strong> <span id="mName"></span></p>
+      <p><strong>Loại khuyến mãi:</strong> <span id="mType"></span></p>
+      <p><strong>Giá trị giảm:</strong> <span id="mValue"></span></p>
+      <p><strong>Đơn hàng tối thiểu:</strong> <span id="mMin"></span>₫</p>
+      <p><strong>Thời gian áp dụng:</strong> <span id="mStart"></span> → <span id="mEnd"></span></p>
+      <p><strong>Trạng thái:</strong> <span id="mStatus"></span></p>
+      <p><strong>Điều kiện chi tiết:</strong><br><span id="mDesc"></span></p>
+      <button class="modal-close" onclick="closeModal()">Đóng</button>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/_footer :: footer}"></div>
+
+  <script>
+    // Mở popup
+    document.querySelectorAll('.voucher-condition').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const card = e.target.closest('.voucher-card');
+        document.getElementById('mCode').textContent = card.dataset.code;
+        document.getElementById('mName').textContent = card.dataset.name;
+        document.getElementById('mType').textContent = card.dataset.type;
+        document.getElementById('mMin').textContent = parseInt(card.dataset.min).toLocaleString();
+        document.getElementById('mStart').textContent = card.dataset.start;
+        document.getElementById('mEnd').textContent = card.dataset.end;
+        document.getElementById('mStatus').textContent = card.dataset.status;
+        document.getElementById('mDesc').textContent = card.dataset.desc;
+
+        // Xác định giá trị giảm hiển thị
+        let val = '';
+        if (card.dataset.type === 'PERCENT') {
+          val = `${card.dataset.percent}% (Tối đa ${parseInt(card.dataset.max).toLocaleString()}₫)`;
+        } else if (card.dataset.type === 'AMOUNT') {
+          val = `${parseInt(card.dataset.amount).toLocaleString()}₫`;
+        } else {
+          val = 'Miễn phí vận chuyển';
+        }
+        document.getElementById('mValue').textContent = val;
+
+        document.getElementById('voucherModal').style.display = 'flex';
+      });
+    });
+
+    // Đóng popup
+    function closeModal() {
+      document.getElementById('voucherModal').style.display = 'none';
+    }
+
+    // Đóng khi bấm ngoài vùng box
+    document.getElementById('voucherModal').addEventListener('click', e => {
+      if (e.target.id === 'voucherModal') closeModal();
+    });
+  </script>
+  
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const cartTotal = parseFloat('[[${cartTotal}]]') || 0;
+  document.querySelectorAll('.voucher-card').forEach(card => {
+    const min = parseFloat(card.dataset.min || 0);
+    const btn = card.querySelector('.btn-apply');
+    const note = card.querySelector('.note-disabled');
+    if (cartTotal < min) {
+      btn.classList.add('btn-disabled');
+      btn.removeAttribute('href');
+      note.style.display = 'block';
+    }
+  });
+});
+</script>
+  
+</body>
+</html>

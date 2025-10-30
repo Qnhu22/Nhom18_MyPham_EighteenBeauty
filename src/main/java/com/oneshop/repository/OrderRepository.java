@@ -1,6 +1,7 @@
 package com.oneshop.repository;
 
 import com.oneshop.entity.Order;
+import com.oneshop.entity.User;
 import com.oneshop.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -42,7 +43,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     // 🔹 Thống kê đơn giao hàng theo tháng
     @Query("""
-        SELECT 
+        SELECT
             MONTH(o.orderDate),
             COUNT(o.orderId),
             SUM(o.finalAmount)
@@ -65,7 +66,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
         WHERE o.shipper.id = :shipperId
     """)
     List<Object[]> getPerformanceStats(@Param("shipperId") Long shipperId);
-    
+
  // Count orders by paymentStatus
  	@Query("select count(o) from Order o where o.paymentStatus = :status")
  	long countByPaymentStatus(@Param("status") String status);
@@ -78,7 +79,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
  	// Sum totalAmount for paid + delivered between dates
  	@Query(value = "SELECT SUM(COALESCE(totalAmount,0)) FROM orders " +
  	"WHERE paymentStatus = 'PAID' AND status = 'DELIVERED' AND orderDate >= :from AND orderDate <= :to", nativeQuery = true)
- 	BigDecimal sumRevenueBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    BigDecimal sumRevenueBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
 
  	// Revenue grouped by day (SQL Server) -> returns list of [dateString, sum]
@@ -103,4 +105,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
  	"WHERE paymentStatus='PAID' AND status='DELIVERED' AND orderDate >= :from AND orderDate <= :to " +
  	"GROUP BY DATEPART(iso_week, orderDate), DATEPART(year, orderDate) ORDER BY DATEPART(year, orderDate), DATEPART(iso_week, orderDate)", nativeQuery = true)
  	List<Object[]> revenueByWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+    List<Order> findByUserOrderByOrderDateDesc(User user);
+    List<Order> findByUserAndStatusOrderByOrderDateDesc(User user, OrderStatus status);
 }

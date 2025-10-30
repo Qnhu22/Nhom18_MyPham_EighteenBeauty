@@ -1,0 +1,170 @@
+:root {
+  --rose: #f3d5e2;
+  --rose-dark: #e8b4d1;
+  --cream: #fafaf2;
+  --dark: #222;
+  --text: #444;
+}
+
+/* ========== PHẦN TIÊU ĐỀ ========== */
+.about-header {
+  background: linear-gradient(180deg, #fafaf2 0%, #fff 100%);
+  padding: 140px 0 60px;
+  text-align: center;
+}
+
+.about-header h2 {
+  font-size: 34px;
+  font-weight: 700;
+  color: #b14d7d;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.about-header p {
+  color: #888;
+  font-size: 15px;
+  font-style: italic;
+}
+
+/* ========== PHẦN CHÍNH ========== */
+.about-main {
+  background: #fff;
+  padding: 80px 0;
+}
+
+.about-grid {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.about-image {
+  flex: 1;
+  text-align: center;
+}
+
+.about-image img {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.about-content {
+  flex: 1;
+}
+
+.about-content h3 {
+  font-size: 26px;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.about-content h3 span {
+  color: #b14d7d;
+}
+
+.about-content p {
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 14px;
+  font-size: 16px;
+  text-align: justify;
+}
+
+.btn-discover {
+  display: inline-block;
+  background: #b14d7d;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-discover:hover {
+  background: #a24b7a;
+}
+
+/* ========== PHẦN GIÁ TRỊ CỐT LÕI ========== */
+.about-values {
+  background: var(--cream);
+  padding: 80px 0;
+  text-align: center;
+}
+
+.about-values h3 {
+  font-size: 26px;
+  color: #b14d7d;
+  margin-bottom: 15px;
+}
+
+.about-values p {
+  max-width: 750px;
+  margin: 0 auto 40px;
+  color: #555;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+/* Lưới 3 giá trị */
+.values-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.value-card {
+  background: #fff;
+  border-radius: 16px;
+  width: 300px;
+  padding: 25px 20px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.value-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.value-card .icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.value-card h4 {
+  color: #b14d7d;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.value-card p {
+  color: #555;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* Trích dẫn */
+.quote-section {
+  margin-top: 60px;
+}
+
+.quote-section blockquote {
+  background: #fff;
+  border-left: 5px solid #e4a0c0;
+  border-radius: 8px;
+  padding: 20px 25px;
+  max-width: 700px;
+  margin: 0 auto;
+  font-style: italic;
+  color: #555;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}

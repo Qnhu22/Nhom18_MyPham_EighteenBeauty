@@ -18,4 +18,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 	// Top selling variants by soldCount (simple, uses sold_count column)
 	@Query(value = "SELECT * FROM product_variants ORDER BY soldCount DESC", nativeQuery = true)
 	List<ProductVariant> findTopBySoldCount(Pageable pageable);
+	List<ProductVariant> findTop8ByOldPriceNotNullOrderByCreatedAtDesc();
 }

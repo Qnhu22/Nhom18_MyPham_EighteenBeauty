@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle}">Chi tiết bài viết</title>
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/blog.css}">
+</head>
+<body>
+
+<div th:replace="fragments/_header :: header"></div>
+
+<section class="blog-header">
+  <h2 th:text="${blog.title}">Tiêu đề bài viết</h2>
+  <p>Home - Blog Details</p>
+</section>
+
+<main class="blog-detail">
+  <div class="container">
+
+    <!-- ==================== BÀI VIẾT CHÍNH ==================== -->
+    <article class="content">
+      <img th:src="@{${blog.imageUrl}}" th:alt="${blog.title}" class="main-img">
+
+      <div class="meta">
+        <span><i class="fa-solid fa-user"></i> <span th:text="${blog.author}"></span></span>
+        <span><i class="fa-solid fa-calendar"></i> 
+              <span th:text="${#temporals.format(blog.createdAt, 'dd/MM/yyyy')}"></span></span>
+        <span th:if="${blog.category != null}">
+          <i class="fa-solid fa-tag"></i> <span th:text="${blog.category}"></span>
+        </span>
+      </div>
+
+      <!-- Nội dung chính -->
+      <div class="text">
+        <p>
+          Chọn kem nền không chỉ dựa vào màu sắc mà còn phải phù hợp với loại da của bạn.
+          Da khô cần nền ẩm mịn, còn da dầu thì nên chọn nền kiềm dầu tốt hơn.
+        </p>
+
+        <h4>1️⃣ Hiểu loại da của bạn</h4>
+        <p>
+          Trước khi chọn kem nền, hãy xác định xem da bạn là loại nào — da khô, da dầu, da hỗn hợp hay da nhạy cảm.
+          Mỗi loại da cần công thức kem nền khác nhau.
+        </p>
+
+        <img src="/images/blog/blog-detail-1.jpeg" alt="Loại da" class="sub-img">
+
+        <blockquote>
+          “Kem nền phù hợp sẽ giúp bạn tự tin cả ngày — không lo mốc, không bóng dầu.”
+        </blockquote>
+
+        <h4>2️⃣ Chọn tông màu đúng</h4>
+        <p>
+          Hãy thử kem nền ở phần xương quai hàm, không phải cổ tay.
+          Nếu tệp hoàn toàn vào da sau 2–3 phút, đó là tông màu phù hợp nhất.
+        </p>
+
+        <h4>3️⃣ Kết luận</h4>
+        <p>
+          Một lớp nền đẹp là nền tảng của mọi phong cách make-up. 
+          Hãy đầu tư một chút thời gian để chọn sản phẩm phù hợp — bạn sẽ thấy sự khác biệt rõ rệt 🌸
+        </p>
+      </div>
+
+            <!-- 🔹 Phần bình luận -->
+      <div class="comment-section">
+        <h4>💬 Bình luận bài viết</h4>
+
+        <!-- Form gửi bình luận -->
+        <form class="comment-form" onsubmit="return handleCommentSubmit(event)">
+          <input type="text" id="commentName" placeholder="Tên của bạn..." required>
+          <input type="email" id="commentEmail" placeholder="Email..." required>
+          <textarea id="commentContent" rows="4" placeholder="Nội dung bình luận..." required></textarea>
+          <button type="submit">Gửi bình luận</button>
+        </form>
+
+        <!-- Thông báo cảm ơn -->
+        <div id="commentMessage" class="comment-message"></div>
+      </div>
+      
+    </article>
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar">
+      <div class="widget">
+        <h4>Khuyến mãi</h4>
+        <img src="/images/banner/blog-side.jpg" alt="Promo">
+      </div>
+
+      <div class="widget subscribe-widget">
+    <h4>📬 Đăng ký nhận tin</h4>
+    <p>Nhận xu hướng & khuyến mãi sớm nhất từ Eighteen Beauty!</p>
+    <form class="subscribe-form" onsubmit="return handleSubscribe(event)">
+      <input type="email" id="subscribeEmail" placeholder="Nhập email của bạn" required>
+      <button type="submit">Đăng ký</button>
+    </form>
+    <div id="subscribeMsg" class="comment-message"></div>
+  </div>
+    </aside>
+
+  </div>
+</main>
+
+<div th:replace="fragments/_footer :: footer"></div>
+
+<script>
+function handleCommentSubmit(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("commentName").value.trim();
+  const content = document.getElementById("commentContent").value.trim();
+  const msgDiv = document.getElementById("commentMessage");
+
+  if (!name || !content) {
+    msgDiv.textContent = "❌ Vui lòng nhập đầy đủ thông tin!";
+    msgDiv.style.color = "#ff6b6b";
+    return false;
+  }
+
+  msgDiv.textContent = `✅ Cảm ơn ${name} đã gửi bình luận! 🌸`;
+  msgDiv.style.color = "#57b87c";
+
+  // Reset form sau 3 giây
+  event.target.reset();
+  setTimeout(() => msgDiv.textContent = "", 4000);
+
+  return false;
+}
+</script>
+
+<script>
+function handleSubscribe(event) {
+  event.preventDefault();
+  const email = document.getElementById("subscribeEmail").value.trim();
+  const msg = document.getElementById("subscribeMsg");
+
+  if (!email) {
+    msg.textContent = "❌ Vui lòng nhập email hợp lệ!";
+    msg.style.color = "#ff6b6b";
+    return false;
+  }
+
+  msg.textContent = `✅ Cảm ơn bạn đã đăng ký! 🌸`;
+  msg.style.color = "#57b87c";
+  event.target.reset();
+  setTimeout(() => msg.textContent = "", 4000);
+  return false;
+}
+</script>
+
+</body>
+</html>

@@ -25,6 +25,9 @@ public interface ProductService {
     Page<Product> getProductsByCategory(Category category, int page, int size);
     Page<Product> getAllProducts(int page, int size);
     Page<Product> getProductsByStatus(Boolean status, int page, int size);
+    
+    Page<Product> getAllProducts(int page, int size, String sort);
+    Page<Product> getProductsByCategory(Category category, int page, int size, String sort);
 
     // 📦 Quản lý sản phẩm
     Optional<Product> getProductById(Long productId);

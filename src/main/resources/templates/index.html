@@ -18,7 +18,7 @@
 
 <body>
 
-<div th:replace="fragments/_header :: header"></div>
+<div th:replace="~{fragments/_header :: header}"></div>
 
 <main>
   <!-- ==================== BANNER ==================== -->
@@ -73,10 +73,117 @@
   </div>
 </section>
 
+<!-- ==================== SUBSCRIBE SECTION ==================== -->
+<section class="subscribe-section" style="background-image: url('/images/banner/subscribe-bg.jpg');">
+  <div class="overlay"></div>
+  <div class="subscribe-content">
+    <h2>🌸 Hãy theo dõi <span>Eighteen Beauty</span> để nhận nhiều ưu đãi</h2>
+    <p>Cùng cập nhật các xu hướng làm đẹp, khuyến mãi và sản phẩm mới mỗi tuần!</p>
+
+    <form id="subscribeForm" onsubmit="return handleSubscribe(event)">
+      <input type="email" id="subscribeEmail" placeholder="Nhập email của bạn..." required>
+      <button type="submit">ĐĂNG KÝ</button>
+    </form>
+
+    <div id="subscribeMessage" class="subscribe-message"></div>
+  </div>
+</section>
+
+
+<!-- ==================== FEATURED PRODUCTS ==================== -->
+<section class="featured-products">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('new')">NEW PRODUCTS</button>
+    <button class="tab" onclick="showTab('sale')">ON SALE</button>
+    <button class="tab" onclick="showTab('feature')">FEATURE PRODUCTS</button>
+  </div>
+
+  <!-- 🆕 NEW PRODUCTS -->
+  <div class="tab-content active" id="tab-new">
+    <div class="product-list">
+      <div th:each="p : ${newProducts}" class="product-card">
+  <a th:href="@{'/shop/product/' + ${p.productId}}" class="product-link">
+    <div class="badge new">New</div>
+    <img th:src="${p.imageUrl != null ? p.imageUrl : '/images/products/default.jpg'}" th:alt="${p.name}">
+    <h3 th:text="${p.name}"></h3>
+
+    <!-- ⭐ Rating -->
+    <div class="stars" th:if="${p.rating != null}">
+      <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, p.rating.intValue())}"></i>
+      <i class="fa-regular fa-star" th:each="i : ${#numbers.sequence(1, 5 - p.rating.intValue())}"></i>
+    </div>
+
+    <!-- 💰 Giá -->
+    <p class="price" th:text="${@productServiceImpl.getPriceRange(p)}"></p>
+  </a>
+</div>
+
+    </div>
+  </div>
+
+  <!-- 💸 ON SALE -->
+  <div class="tab-content" id="tab-sale">
+    <div class="product-list">
+      <div th:each="p : ${bestDeals}" class="product-card">
+  <a th:href="@{'/shop/product/' + ${p.productId}}" class="product-link">
+    <div class="badge sale"
+         th:if="${p.variants != null and !#lists.isEmpty(p.variants) and p.variants[0].oldPrice != null}"
+         th:text="'-' + ${T(java.lang.Math).round((1 - (p.variants[0].price.doubleValue() / p.variants[0].oldPrice.doubleValue())) * 100)} + '%'">
+    </div>
+
+    <img th:src="${p.imageUrl != null ? p.imageUrl : '/images/products/default.jpg'}" th:alt="${p.name}">
+    <h3 th:text="${p.name}"></h3>
+
+    <div class="stars" th:if="${p.rating != null}">
+      <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, p.rating.intValue())}"></i>
+      <i class="fa-regular fa-star" th:each="i : ${#numbers.sequence(1, 5 - p.rating.intValue())}"></i>
+    </div>
+
+    <p class="price">
+      <span class="old" th:if="${p.variants[0].oldPrice != null}"
+            th:text="${#numbers.formatDecimal(p.variants[0].oldPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+      <span class="new"
+            th:text="${#numbers.formatDecimal(p.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+    </p>
+  </a>
+</div>
+
+    </div>
+  </div>
+
+  <!-- 🌟 FEATURE PRODUCTS -->
+  <div class="tab-content" id="tab-feature">
+    <div class="product-list">
+      <div th:each="p : ${highlightProducts}" class="product-card">
+  <a th:href="@{'/shop/product/' + ${p.productId}}" class="product-link">
+    <img th:src="${p.imageUrl != null ? p.imageUrl : '/images/products/default.jpg'}" th:alt="${p.name}">
+    <h3 th:text="${p.name}"></h3>
+
+    <div class="stars" th:if="${p.rating != null}">
+      <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, p.rating.intValue())}"></i>
+      <i class="fa-regular fa-star" th:each="i : ${#numbers.sequence(1, 5 - p.rating.intValue())}"></i>
+    </div>
+
+    <p class="price" th:text="${@productServiceImpl.getPriceRange(p)}"></p>
+  </a>
+</div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+</script>
 
 </main>
 
-<div th:replace="fragments/_footer :: footer"></div>
+<div th:replace="~{fragments/_footer :: footer}"></div>
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -99,6 +206,32 @@
       headerTop.classList.remove('hidden');
     }
   });
+</script>
+
+<script>
+function handleSubscribe(event) {
+  event.preventDefault();
+  const emailInput = document.getElementById("subscribeEmail");
+  const messageDiv = document.getElementById("subscribeMessage");
+
+  if (!emailInput.value.trim()) {
+    messageDiv.textContent = "❌ Vui lòng nhập email hợp lệ!";
+    messageDiv.style.color = "#ffb3b3";
+    return false;
+  }
+
+  // Giả lập gửi thành công
+  messageDiv.textContent = `✅ Cảm ơn bạn ${emailInput.value.trim()}! Eighteen Beauty sẽ gửi đến bạn thật nhiều ưu đãi nhé 🌸`;
+  messageDiv.style.color = "#d6f5d6";
+
+  // Reset form sau 2s
+  setTimeout(() => {
+    emailInput.value = "";
+    messageDiv.textContent = "";
+  }, 4000);
+
+  return false;
+}
 </script>
 
 </body>

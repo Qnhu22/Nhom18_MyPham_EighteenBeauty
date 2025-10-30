@@ -1,0 +1,270 @@
+main.page {
+  margin-top: 140px;
+  padding-bottom: 60px;
+}
+
+
+:root {
+  --color-rose: #f3d5e2;
+  --color-rose-dark: #e8b4d1;
+  --color-blue: #b8c9e8;
+  --color-dark: #222;
+  --color-cream: #fafaf2;
+  --color-yellow: #fff4cc;
+  --color-green: #d9f7d9;
+  --color-danger: #ff6b6b;
+  --color-warn: #ffcc70;
+  --color-primary: #a78bfa;
+}
+
+/* ========== KHUNG CHÍNH ========== */
+body {
+  background: var(--color-cream);
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  color: var(--color-dark);
+}
+
+.account-content h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+/* ========== KHUNG MỖI ĐƠN ========== */
+.order-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 20px 24px;
+  margin-bottom: 25px;
+  transition: transform .2s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ========== HEADER MỖI ĐƠN ========== */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-header .code {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.order-header .date {
+  color: #666;
+  font-size: 14px;
+}
+
+/* ========== TAG TRẠNG THÁI ========== */
+.order-header .status {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.status.NEW { color:#1e88e5; font-weight:600; }
+.status.CONFIRMED { color:#6c5ce7; }
+.status.SHIPPING { color:#f39c12; }
+.status.DELIVERED { color:#27ae60; }
+.status.CANCELLED { color:#e74c3c; font-weight:600; } 
+.status.RETURNED { color:#8e44ad; }
+
+
+
+/* ========== DANH SÁCH SẢN PHẨM ========== */
+.order-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.order-body .item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.order-body .item img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.order-body .item .info h4 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.order-body .item .info p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ========== TỔNG TIỀN ========== */
+.order-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.order-total p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.order-total .total {
+  font-weight: 700;
+  color: var(--color-dark);
+  font-size: 16px;
+}
+
+/* ========== NÚT HÀNH ĐỘNG ========== */
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.btn.danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.btn.warn {
+  background: var(--color-warn);
+  color: #222;
+}
+
+.btn.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Hint text */
+.hint {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+/* ========== THÔNG BÁO ALERT ========== */
+.alert {
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.alert.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.alert.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ========== POPUP XÁC NHẬN ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 25px 35px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+  animation: popIn .25s ease;
+  text-align: center;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: var(--color-dark);
+}
+
+.modal-box p {
+  margin: 6px 0 18px;
+  font-size: 14px;
+  color: #444;
+}
+
+.modal-box form {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-box .btn {
+  flex: 1;
+  margin: 0 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-body .item img {
+    width: 60px;
+    height: 60px;
+  }
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .order-total {
+    align-items: flex-start;
+  }
+}

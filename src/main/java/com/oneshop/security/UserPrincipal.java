@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
+
     private final User user;
 
     public UserPrincipal(User user) {
@@ -34,13 +35,11 @@ public class UserPrincipal implements UserDetails {
         return user.getPassword();
     }
 
-    // Đây là identifier chính (Spring Security dùng để quản lý session)
     @Override
     public String getUsername() {
         return user.getUsername();
     }
 
-    // Nếu cần lấy email
     public String getEmail() {
         return user.getEmail();
     }
@@ -56,4 +55,9 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() { return user.isActive(); }
+
+    // ✅ Thêm getter này để controller truy xuất entity gốc
+    public User getUser() {
+        return this.user;
+    }
 }

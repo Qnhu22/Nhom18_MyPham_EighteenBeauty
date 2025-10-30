@@ -1,11 +1,13 @@
 package com.oneshop.repository;
 
-
 import com.oneshop.entity.Voucher;
 import com.oneshop.enums.VoucherStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +21,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long>, JpaSpec
 
     // 3️ Kiểm tra trùng mã voucher
     boolean existsByCode(String code);
+    List<Voucher> findByStatusAndEndDateAfter(VoucherStatus status, LocalDateTime now);
+    Optional<Voucher> findByCode(String code);
 }

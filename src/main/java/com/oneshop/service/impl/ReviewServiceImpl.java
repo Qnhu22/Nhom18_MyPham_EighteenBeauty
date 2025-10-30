@@ -61,23 +61,20 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewRepository.save(review);
 
-        // 🧮 Cập nhật lại điểm trung bình
+        // 🧮 Sau khi lưu review, cập nhật điểm trung bình
         updateProductRating(product);
     }
 
     @Override
     @Transactional
     public void updateProductRating(Product product) {
-        Double avg = reviewRepository.findByProductAndStatusTrueOrderByCreatedAtDesc(product)
-                .stream()
-                .mapToInt(Review::getRating)
-                .average()
-                .orElse(0.0);
+        // ⚡ Gọi query trung bình từ repository để nhanh hơn
+        Double avg = reviewRepository.findAverageRatingByProduct(product);
 
-        if (avg == 0.0) {
+        if (avg == null || avg == 0.0) {
             product.setRating(null);
         } else {
-            // Làm tròn 1 chữ số thập phân (ví dụ 4.5)
+            // Làm tròn 1 chữ số thập phân (VD: 4.5)
             float rounded = BigDecimal.valueOf(avg)
                     .setScale(1, RoundingMode.HALF_UP)
                     .floatValue();

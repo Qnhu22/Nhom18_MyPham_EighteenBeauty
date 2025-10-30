@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Giới thiệu | OneShop</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/about.css}">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="fragments/_header :: header"></div>
+
+<!-- ============ PHẦN TIÊU ĐỀ ============ -->
+<section class="about-header">
+  <h2>GIỚI THIỆU</h2>
+  <p>Home - About</p>
+</section>
+
+<!-- ============ PHẦN GIỚI THIỆU CHÍNH ============ -->
+<section class="about-main">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-image">
+        <img src="/images/banner/about-1.png" alt="Giới thiệu Eighteen Beauty">
+      </div>
+
+      <div class="about-content">
+        <h3>🌸 Về <span>Eighteen Beauty</span></h3>
+        <p>
+          Eighteen Beauty ra đời với sứ mệnh mang đến cho bạn những sản phẩm làm đẹp chính hãng,
+          chất lượng và an toàn nhất. Chúng tôi tin rằng, mỗi người đều xứng đáng được
+          chăm sóc bản thân theo cách tốt nhất – từ làn da, mái tóc đến phong cách sống.
+        </p>
+        <p>
+          Bắt đầu từ tháng 10 năm 2025, Eighteen Beauty phát triển nhanh chóng nhờ vào niềm tin yêu của khách hàng.
+          Không chỉ là một cửa hàng mỹ phẩm, chúng tôi là nơi truyền cảm hứng cho hàng ngàn bạn trẻ
+          trong việc tự tin thể hiện phong cách riêng của mình.
+        </p>
+        <p>
+          Với đội ngũ nhân viên am hiểu về làm đẹp, chúng tôi cam kết mang đến trải nghiệm mua sắm
+          tiện lợi, thân thiện và đáng tin cậy nhất. Từng sản phẩm trước khi đến tay khách hàng đều
+          được chọn lọc kỹ càng từ những thương hiệu nổi tiếng trên thế giới.
+        </p>
+
+        <a href="/shop" class="btn-discover">Khám phá sản phẩm →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHẦN GIÁ TRỊ CỐT LÕI ============ -->
+<section class="about-values">
+  <div class="container">
+    <h3>💎 Giá trị cốt lõi của Eighteen Beauty</h3>
+    <p>
+      Mỗi sản phẩm, mỗi dịch vụ của chúng tôi đều được xây dựng dựa trên ba giá trị nền tảng: 
+      chất lượng, tận tâm và sáng tạo. Eighteen Beauty không chỉ bán sản phẩm – chúng tôi mang đến trải nghiệm
+      làm đẹp an toàn, tinh tế và truyền cảm hứng.
+    </p>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="icon">🌿</div>
+        <h4>Chất lượng hàng đầu</h4>
+        <p>
+          Mọi sản phẩm tại Eighteen Beauty đều được chọn lọc kỹ càng từ các thương hiệu uy tín.
+          Cam kết 100% hàng chính hãng, mang lại sự an tâm tuyệt đối cho khách hàng.
+        </p>
+      </div>
+
+      <div class="value-card">
+        <div class="icon">💖</div>
+        <h4>Tận tâm phục vụ</h4>
+        <p>
+          Chúng tôi luôn lắng nghe, thấu hiểu và đồng hành cùng khách hàng trong hành trình tìm kiếm
+          vẻ đẹp tự nhiên – bởi sự hài lòng của bạn là niềm vui của chúng tôi.
+        </p>
+      </div>
+
+      <div class="value-card">
+        <div class="icon">⚡</div>
+        <h4>Sáng tạo & tốc độ</h4>
+        <p>
+          Liên tục cập nhật xu hướng làm đẹp mới nhất, mang đến trải nghiệm mua sắm hiện đại,
+          tiện lợi và nhanh chóng trên mọi thiết bị.
+        </p>
+      </div>
+    </div>
+
+    <div class="quote-section">
+      <blockquote>
+        “Tại Eighteen Beauty, chúng tôi tin rằng – <b>làm đẹp không chỉ là bề ngoài</b>, 
+        mà là cách bạn yêu thương chính bản thân mình mỗi ngày.”
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<div th:replace="fragments/_footer :: footer"></div>
+
+</body>
+</html>
