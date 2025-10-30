@@ -27,7 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.EnumSet;
 import java.math.BigDecimal;
@@ -41,7 +41,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
+    //private final OrderRepository orderRepository;
     private final ProductVariantRepository productVariantRepository;
 	@Autowired
 	private OrderRepository orderRepository;
@@ -254,7 +254,8 @@ public class OrderServiceImpl implements OrderService {
 	        throw new RuntimeException("Chỉ có thể phân công shipper khi đơn đã được xác nhận!");
 	    }
 
-		Shipper shipper = shipperRepository.findByShipper_ShipperId(shipperid);
+		Shipper shipper = shipperRepository.findByUser_UserId(shipperUserId)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy shipper!"));
 		if (shipper == null) {
 		    throw new RuntimeException("Không tìm thấy shipper!");
 		}

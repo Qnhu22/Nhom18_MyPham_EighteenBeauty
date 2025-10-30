@@ -20,6 +20,7 @@ public interface OrderAddressRepository extends JpaRepository<OrderAddress, Long
 	List<OrderAddress> findByDefaultAddressTrueAndUser_UserId(Long userId);
 
 	List<OrderAddress> findByUser(User user);
-    Optional<OrderAddress> findFirstByUserAndIsDefaultTrue(User user);
+	Optional<OrderAddress> findFirstByUserAndDefaultAddressTrue(User user);
+
     Optional<OrderAddress> findByAddressIdAndUser(Long addressId, User user);
 }

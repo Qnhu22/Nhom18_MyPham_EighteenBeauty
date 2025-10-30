@@ -113,6 +113,23 @@ button:hover {
 .extra-link a:hover {
 	text-decoration: underline;
 }
+
+.message {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+.message[style*="color: red"] { background-color: #ffe6e6; }
+.message[style*="color: green"] { background-color: #e6ffe6; }
+.message:empty { display: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
 <body>
@@ -124,6 +141,10 @@ button:hover {
 	</header>
 	<div class="form-container">
 		<h2>Đăng ký tài khoản mới</h2>
+		<!-- Thông báo -->
+<div class="message" th:if="${error}" style="color: red;" th:text="${error}"></div>
+<div class="message" th:if="${success}" style="color: green;" th:text="${success}"></div>
+		
 		<form th:action="@{/register}" method="post">
 			<label for="username">Tên tài khoản</label> <input type="text"
 				id="username" name="username" required /> <label for="password">Mật
@@ -142,5 +163,18 @@ button:hover {
 			</p>
 		</div>
 	</div>
+	
+	<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".message").forEach(msg => {
+      setTimeout(() => {
+        msg.style.transition = "opacity 0.5s ease";
+        msg.style.opacity = "0";
+        setTimeout(() => msg.remove(), 500);
+      }, 2000);
+    });
+  });
+</script>
+	
 </body>
 </html>

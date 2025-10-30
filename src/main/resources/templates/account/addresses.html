@@ -62,6 +62,16 @@
     .btn-save{background:#111;color:#fff;padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
     .close{position:absolute;right:15px;top:10px;font-size:22px;cursor:pointer;color:#555}
     .close:hover{color:#000}
+    
+    .badge-default {
+  background: var(--color-rose-dark, #e8b4d1);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-left: 8px;
+}
+    
   </style>
 </head>
 
@@ -98,41 +108,42 @@
         <button class="btn-add" onclick="openAddressModal()">+ Thêm địa chỉ mới</button>
       </div>
 
-      <div class="address-list">
-        <div th:if="${#lists.isEmpty(addresses)}" class="no-data">
-          <p>Chưa có địa chỉ nào. Hãy thêm địa chỉ mới!</p>
-        </div>
+      <div class="address-list" th:if="${addresses != null}">
+  <div th:if="${#lists.isEmpty(addresses)}" class="no-data">
+    <p>Chưa có địa chỉ nào. Hãy thêm địa chỉ mới!</p>
+  </div>
 
-        <div th:each="addr : ${addresses}" class="address-item">
-          <div class="address-header">
-            <h4>
-              <span class="label">Tên:</span>
-              <span th:text="${addr.receiverName}">—</span>
-              <span th:if="${addr.isDefault}" class="badge-default">★ Mặc định</span>
-            </h4>
-          </div>
+  <div th:each="addr : ${addresses}" class="address-item" th:if="${!#lists.isEmpty(addresses)}">
+    <div class="address-header">
+      <h4>
+        <span class="label">Tên:</span>
+        <span th:text="${addr.receiverName}">—</span>
+        <span th:if="${addr.defaultAddress}" class="badge-default">★ Mặc định</span>
+      </h4>
+    </div>
 
-          <p><span class="label">Số điện thoại:</span><span th:text="${addr.phone}">—</span></p>
-          <p><span class="label">Địa chỉ:</span>
-            <span th:text="${addr.addressLine} + ', ' + ${addr.ward} + ', ' + ${addr.district} + ', ' + ${addr.city}">—</span>
-          </p>
+    <p><span class="label">Số điện thoại:</span><span th:text="${addr.phone}">—</span></p>
+    <p><span class="label">Địa chỉ:</span>
+      <span th:text="${addr.fullAddress}">—</span>
+    </p>
 
-          <div class="actions">
-            <button type="button" class="btn-update"
-                    th:onclick="'editAddress(' + ${addr.addressId} + ')'">Cập nhật</button>
+    <div class="actions">
+      <button type="button" class="btn-update"
+              th:onclick="'editAddress(' + ${addr.addressId} + ')'">Cập nhật</button>
 
-            <form th:action="@{'/account/addresses/delete/' + ${addr.addressId}}" method="post">
-              <button type="submit" class="btn-delete">Xóa</button>
-            </form>
+      <form th:action="@{'/account/addresses/delete/' + ${addr.addressId}}" method="post">
+        <button type="submit" class="btn-delete">Xóa</button>
+      </form>
 
-            <form th:if="${!addr.isDefault}"
-                  th:action="@{'/account/addresses/set-default/' + ${addr.addressId}}"
-                  method="post">
-              <button type="submit" class="btn-default">Đặt làm mặc định</button>
-            </form>
-          </div>
-        </div>
-      </div>
+      <form th:if="${!addr.defaultAddress}"
+            th:action="@{'/account/addresses/set-default/' + ${addr.addressId}}"
+            method="post">
+        <button type="submit" class="btn-default">Đặt làm mặc định</button>
+      </form>
+    </div>
+  </div>
+</div>
+
     </section>
   </div>
 </main>
@@ -146,7 +157,7 @@
     <span class="close" onclick="closeAddressModal()">&times;</span>
     <h3 id="modalTitle">Thêm địa chỉ mới</h3>
 
-    <form th:action="@{/account/addresses/save}" method="post" id="addressForm">
+    <form th:action="@{/account/addresses/save}" method="post" id="addressForm" onsubmit="closeAddressModal()">
       <input type="hidden" name="addressId" id="addressId">
 
       <label>Họ tên</label>

@@ -114,6 +114,27 @@ button:hover {
     text-decoration: underline;
 }
 
+.message {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+  min-height: 24px; /* giữ không gian nhỏ khi hiển thị rồi ẩn */
+  transition: opacity 0.5s ease;
+}
+.message[style*="color: red"] { background-color: #ffe6e6; }
+.message[style*="color: green"] { background-color: #e6ffe6; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message:empty {
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -152,5 +173,20 @@ button:hover {
 			<p><a th:href="@{/forgot-password}">Quên mật khẩu</a></p>
 		</div>
 	</div>
+	
+	<script>
+  // 🕒 Ẩn thông báo sau 2 giây
+  document.addEventListener("DOMContentLoaded", () => {
+    const msg = document.querySelector(".message");
+    if (msg) {
+      setTimeout(() => {
+        msg.style.transition = "opacity 0.5s ease";
+        msg.style.opacity = "0";
+        setTimeout(() => msg.remove(), 500); // xóa khỏi DOM sau khi mờ đi
+      }, 2000); // 2000ms = 2 giây
+    }
+  });
+</script>
+	
 </body>
 </html>

@@ -46,7 +46,7 @@ public class OrderHistoryController {
         for (Order order : orders) {
             OrderAddress address = (order.getAddress() != null)
                     ? orderAddressRepository.findById(order.getAddress().getAddressId()).orElse(null)
-                    : orderAddressRepository.findFirstByUserAndIsDefaultTrue(user).orElse(null);
+                    		: orderAddressRepository.findFirstByUserAndDefaultAddressTrue(user).orElse(null);
             if (address != null) addressMap.put(order.getOrderId(), address);
         }
 

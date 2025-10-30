@@ -8,6 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.oneshop.entity.Brand;
+import com.oneshop.service.BrandService;
+
 
 import java.security.Principal;
 import java.util.*;
@@ -20,6 +23,7 @@ public class ShopController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final ReviewService reviewService;
+    private final BrandService brandService;
 
  // =============== SHOP PAGE ===============
     @GetMapping("/shop")
@@ -37,6 +41,14 @@ public class ShopController {
     	}
 
         List<Category> categories = categoryService.getAllCategories();
+        
+        List<Brand> brands = brandService.findAll(); // ✅ Lấy danh sách thương hiệu từ DB
+
+     // (Tuỳ chọn) Nếu có quá nhiều thương hiệu, chỉ lấy 6 cái đầu
+     if (brands.size() > 6) {
+         brands = brands.subList(0, 6);
+     }
+
 
         Page<Product> productPage;
 
@@ -105,6 +117,8 @@ public class ShopController {
         model.addAttribute("currentPage", productPage.getNumber() + 1);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("pageSize", productPage.getSize());
+        model.addAttribute("brands", brands);
+
 
         return "shop";
     }

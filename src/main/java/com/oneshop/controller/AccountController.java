@@ -83,9 +83,9 @@ public class AccountController {
             @RequestParam String fullName,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String gender,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime birthDate,
-            @RequestParam(required = false) String area,      // ✅ thêm cho shipper
-            @RequestParam(required = false) String status,    // ✅ thêm cho shipper
+            @RequestParam(required = false) String birthDate, // nhận chuỗi
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) String status,
             Authentication auth) throws IOException {
 
         User user = userRepository.findByUsername(auth.getName())
@@ -94,21 +94,27 @@ public class AccountController {
         user.setFullName(fullName);
         user.setPhone(phone);
         user.setGender(gender);
-        user.setBirthDate(birthDate);
+
+        // ✅ Parse thủ công yyyy-MM-dd → LocalDateTime
+        if (birthDate != null && !birthDate.isBlank()) {
+            try {
+                LocalDateTime parsed = LocalDate.parse(birthDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
+                user.setBirthDate(parsed);
+            } catch (Exception e) {
+                System.err.println("⚠️ Lỗi parse ngày sinh: " + e.getMessage());
+            }
+        }
 
         // 🔹 Nếu có chọn ảnh mới
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            // 🧹 Xóa ảnh cũ nếu có
             if (user.getAvatar() != null && user.getAvatar().startsWith("/images/avatar/")) {
                 Path oldPath = Paths.get("src/main/resources/static" + user.getAvatar());
                 Files.deleteIfExists(oldPath);
             }
 
-            // 📸 Lưu ảnh mới vào static/images/avatar/
             String uploadDir = "src/main/resources/static/images/avatar/";
             Files.createDirectories(Paths.get(uploadDir));
 
-            // 🔹 Đặt tên file mới ngẫu nhiên (UUID để tránh trùng cache)
             String extension = avatarFile.getOriginalFilename()
                     .substring(avatarFile.getOriginalFilename().lastIndexOf('.') + 1);
             String filename = "avatar_" + user.getUserId() + "_" + UUID.randomUUID() + "." + extension;
@@ -120,12 +126,10 @@ public class AccountController {
         }
 
         userRepository.save(user);
-        
-     
 
-   
         return "redirect:/account";
     }
+
     
     @PostMapping("/account/update-shipper")
     @PreAuthorize("isAuthenticated()")

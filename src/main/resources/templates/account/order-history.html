@@ -152,22 +152,21 @@
 <div class="order-actions">
   <!-- Huỷ đơn -->
   <button type="button" class="btn danger"
-          th:if="${order.status == T(com.oneshop.enums.OrderStatus).NEW
-               or order.status == T(com.oneshop.enums.OrderStatus).CONFIRMED}"
+          th:if="${order.status?.name() == 'NEW' or order.status?.name() == 'CONFIRMED'}"
           th:onclick="|updateStatus(${order.orderId}, 'cancel', this)|">
     Huỷ đơn
   </button>
 
   <!-- Trả hàng / Hoàn tiền -->
   <button type="button" class="btn warn"
-          th:if="${order.status == T(com.oneshop.enums.OrderStatus).DELIVERED}"
+          th:if="${order.status?.name() == 'DELIVERED'}"
           th:onclick="|updateStatus(${order.orderId}, 'return', this)|">
     Trả hàng / Hoàn tiền
   </button>
 
   <!-- Khi đang giao -->
   <span class="hint"
-        th:if="${order.status == T(com.oneshop.enums.OrderStatus).SHIPPING}">
+        th:if="${order.status?.name() == 'SHIPPING'}">
     Đơn đang giao – không thể huỷ
   </span>
 </div>

@@ -52,7 +52,7 @@ public class CheckoutController {
         if (user.getAddresses() != null && !user.getAddresses().isEmpty()) {
             defaultAddress = user.getAddresses()
                     .stream()
-                    .filter(OrderAddress::isDefault) // ✅ đúng getter của boolean isDefault
+                    .filter(OrderAddress::isDefaultAddress)
                     .findFirst()
                     .orElse(user.getAddresses().stream().findFirst().orElse(null));
         }

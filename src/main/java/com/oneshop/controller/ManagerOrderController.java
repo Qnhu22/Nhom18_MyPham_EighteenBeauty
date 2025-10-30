@@ -83,7 +83,7 @@ public class ManagerOrderController {
             List<Map<String, Object>> itemList = new ArrayList<>();
             for (OrderItem item : order.getOrderItems()) {
                 Map<String, Object> map = new HashMap<>();
-                map.put("variantName", item.getVariant() != null ? item.getVariant().getName() : null);
+                map.put("variantName", item.getProductVariant() != null ? item.getProductVariant().getName() : null);
                 map.put("quantity", item.getQuantity());
                 map.put("price", item.getPrice());
                 itemList.add(map);

@@ -1,10 +1,18 @@
 package com.oneshop.controller;
 
+import com.oneshop.dto.OrderAddressDTO;
 import com.oneshop.entity.OrderAddress;
 import com.oneshop.entity.User;
+import com.oneshop.repository.UserRepository;
 import com.oneshop.service.OrderAddressService;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,29 +24,43 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class OrderAddressController {
 
     private final OrderAddressService addressService;
+    private final UserRepository userRepository;
 
+    /** 🏠 Hiển thị danh sách địa chỉ giao hàng */
     @GetMapping
-    public String showAddresses(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+    public String showAddresses(Authentication auth, Model model) {
+        if (auth == null || !auth.isAuthenticated()) {
             return "redirect:/login";
         }
 
-        model.addAttribute("addresses", addressService.getAddressesByUser(user.getUserId()));
+        // 🔹 Lấy thông tin user hiện tại
+        String usernameOrEmail = auth.getName();
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản đăng nhập!"));
+
+        // 🔹 Nạp danh sách địa chỉ
+        model.addAttribute("addresses", addressService.getAddressesByUser(user));
         return "account/addresses";
     }
 
+    /** 💾 Thêm hoặc cập nhật địa chỉ */
     @PostMapping("/save")
     public String saveAddress(@ModelAttribute OrderAddress address,
-                              HttpSession session,
+                              Authentication auth,
                               RedirectAttributes redirectAttrs) {
-    	System.out.println("✅ isDefault gửi lên: " + address.isDefaultAddress());
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+
+        if (auth == null || !auth.isAuthenticated()) {
             return "redirect:/login";
         }
 
+        String usernameOrEmail = auth.getName();
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản!"));
+
         boolean isUpdate = (address.getAddressId() != null);
+
         addressService.saveAddress(address, user);
 
         if (isUpdate)
@@ -49,14 +71,20 @@ public class OrderAddressController {
         return "redirect:/account/addresses";
     }
 
+    /** 🗑️ Xóa địa chỉ */
     @PostMapping("/delete/{id}")
     public String deleteAddress(@PathVariable Long id,
-                                HttpSession session,
+                                Authentication auth,
                                 RedirectAttributes redirectAttrs) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+
+        if (auth == null || !auth.isAuthenticated()) {
             return "redirect:/login";
         }
+
+        String usernameOrEmail = auth.getName();
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản!"));
 
         try {
             addressService.deleteAddress(id, user);
@@ -68,24 +96,40 @@ public class OrderAddressController {
         return "redirect:/account/addresses";
     }
 
+    /** ⭐ Đặt làm mặc định */
     @PostMapping("/set-default/{id}")
     public String setDefault(@PathVariable Long id,
-                             HttpSession session,
+                             Authentication auth,
                              RedirectAttributes redirectAttrs) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+
+        if (auth == null || !auth.isAuthenticated()) {
             return "redirect:/login";
         }
+
+        String usernameOrEmail = auth.getName();
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản!"));
 
         addressService.setDefaultAddress(id, user);
         redirectAttrs.addFlashAttribute("msgSuccess", "⭐ Đã đặt làm địa chỉ mặc định!");
         return "redirect:/account/addresses";
     }
 
-    // API lấy địa chỉ để sửa (dùng AJAX)
     @ResponseBody
     @GetMapping("/{id}")
-    public OrderAddress getAddressById(@PathVariable Long id) {
-        return addressService.getAddressById(id);
+    public ResponseEntity<?> getAddressById(@PathVariable Long id, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "not_logged_in"));
+        }
+
+        OrderAddress address = addressService.getAddressById(id);
+        if (address == null || !address.getUser().getUserId().equals(user.getUserId())) {
+            return ResponseEntity.status(404).body(Map.of("error", "not_found"));
+        }
+
+        return ResponseEntity.ok(OrderAddressDTO.fromEntity(address));
     }
+
 }

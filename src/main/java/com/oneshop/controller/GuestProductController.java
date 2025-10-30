@@ -2,8 +2,10 @@ package com.oneshop.controller;
 
 import com.oneshop.entity.Category;
 import com.oneshop.entity.Product;
+import com.oneshop.entity.Blog;
 import com.oneshop.service.CategoryService;
 import com.oneshop.service.ProductService;
+import com.oneshop.service.BlogService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,17 +19,22 @@ public class GuestProductController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final BlogService blogService;
 
-    public GuestProductController(ProductService productService, CategoryService categoryService) {
+    // ✅ Constructor đầy đủ 3 service
+    public GuestProductController(ProductService productService,
+                                  CategoryService categoryService,
+                                  BlogService blogService) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.blogService = blogService;
     }
 
     // 🏠 Trang chủ
     @GetMapping({"/", "/index"})
     public String home(Model model) {
 
-        // ⚙️ Phần gốc của bạn — giữ nguyên
+        // ⚙️ Dữ liệu gốc
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("bestSellers", productService.getBestSellerProducts());
         model.addAttribute("bestDeals", productService.getBestDeals());
@@ -36,7 +43,7 @@ public class GuestProductController {
         model.addAttribute("guestProducts", productService.getTopProductsForGuest());
         model.addAttribute("pageTitle", "OneShop - Cửa hàng mỹ phẩm");
 
-        // 🌸 Thêm danh mục hiển thị ở phần “By Categories” (ảnh tĩnh)
+        // 🌸 Phần “By Categories” — Ảnh tĩnh demo
         List<Map<String, String>> featuredCategories = List.of(
                 Map.of("name", "Kem chống nắng", "image", "/images/categories/kemchongnang.jpeg"),
                 Map.of("name", "Kem nền", "image", "/images/categories/kemnen.jpeg"),
@@ -44,6 +51,10 @@ public class GuestProductController {
                 Map.of("name", "Son môi", "image", "/images/categories/sonmoi.jpeg")
         );
         model.addAttribute("featuredCategories", featuredCategories);
+
+        // 📰 From The Blog — Lấy 3 bài mới nhất
+        List<Blog> blogs = blogService.getLatestBlogs(3);
+        model.addAttribute("blogs", blogs);
 
         return "index";
     }

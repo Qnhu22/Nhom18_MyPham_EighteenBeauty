@@ -6,4 +6,5 @@ import java.util.List;
 public interface BlogService {
     List<Blog> getAllBlogs();
     Blog getBlogById(Long id);
+    List<Blog> getLatestBlogs(int limit);
 }

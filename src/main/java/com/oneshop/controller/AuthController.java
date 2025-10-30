@@ -105,16 +105,26 @@ public class AuthController {
 
     // ====================== LOGIN ======================
     @GetMapping("/login")
-    public String showLoginForm(@ModelAttribute("error") String error,
+    public String showLoginForm(@RequestParam(value = "error", required = false) String error,
+                                @RequestParam(value = "logout", required = false) String logout,
+                                Model model,
                                 @ModelAttribute("success") String success) {
-        if (error != null && !error.isEmpty()) {
-            System.err.println("❌ [LOGIN ERROR] " + error);
+
+        if (error != null) {
+            model.addAttribute("error", "❌ Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.");
         }
+
+        if (logout != null) {
+            model.addAttribute("success", "✅ Bạn đã đăng xuất thành công!");
+        }
+
         if (success != null && !success.isEmpty()) {
-            System.out.println("✅ [SUCCESS] " + success);
+            model.addAttribute("success", success);
         }
-        return "login"; // login.html
+
+        return "login";
     }
+
 
     // ====================== QUÊN MẬT KHẨU ======================
     @GetMapping("/forgot-password")

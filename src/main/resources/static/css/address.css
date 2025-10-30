@@ -92,3 +92,19 @@
 .btn-update { background: var(--color-rose); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 .btn-delete { background: #f55; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 .btn-default { background: var(--color-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+.no-data {
+  text-align: center;
+  color: #666;
+  padding: 30px 0;
+}
+
+@media (max-width: 768px) {
+  .account-wrapper {
+    flex-direction: column;
+  }
+  .account-sidebar {
+    width: 100%;
+  }
+}
+

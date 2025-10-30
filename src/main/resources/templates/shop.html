@@ -66,28 +66,40 @@
   <!-- 🧩 SIDEBAR BÊN TRÁI -->
   <aside class="shop-sidebar">
     <!-- 💄 Danh mục -->
-    <div class="filter-group">
-      <h4>Danh mục</h4>
-      <ul>
-        <li><a th:href="@{/shop}" th:classappend="${selectedCategory == null} ? 'active' : ''">Tất cả</a></li>
-        <li th:each="c : ${categories}">
-          <a th:href="@{'/shop'(category=${c.name})}"
-             th:text="${c.name}"
-             th:classappend="${selectedCategory == c.name} ? 'active' : ''"></a>
-        </li>
-      </ul>
-    </div>
+<!-- 💄 Danh mục -->
+<div class="filter-group">
+  <h4>Danh mục</h4>
+  <ul>
+    <li><a th:href="@{/shop}" th:classappend="${selectedCategory == null} ? 'active' : ''">Tất cả</a></li>
 
-    <!-- 🎨 Thương hiệu -->
-    <div class="filter-group">
-      <h4>Thương hiệu</h4>
-      <ul>
-        <li><a th:href="@{/shop(brand='Innisfree')}" th:classappend="${selectedBrand == 'Innisfree'} ? 'active' : ''">Innisfree</a></li>
-        <li><a th:href="@{/shop(brand='3CE')}" th:classappend="${selectedBrand == '3CE'} ? 'active' : ''">3CE</a></li>
-        <li><a th:href="@{/shop(brand='Maybelline')}" th:classappend="${selectedBrand == 'Maybelline'} ? 'active' : ''">Maybelline</a></li>
-        <li><a th:href="@{/shop(brand='Skin Aqua')}" th:classappend="${selectedBrand == 'Skin Aqua'} ? 'active' : ''">Skin Aqua</a></li>
-      </ul>
-    </div>
+    <li th:each="c : ${categories}">
+      <a th:href="@{'/shop'(category=${c.name})}"
+         th:text="${c.name}"
+         th:classappend="${selectedCategory == c.name} ? 'active' : ''"></a>
+    </li>
+
+    <li th:if="${#lists.isEmpty(categories)}" style="color:#999;font-style:italic;">(Chưa có danh mục nào)</li>
+  </ul>
+</div>
+
+
+<!-- 🎨 Thương hiệu -->
+<div class="filter-group">
+  <h4>Thương hiệu</h4>
+  <ul>
+    <li><a th:href="@{/shop}" th:classappend="${selectedBrand == null} ? 'active' : ''">Tất cả</a></li>
+
+    <li th:each="b : ${brands}">
+      <a th:href="@{'/shop'(brand=${b.name})}"
+         th:text="${b.name}"
+         th:classappend="${selectedBrand == b.name} ? 'active' : ''"></a>
+    </li>
+
+    <!-- Nếu DB rỗng -->
+    <li th:if="${#lists.isEmpty(brands)}" style="color:#999;font-style:italic;">(Chưa có thương hiệu nào)</li>
+  </ul>
+</div>
+
 
     <!-- 💰 Khoảng giá -->
     <div class="filter-group">

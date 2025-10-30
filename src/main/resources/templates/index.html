@@ -172,6 +172,31 @@
   </div>
 </section>
 
+<!-- ==================== FROM THE BLOG ==================== -->
+<section class="home-blog">
+  <h2>From The Blog</h2>
+
+  <div class="blog-list">
+    <div th:each="b : ${blogs}" class="blog-card">
+      <a th:href="@{'/blog/' + ${b.blogId}}" class="blog-link">
+        <img th:src="@{${b.imageUrl}}" th:alt="${b.title}">
+        <div class="blog-content">
+          <p class="blog-date">
+            <i class="fa-regular fa-calendar"></i>
+            <span th:text="${#temporals.format(b.createdAt, 'dd')}"></span>
+            -
+            <span th:text="${#temporals.format(b.createdAt, 'MMM')}"></span>
+          </p>
+          <h3 th:text="${b.title}"></h3>
+          <p class="blog-desc"
+             th:text="${#strings.abbreviate(b.content, 120)}"></p>
+          <span class="read-more">READ MORE</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
 <script>
 function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -182,6 +207,22 @@ function showTab(tab) {
 </script>
 
 </main>
+
+<!-- ==================== BEAUTY LOOKBOOK ==================== -->
+<section class="lookbook-section">
+  <div class="lookbook-grid">
+    <div class="look-item">
+      <img th:src="@{/images/banner/look1.jpeg}" alt="Beauty Look 1">
+    </div>
+    <div class="look-item">
+      <img th:src="@{/images/banner/look2.jpeg}" alt="Beauty Look 2">
+    </div>
+    <div class="look-item">
+      <img th:src="@{/images/banner/look3.jpeg}" alt="Beauty Look 3">
+    </div>
+  </div>
+</section>
+
 
 <div th:replace="~{fragments/_footer :: footer}"></div>
 

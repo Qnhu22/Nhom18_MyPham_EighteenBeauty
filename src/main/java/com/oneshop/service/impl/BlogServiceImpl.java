@@ -22,4 +22,10 @@ public class BlogServiceImpl implements BlogService {
     public Blog getBlogById(Long id) {
         return blogRepository.findById(id).orElse(null);
     }
+    
+    @Override
+    public List<Blog> getLatestBlogs(int limit) {
+        List<Blog> blogs = blogRepository.findTop3ByOrderByCreatedAtDesc();
+        return blogs.size() > limit ? blogs.subList(0, limit) : blogs;
+    }
 }
