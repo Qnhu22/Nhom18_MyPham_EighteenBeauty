@@ -157,3 +157,52 @@ table.order-table th {
 .btn-back:hover {
   background: #e3e3e3;
 }
+
+.modal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+  z-index: 999;
+}
+.modal-content {
+  background: #fff; padding: 20px; border-radius: 10px; width: 320px; text-align: center;
+  position: relative;
+}
+.modal-content .close {
+  position: absolute; top: 8px; right: 12px; font-size: 20px; cursor: pointer;
+}
+#qrcode canvas {
+  margin: 10px auto;
+}
+
+/* 🎁 Voucher UI */
+.voucher-box {
+  background: #f9f9ff;
+  border: 1px solid #e4e4f5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+.btn-voucher {
+  display: inline-block;
+  background: #b8c9e8;
+  color: #111;
+  border-radius: 999px;
+  padding: 8px 14px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-voucher:hover {
+  background: #a7bce1;
+}
+
+.applied-voucher {
+  margin-top: 12px;
+  background: #eef3fb;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+}
+

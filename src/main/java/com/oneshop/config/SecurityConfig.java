@@ -26,12 +26,13 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // ✅ Mã hóa mật khẩu
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Provider cho phép Spring Security dùng CustomUserDetailsService
+    // ✅ Provider cho phép Spring Security dùng CustomUserDetailsService
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -40,52 +41,56 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // AuthenticationManager (nếu cần dùng trong service)
+    // ✅ AuthenticationManager (nếu cần dùng trong service)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    // ✅ Cấu hình bảo mật
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable()) // tắt CSRF cho đơn giản khi dev
             .authorizeHttpRequests(auth -> auth
-                // ✅ Cho phép truy cập công khai (không cần login)
+                // 🔓 Cho phép truy cập công khai
                 .requestMatchers(
-                    "/", "/index", 
-                    "/shop", "/shop/**",      // ⚙️ thêm dòng này
+                    "/", "/index",
+                    "/about",                    // 🆕 Thêm Giới thiệu
+                    "/shop", "/shop/**",
                     "/category/**", "/product/**",
-                    "/register", "/verify-otp", 
+                    "/register", "/verify-otp",
                     "/forgot-password", "/reset-password",
                     "/login",
                     "/css/**", "/js/**", "/images/**", "/uploads/**"
                 ).permitAll()
 
-                // 🔐 Các đường dẫn yêu cầu role
+                .requestMatchers("/api/wishlist/**").authenticated()
+                // 🔐 Giới hạn quyền cho các khu vực riêng
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
                 .requestMatchers("/user/**").hasRole("USER")
 
-                // ✅ Cho phép các request còn lại (nếu có)
+                // Các request khác cho phép truy cập
                 .anyRequest().permitAll()
             )
+            // 🔑 Form login
             .formLogin(form -> form
                 .loginPage("/login")
                 .failureUrl("/login?error=true")
                 .successHandler(successHandler)
                 .permitAll()
             )
+            // 🚪 Logout
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .permitAll()
             );
 
-        // Gắn Custom Authentication Provider
+        // Gắn Custom Provider
         http.authenticationProvider(authenticationProvider());
 
         return http.build();
     }
-
 }

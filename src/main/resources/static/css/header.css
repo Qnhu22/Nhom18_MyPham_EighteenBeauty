@@ -130,6 +130,7 @@
   color: var(--color-rose-dark);
 }
 
+
 /* ================== THANH MENU CHÍNH ================== */
 .main-nav {
   background: var(--color-rose);
@@ -393,9 +394,19 @@
   animation: fadeIn 0.25s ease-in-out;
 }
 
-.cart-wrapper:hover .mini-cart {
-  display: block;
+.mini-cart {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: all 0.25s ease;
 }
+
+.mini-cart.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 
 .mini-cart-item {
   display: flex;
@@ -405,6 +416,11 @@
   border-bottom: 1px solid #f1d7e4;
   padding-bottom: 8px;
 }
+
+.mini-cart a {
+  pointer-events: auto;
+}
+
 
 .mini-cart-item img {
   width: 45px;
@@ -468,3 +484,48 @@
 .cart-shake {
   animation: cartShake 0.4s ease;
 }
+
+/* === FIX CHO THANH TÌM KIẾM MỚI === */
+.mini-search form {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 999px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.mini-search form input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+.mini-search form button {
+  border: none;
+  background: #f3d5e2; /* màu hồng pastel */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s;
+}
+
+.mini-search form button:hover {
+  background: #e8b4d1;
+}
+
+.mini-search form button img {
+  width: 14px;
+  height: 14px;
+  filter: none;
+  opacity: 0.85;
+}
+
+

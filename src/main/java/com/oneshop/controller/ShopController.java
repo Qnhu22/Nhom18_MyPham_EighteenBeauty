@@ -21,17 +21,26 @@ public class ShopController {
     private final CategoryService categoryService;
     private final ReviewService reviewService;
 
-    // =============== SHOP PAGE ===============
+ // =============== SHOP PAGE ===============
     @GetMapping("/shop")
     public String shop(
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String priceRange,
+            @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             Model model) {
+    	
+    	if (sort == null || sort.isBlank() || "reset".equalsIgnoreCase(sort)) {
+    	    sort = null;
+    	}
 
         List<Category> categories = categoryService.getAllCategories();
 
         Page<Product> productPage;
+
+        // ✅ Gọi đúng service có sortKey
         if (category != null && !category.isEmpty()) {
             Category selectedCategory = categories.stream()
                     .filter(c -> c.getName().equalsIgnoreCase(category))
@@ -39,13 +48,41 @@ public class ShopController {
                     .orElse(null);
 
             productPage = (selectedCategory != null)
-                    ? productService.getProductsByCategory(selectedCategory, page, size)
-                    : productService.getAllProducts(page, size);
+                    ? productService.getProductsByCategory(selectedCategory, page, size, sort)
+                    : productService.getAllProducts(page, size, sort);
         } else {
-            productPage = productService.getAllProducts(page, size);
+            productPage = productService.getAllProducts(page, size, sort);
         }
 
         List<Product> products = productPage.getContent();
+        
+     // ✅ Lọc theo brand (nếu có)
+        if (brand != null && !brand.isBlank()) {
+            products = products.stream()
+                    .filter(p -> p.getBrand() != null
+                            && p.getBrand().getName() != null
+                            && p.getBrand().getName().equalsIgnoreCase(brand))
+                    .toList();
+        }
+
+        // ✅ Lọc theo khoảng giá
+        if (priceRange != null && !priceRange.isBlank()) {
+            products = products.stream().filter(p -> {
+                if (p.getVariants() == null || p.getVariants().isEmpty()) return false;
+                double minPrice = p.getVariants().stream()
+                        .filter(v -> v.getPrice() != null)
+                        .mapToDouble(v -> v.getPrice().doubleValue())
+                        .min().orElse(0);
+
+                return switch (priceRange) {
+                    case "low" -> minPrice < 200000;
+                    case "mid" -> minPrice >= 200000 && minPrice <= 400000;
+                    case "high" -> minPrice > 400000;
+                    default -> true;
+                };
+            }).toList();
+        }
+
 
         if (products.isEmpty()) {
             products = List.of(
@@ -55,12 +92,56 @@ public class ShopController {
             );
         }
 
+        // ✅ Đưa biến sort để Thymeleaf chọn đúng option
         model.addAttribute("categories", categories);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("products", products);
+        model.addAttribute("sort", sort);
         model.addAttribute("pageTitle", category != null ? category : "Cửa hàng");
+        
+        model.addAttribute("selectedBrand", brand);
+        model.addAttribute("selectedPriceRange", priceRange);
+
+        model.addAttribute("currentPage", productPage.getNumber() + 1);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("pageSize", productPage.getSize());
 
         return "shop";
+    }
+
+ // =============== SEARCH PRODUCT (CÓ DẤU / KHÔNG DẤU) ===============
+    @GetMapping("/shop/search")
+    public String searchProducts(@RequestParam("keyword") String keyword,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "12") int size,
+                                 Model model) {
+        if (keyword == null || keyword.isBlank()) {
+            return "redirect:/shop";
+        }
+
+        // ✅ Chuẩn hóa bỏ dấu tiếng Việt
+        String normalized = keyword.toLowerCase()
+            .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+            .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+            .replaceAll("[ìíịỉĩ]", "i")
+            .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+            .replaceAll("[ùúụủũưừứựửữ]", "u")
+            .replaceAll("[ỳýỵỷỹ]", "y")
+            .replaceAll("đ", "d");
+
+        Page<Product> productPage = productService.getProductsByName(normalized, page, size);
+        List<Product> products = productPage.getContent();
+
+        // ✅ luôn khởi tạo biến noResult để tránh lỗi Thymeleaf
+        boolean noResult = products == null || products.isEmpty();
+        model.addAttribute("noResult", noResult);
+
+
+        model.addAttribute("products", products);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("pageTitle", "Kết quả tìm kiếm: " + keyword);
+        return "shop"; // sử dụng lại giao diện shop.html
     }
 
     // =============== PRODUCT DETAIL PAGE ===============
@@ -97,6 +178,9 @@ public class ShopController {
         // ⭐ Tính tổng lượt đánh giá và điểm trung bình
         double avgRating = reviews.isEmpty() ? 0 :
                 reviews.stream().mapToInt(Review::getRating).average().orElse(0);
+        
+        product.setRating((float) avgRating);
+        productService.saveProduct(product);
 
         // 📊 Tính phần trăm từng mức sao (1–5)
         Map<Integer, Long> countMap = reviews.stream()

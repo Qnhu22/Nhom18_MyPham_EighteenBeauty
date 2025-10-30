@@ -12,4 +12,5 @@ import com.oneshop.entity.ProductVariant;
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
 	List<ProductVariant> findByProduct(Product product);
+	List<ProductVariant> findTop8ByOldPriceNotNullOrderByCreatedAtDesc();
 }

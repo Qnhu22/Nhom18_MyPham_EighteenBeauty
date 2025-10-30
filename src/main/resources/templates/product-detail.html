@@ -487,6 +487,41 @@
 }
 
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const wishlistBtn = document.querySelector(".btn-wishlist");
+
+  if (!wishlistBtn) return;
+
+  wishlistBtn.addEventListener("click", async () => {
+    const name = document.querySelector(".product-name").textContent.trim();
+    const image = document.querySelector(".main-img").src;
+    const price = document.getElementById("priceDisplay").textContent.trim();
+    const variantId = document.querySelector("input[name='variantId']").value;
+
+    // Lấy danh sách yêu thích từ localStorage
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    // Nếu sản phẩm đã có trong danh sách
+    if (wishlist.some(p => p.variantId === variantId)) {
+      alert("💖 Sản phẩm này đã có trong danh sách yêu thích!");
+      return;
+    }
+
+    // Thêm mới vào localStorage
+    wishlist.push({ name, image, price, variantId });
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+
+    // Hiệu ứng cập nhật nút
+    wishlistBtn.innerHTML = `<i class="fa-solid fa-heart"></i> Đã yêu thích`;
+    wishlistBtn.disabled = true;
+
+    alert("✅ Đã thêm sản phẩm vào danh sách yêu thích!");
+  });
+});
+</script>
+
 <style>
 .cart-message {
   display: none;

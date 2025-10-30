@@ -15,89 +15,181 @@
   <!-- 🔹 Header -->
   <div th:replace="fragments/_header :: header"></div>
 
-  <main class="checkout-page">
-    <div class="checkout-container">
+ <main class="checkout-page">
+  <div class="checkout-container">
 
-      <h2 class="title">XÁC NHẬN THANH TOÁN</h2>
+    <h2 class="title">XÁC NHẬN THANH TOÁN</h2>
 
-      <!-- 🏠 Địa chỉ giao hàng -->
-<div class="section">
-  <h3>Địa chỉ giao hàng</h3>
-  <div class="address-box" th:if="${defaultAddress != null}">
-    <div class="address-info">
-      <p>
-        <strong th:text="${defaultAddress.receiverName}"></strong> -
-        <span th:text="${defaultAddress.phone}"></span>
-      </p>
-      <p th:text="${defaultAddress.addressLine + ', ' + defaultAddress.ward + ', ' 
-                   + defaultAddress.district + ', ' + defaultAddress.city}"></p>
+    <!-- 🏠 Địa chỉ giao hàng -->
+    <div class="section">
+      <h3>Địa chỉ giao hàng</h3>
+      <div class="address-box" th:if="${defaultAddress != null}">
+        <div class="address-info">
+          <p>
+            <strong th:text="${defaultAddress.receiverName}"></strong> -
+            <span th:text="${defaultAddress.phone}"></span>
+          </p>
+          <p th:text="${defaultAddress.addressLine + ', ' + defaultAddress.ward + ', ' 
+                      + defaultAddress.district + ', ' + defaultAddress.city}"></p>
+        </div>
+        <a th:href="@{/account/addresses}" class="btn-change">Thay đổi</a>
+      </div>
+
+      <div class="address-box" th:if="${defaultAddress == null}">
+        <p style="color: red;">❌ Bạn chưa có địa chỉ giao hàng. Vui lòng thêm trong tài khoản.</p>
+        <a th:href="@{/account/addresses}" class="btn-change">Thêm địa chỉ</a>
+      </div>
     </div>
-    <a th:href="@{/account/addresses}" class="btn-change">Thay đổi</a>
-  </div>
 
-  <div class="address-box" th:if="${defaultAddress == null}">
-    <p style="color: red;">❌ Bạn chưa có địa chỉ giao hàng. Vui lòng thêm trong tài khoản.</p>
-    <a th:href="@{/account/addresses}" class="btn-change">Thêm địa chỉ</a>
+    <!-- 🛍 Sản phẩm trong đơn -->
+    <div class="section">
+      <h3>Sản phẩm trong đơn hàng</h3>
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>Tên sản phẩm</th>
+            <th>SL</th>
+            <th>Giá</th>
+            <th>Tạm tính</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${items}">
+            <td th:text="${item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.product.name : item['name']}"></td>
+            <td th:text="${item instanceof T(com.oneshop.entity.CartItem) ? item.quantity : item['quantity']}"></td>
+            <td th:text="${#numbers.formatDecimal(item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.price : item['price'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+            <td th:text="${#numbers.formatDecimal(item instanceof T(com.oneshop.entity.CartItem) ? item.subtotal : item['subtotal'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+<!-- 🎁 Voucher -->
+<div class="section voucher-section">
+  <h3>Voucher</h3>
+
+  <div class="voucher-box">
+    <a th:href="@{/account/vouchers}" class="btn-voucher">
+      <i class="fa-solid fa-gift"></i> Áp dụng voucher
+    </a>
+
+    <div th:if="${session.selectedVoucher != null}" class="applied-voucher">
+      <p>Đã áp dụng: 
+        <strong th:text="${session.selectedVoucher.code}"></strong> - 
+        <span th:text="${session.selectedVoucher.name}"></span>
+      </p>
+
+      <p th:if="${session.selectedVoucher.discountType.name() == 'PERCENT'}">
+        Giảm <b th:text="${session.selectedVoucher.discountPercent}"></b>% 
+        <span th:if="${session.selectedVoucher.maxDiscountValue != null}">
+          (Tối đa <span th:text="${#numbers.formatDecimal(session.selectedVoucher.maxDiscountValue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>)
+        </span>
+      </p>
+
+      <p th:if="${session.selectedVoucher.discountType.name() == 'AMOUNT'}">
+        Giảm <b th:text="${#numbers.formatDecimal(session.selectedVoucher.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></b>
+      </p>
+
+      <p th:if="${session.selectedVoucher.discountType.name() == 'FREESHIP'}">Miễn phí vận chuyển 🚚</p>
+
+      <a th:href="@{/account/vouchers/remove}" class="btn-remove">Bỏ chọn</a>
+    </div>
   </div>
 </div>
 
-
-      <!-- 🛍 Sản phẩm trong đơn -->
-      <div class="section">
-        <h3>Sản phẩm trong đơn hàng</h3>
-        <table class="order-table">
-          <thead>
-            <tr>
-              <th>Tên sản phẩm</th>
-              <th>SL</th>
-              <th>Giá</th>
-              <th>Tạm tính</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="item : ${items}">
-              <td th:text="${item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.product.name : item['name']}"></td>
-              <td th:text="${item instanceof T(com.oneshop.entity.CartItem) ? item.quantity : item['quantity']}"></td>
-              <td th:text="${#numbers.formatDecimal(item instanceof T(com.oneshop.entity.CartItem) ? item.productVariant.price : item['price'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-              <td th:text="${#numbers.formatDecimal(item instanceof T(com.oneshop.entity.CartItem) ? item.subtotal : item['subtotal'], 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 🎁 Voucher -->
-      <div class="section voucher-section">
-        <h3>Voucher</h3>
-        <a th:href="@{/account/vouchers}"><i class="fa-solid fa-gift"></i> Áp dụng voucher</a>
-      </div>
-
-      <!-- 💳 Phương thức thanh toán -->
-      <div class="section payment-methods">
-        <h3>Phương thức thanh toán</h3>
-        <label><input type="radio" name="payment" value="COD" checked> Thanh toán khi nhận hàng</label>
-        <label><input type="radio" name="payment" value="Bank"> Chuyển khoản ngân hàng</label>
-        <label><input type="radio" name="payment" value="Momo"> Ví Momo</label>
-      </div>
-
-      <!-- 💰 Tổng cộng -->
-      <div class="section summary-box">
-        <p>Tổng cộng: <strong th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong></p>
-      </div>
-
-      <!-- 🔘 Hành động -->
-      <div class="action-buttons">
-        <button class="btn-back" onclick="history.back()">
-          <i class="fa-solid fa-arrow-left"></i> Quay lại
-        </button>
-        <button class="btn-confirm">
-          <i class="fa-solid fa-credit-card"></i> Thanh toán
-        </button>
-      </div>
-
+    <!-- 💳 Phương thức thanh toán -->
+    <div class="section payment-methods">
+      <h3>Phương thức thanh toán</h3>
+      <label><input type="radio" name="payment" value="COD" checked> Thanh toán khi nhận hàng</label>
+      <label><input type="radio" name="payment" value="Bank"> Chuyển khoản ngân hàng</label>
+      <label><input type="radio" name="payment" value="Momo"> Ví Momo</label>
     </div>
-  </main>
 
-  <!-- 🔹 Footer -->
-  <div th:replace="fragments/_footer :: footer"></div>
+<!-- 💰 Tổng cộng -->
+<div class="section summary-box">
+  <p>Tạm tính: 
+    <strong th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong>
+  </p>
+
+  <p>Phí vận chuyển: 
+    <strong th:text="${#numbers.formatDecimal(shipFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong>
+  </p>
+
+  <p th:if="${discount != null and discount > 0}">
+    Giảm giá:
+    <strong style="color:#16a34a" th:text="'- ' + ${#numbers.formatDecimal(discount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></strong>
+  </p>
+
+  <hr style="border:0.5px solid #ddd; margin:8px 0;">
+
+  <p><b>Tổng cộng: 
+    <span style="color:#8b5cf6; font-size:20px;"
+          th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+  </b></p>
+</div>
+
+
+    <!-- 🔘 Hành động -->
+    <div class="action-buttons" style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 25px;">
+      
+      <!-- 🔙 Nút quay lại -->
+      <button type="button" class="btn-back" onclick="history.back()">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại
+      </button>
+
+      <!-- ✅ Form thanh toán qua Momo (ẩn) -->
+      <form id="momoForm" th:action="@{/payment/momo/pay}" method="post" style="display:none;">
+  <input type="hidden" name="orderId" th:value="${T(java.util.UUID).randomUUID()}">
+  <input type="hidden" name="amount" th:value="${#numbers.formatInteger(total,0)}">
+</form>
+
+      <!-- 💳 Nút xác nhận -->
+      <button type="button" class="btn-confirm" id="confirmBtn">
+        <i class="fa-solid fa-credit-card"></i> Đặt hàng
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<div th:replace="fragments/_footer :: footer"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const confirmBtn = document.getElementById("confirmBtn");
+  if (!confirmBtn) return;
+
+  confirmBtn.addEventListener("click", async () => {
+    const payment = document.querySelector('input[name="payment"]:checked')?.value;
+
+    try {
+      if (payment === "Momo") {
+        // 🟣 Nếu chọn ví Momo → chuyển sang trang thanh toán Momo
+        document.getElementById("momoForm").submit();
+      } else {
+        // 🟢 Với COD hoặc Bank → gửi xác nhận đơn hàng
+        const formData = new FormData();
+        formData.append("paymentMethod", payment.toUpperCase());
+
+        const res = await fetch('/checkout/confirm', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.redirected) {
+          alert("✅ Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại OneShop 💜");
+          window.location.href = res.url;
+        } else {
+          alert("❌ Có lỗi khi xác nhận đơn hàng. Vui lòng thử lại.");
+        }
+      }
+    } catch (e) {
+      console.error("Lỗi khi đặt hàng:", e);
+      alert("⚠️ Lỗi hệ thống, vui lòng thử lại sau.");
+    }
+  });
+});
+</script>
+
 </body>
 </html>

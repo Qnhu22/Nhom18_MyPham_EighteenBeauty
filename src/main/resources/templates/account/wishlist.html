@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách yêu thích | OneShop</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/wishlist.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+<div th:replace="fragments/_header :: header"></div>
+
+<main class="page"
+      th:classappend="${#authorization.expression('isAuthenticated()')} ? ' with-aside'">
+  <h2><i class="fa-solid fa-heart"></i> Danh sách yêu thích</h2>
+
+  <!-- Sidebar (chỉ hiển thị khi đã đăng nhập) -->
+  <aside class="side" sec:authorize="isAuthenticated()">
+    <a class="nav-item" th:href="@{/account}">Thông tin tài khoản</a>
+    <a class="nav-item" th:href="@{/account/orders}">Lịch sử đơn hàng</a>
+    <a class="nav-item" th:href="@{/account/vouchers}">Ví Voucher</a>
+    <a class="nav-item" th:href="@{/account/addresses}">Địa chỉ giao hàng</a>
+    <a class="nav-item active" th:href="@{/account/wishlist}">Danh sách yêu thích</a>
+    <form th:action="@{/logout}" method="post">
+      <button class="nav-item" type="submit">Đăng xuất</button>
+    </form>
+  </aside>
+
+  <!-- Nội dung danh sách yêu thích -->
+  <section class="content">
+    <div id="wishlistGrid" class="wishlist-grid"></div>
+    <div id="emptyMsg" class="empty" style="display:none;">
+      <i class="fa-regular fa-heart"></i>
+      <p>Bạn chưa có sản phẩm yêu thích nào</p>
+      <a href="/">Quay lại cửa hàng</a>
+    </div>
+  </section>
+</main>
+
+
+<div th:replace="fragments/_footer :: footer"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const grid = document.getElementById("wishlistGrid");
+  const empty = document.getElementById("emptyMsg");
+  let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  function render() {
+    grid.innerHTML = "";
+    if (wishlist.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    wishlist.forEach((item, idx) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <div class="info">
+          <div class="name">${item.name}</div>
+          <div class="price">${item.price}</div>
+          <div class="actions">
+            <button class="btn add" onclick="addToCart('${item.variantId}')">Giỏ hàng</button>
+            <button class="btn remove" onclick="removeItem(${idx})">Xoá</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  window.removeItem = (i) => {
+    wishlist.splice(i, 1);
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    render();
+  };
+
+  window.addToCart = async (variantId) => {
+    try {
+      const formData = new FormData();
+      formData.append("variantId", variantId);
+      formData.append("quantity", 1);
+
+      const response = await fetch("/cart/add", { method: "POST", body: formData });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+
+      const item = wishlist.find(p => p.variantId == variantId);
+      window.dispatchEvent(new CustomEvent("cart-updated", {
+        detail: { name: item.name, variantId, qty: 1, price: item.price, image: item.image, total: data.total, cartCount: data.cartCount }
+      }));
+
+      const toast = document.createElement("div");
+      toast.textContent = "✅ Đã thêm vào giỏ hàng";
+      toast.style.position = "fixed";
+      toast.style.top = "110px";
+      toast.style.right = "30px";
+      toast.style.background = "linear-gradient(90deg,#f09fc1,#a974e8)";
+      toast.style.color = "#fff";
+      toast.style.padding = "10px 18px";
+      toast.style.borderRadius = "10px";
+      toast.style.boxShadow = "0 3px 10px rgba(0,0,0,0.15)";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    } catch (err) {
+      console.error("❌ Lỗi thêm giỏ hàng:", err);
+      alert("Không thể thêm sản phẩm vào giỏ. Vui lòng thử lại!");
+    }
+  };
+
+  render();
+});
+</script>
+</body>
+</html>

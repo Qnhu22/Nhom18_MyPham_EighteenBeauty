@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+  <title>Lịch sử đơn hàng | OneShop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/order-history.css}">
+  
+  <style>
+    :root {
+      --rose:#f3d5e2; --rose-dark:#e8b4d1;
+      --cream:#fafaf2; --dark:#222; --white:#fff;
+      --danger:#ff6b6b; --warn:#ffcc70; --primary:#a78bfa;
+    }
+    body { background: var(--cream); margin: 0; font-family: "Segoe UI", sans-serif; }
+    main.page { margin-top: 140px; padding-bottom: 60px; }
+    h2 { text-align:center; font-size:24px; margin-bottom:30px; color:#111; }
+
+    /* GRID */
+    .grid { display:grid; grid-template-columns:260px 1fr; gap:40px; max-width:1100px; margin:auto; padding:0 16px; }
+
+    /* SIDEBAR */
+    .side {
+      background:#fff; border:1px solid #eee; border-radius:16px;
+      padding:14px; height:max-content;
+      box-shadow:0 4px 12px rgba(0,0,0,.05);
+    }
+    .nav-item {
+      display:block; padding:10px 14px; margin:6px 0;
+      border-radius:12px; text-decoration:none;
+      color:#222; border:1px solid #eee; background:#fff;
+      transition:all .2s;
+    }
+    .nav-item:hover, .nav-item.active { background:var(--rose); border-color:var(--rose-dark); }
+
+    .nav-item.logout {
+      text-align:center;
+      color:#111; background:#fafafa;
+      border:1px solid #ddd;
+    }
+    .nav-item.logout:hover {
+      background:var(--rose-dark);
+      color:#fff;
+      border-color:var(--rose-dark);
+    }
+
+    /* ORDER ACTIONS */
+    .order-actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:14px;
+    }
+    .btn {
+      padding:8px 16px;
+      border-radius:10px;
+      border:none;
+      font-size:14px;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .btn:hover { transform:translateY(-1px); opacity:0.9; }
+    .btn.danger { background:var(--danger); color:#fff; }
+    .btn.warn { background:var(--warn); color:#222; }
+    .btn.primary { background:var(--primary); color:#fff; }
+
+    .hint { font-size:13px; color:#999; font-style:italic; }
+
+  </style>
+</head>
+
+<body>
+<div th:replace="~{fragments/_header :: header}"></div>
+
+<main class="page" sec:authorize="isAuthenticated()">
+  <h2>Lịch sử đơn hàng</h2>
+
+  <div class="grid">
+    <!-- Sidebar -->
+    <aside class="side">
+      <a class="nav-item" th:href="@{/account}">Thông tin tài khoản</a>
+      <a class="nav-item active" th:href="@{/account/orders}">Lịch sử đơn hàng</a>
+      <a class="nav-item" th:href="@{/account/vouchers}">Ví Voucher</a>
+      <a class="nav-item" th:href="@{/account/addresses}">Địa chỉ giao hàng</a>
+      <a class="nav-item" th:href="@{/account/wishlist}">Danh sách yêu thích</a>
+      <form th:action="@{/logout}" method="post">
+        <button class="nav-item logout" type="submit">Đăng xuất</button>
+      </form>
+    </aside>
+
+    <!-- Content -->
+    <section class="account-content">
+      <div th:if="${msg}" class="alert success" th:text="${msg}"></div>
+      <div th:if="${err}" class="alert error" th:text="${err}"></div>
+
+      <div th:if="${#lists.isEmpty(orders)}">
+        <p>Hiện bạn chưa có đơn hàng nào.</p>
+      </div>
+
+      <div th:each="order : ${orders}" class="order-card"
+           th:attr="data-id=${order.orderId},data-status=${order.status}">
+        <div class="order-header">
+          <span class="code" th:text="'#' + ${order.orderId}"></span>
+          <span class="status"
+                th:text="${order.status}"
+                th:classappend="${order.status != null ? order.status.name() : 'NEW'}"></span>
+          <span class="date" th:text="${#temporals.format(order.orderDate, 'HH:mm dd/MM/yyyy')}"></span>
+        </div>
+        
+        <!-- 🏠 Địa chỉ giao hàng -->
+<div class="order-address"
+     th:if="${addressMap != null and addressMap[order.orderId] != null}"
+     style="margin-top:8px; font-size:14px; color:#444;">
+  <i class="fa-solid fa-location-dot" style="color:#8b5cf6;"></i>
+  <span th:text="${addressMap[order.orderId].receiverName} + ' - ' + ${addressMap[order.orderId].phone}"></span><br>
+<span th:text="${addressMap[order.orderId].addressLine + ', ' 
+             + addressMap[order.orderId].ward + ', ' 
+             + addressMap[order.orderId].district + ', ' 
+             + addressMap[order.orderId].city}"></span>
+
+</div>
+        
+
+        <div class="order-body">
+          <div th:each="item : ${order.orderItems}" class="item">
+            <img th:src="${item.productVariant.imageUrl}" alt="Ảnh sản phẩm">
+            <div class="info">
+              <h4 th:text="${item.productVariant.product.name}"></h4>
+              <p th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ × ' + ${item.quantity}"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-total">
+          <p>Tạm tính:
+            <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+          </p>
+          <p>Phí vận chuyển:
+            <span th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+          </p>
+          <p><b>Tổng cộng:</b>
+            <span class="total" th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+          </p>
+        </div>
+
+<!-- ✅ Nút hành động -->
+<div class="order-actions">
+  <!-- Huỷ đơn -->
+  <button type="button" class="btn danger"
+          th:if="${order.status == T(com.oneshop.enums.OrderStatus).NEW
+               or order.status == T(com.oneshop.enums.OrderStatus).CONFIRMED}"
+          th:onclick="|updateStatus(${order.orderId}, 'cancel', this)|">
+    Huỷ đơn
+  </button>
+
+  <!-- Trả hàng / Hoàn tiền -->
+  <button type="button" class="btn warn"
+          th:if="${order.status == T(com.oneshop.enums.OrderStatus).DELIVERED}"
+          th:onclick="|updateStatus(${order.orderId}, 'return', this)|">
+    Trả hàng / Hoàn tiền
+  </button>
+
+  <!-- Khi đang giao -->
+  <span class="hint"
+        th:if="${order.status == T(com.oneshop.enums.OrderStatus).SHIPPING}">
+    Đơn đang giao – không thể huỷ
+  </span>
+</div>
+
+      </div>
+    </section>
+  </div>
+</main>
+
+<main class="page" sec:authorize="isAnonymous()">
+  <h2>Bạn cần đăng nhập để xem lịch sử đơn hàng</h2>
+  <a th:href="@{/login}">→ Đăng nhập</a>
+</main>
+
+<!-- Popup xác nhận -->
+<div id="confirmModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <h3 id="confirmTitle">Xác nhận</h3>
+    <p id="confirmText">Bạn chắc chắn muốn thực hiện thao tác này?</p>
+
+    <form id="confirmForm" method="post">
+      <button type="button" class="btn" onclick="closeConfirm()">Đóng</button>
+      <button type="submit" class="btn primary">Xác nhận</button>
+    </form>
+  </div>
+</div>
+
+<div th:replace="~{fragments/_footer :: footer}"></div>
+
+<script>
+  function openConfirm(type, orderId) {
+    const modal = document.getElementById('confirmModal');
+    const title = document.getElementById('confirmTitle');
+    const text = document.getElementById('confirmText');
+    const form = document.getElementById('confirmForm');
+
+    if (type === 'cancel') {
+      title.textContent = 'Huỷ đơn hàng';
+      text.textContent = 'Bạn có chắc muốn huỷ đơn #' + orderId + ' ?';
+      form.action = '/account/orders/' + orderId + '/cancel';
+    } else {
+      title.textContent = 'Trả hàng / Hoàn tiền';
+      text.textContent = 'Xác nhận yêu cầu trả hàng/hoàn tiền cho đơn #' + orderId + ' ?';
+      form.action = '/account/orders/' + orderId + '/return';
+    }
+    modal.style.display = 'flex';
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+  }
+
+  document.getElementById('confirmModal').addEventListener('click', e => {
+    if (e.target.id === 'confirmModal') closeConfirm();
+  });
+</script>
+
+<script>
+async function updateStatus(orderId, action, btn) {
+	  console.log("🟢 Bắt đầu updateStatus:", orderId, action);
+	  if (!confirm(`Xác nhận ${action === 'cancel' ? 'huỷ đơn' : 'trả hàng/hoàn tiền'} cho đơn #${orderId}?`)) return;
+
+	  const csrfMeta = document.querySelector("meta[name='_csrf']");
+	  const token = csrfMeta ? csrfMeta.content : "";
+
+	  try {
+	    console.log("🚀 Gửi request POST...");
+	    const res = await fetch(`/account/orders/${orderId}/update-status?action=${action}`, {
+	      method: "POST",
+	      headers: {
+	        "Content-Type": "application/x-www-form-urlencoded",
+	        "X-CSRF-TOKEN": token
+	      },
+	      body: "" // thêm dòng này để ép fetch thực sự gửi POST
+	    });
+
+	    const data = await res.json();
+	    console.log("📦 Data:", data);
+
+	    if (data.success) {
+	      const card = btn.closest(".order-card");
+	      const statusEl = card.querySelector(".status");
+	      statusEl.textContent = data.newStatus;
+	      statusEl.className = "status " + data.newStatus;
+	      btn.remove();
+	      alert(data.message);
+	    } else {
+	      alert(data.message);
+	    }
+	  } catch (err) {
+	    console.error("❌ Lỗi khi fetch:", err);
+	    alert("Đã xảy ra lỗi khi cập nhật trạng thái!");
+	  }
+	}
+
+</script>
+
+</body>
+</html>

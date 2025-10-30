@@ -23,7 +23,7 @@
 						</button>
 
 						<div class="dropdown-content">
-							<a href="#"><i class="fa fa-heart"></i> Danh sách yêu thích</a>
+							<a href="/account/wishlist"><i class="fa-solid fa-heart"></i> Danh sách yêu thích</a>
 							<a th:href="@{/login}"><i class="fa fa-sign-in-alt"></i> Đăng nhập</a>
 						</div>
 					</div>
@@ -41,7 +41,9 @@
 							<a th:href="@{/account/orders}"><i class="fa fa-shopping-bag"></i> Lịch sử đơn hàng</a>
 							<a th:href="@{/account/vouchers}"><i class="fa fa-gift"></i> Ví Voucher</a>
 							<a th:href="@{/account/addresses}"><i class="fa fa-map-marker-alt"></i> Địa chỉ giao hàng</a>
-							<a th:href="@{/account/reviews}"><i class="fa fa-star"></i> Đánh giá & phản hồi</a>
+							<a th:href="@{/account/wishlist}" class="wishlist-link">
+  							<i class="fa-solid fa-heart"></i> Danh sách yêu thích</a>
+
 
 							<form th:action="@{/logout}" method="post">
 								<button type="submit" class="logout-btn"><i class="fa fa-sign-out-alt"></i> Đăng
@@ -50,18 +52,6 @@
 						</div>
 					</div>
 
-					<!-- 🌐 Ngôn ngữ -->
-					<div class="dropdown lang-dropdown">
-						<button class="dropbtn">
-							<img src="https://flagcdn.com/16x12/vn.png" alt="VN"> Tiếng Việt
-							<i class="fa fa-caret-down arrow"></i>
-						</button>
-						<div class="dropdown-content">
-							<a href="#"><img src="https://flagcdn.com/16x12/vn.png" alt=""> Tiếng Việt</a>
-							<a href="#"><img src="https://flagcdn.com/16x12/gb.png" alt=""> English</a>
-							<a href="#"><img src="https://flagcdn.com/16x12/kr.png" alt=""> 한국어</a>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -87,9 +77,14 @@
 					<div class="search-wrapper">
 						<img th:src="@{/images/icons/search.png}" alt="Tìm kiếm" class="icon-btn" id="searchToggle">
 						<div class="mini-search" id="miniSearch">
-							<input type="text" placeholder="Nhập từ khóa và nhấn Enter">
-							<button><img th:src="@{/images/icons/search.png}" alt="Search"></button>
-						</div>
+    <form th:action="@{/shop/search}" method="get" id="searchForm">
+        <input type="text" name="keyword" placeholder="Nhập từ khóa và nhấn Enter">
+        <button type="submit">
+            <img th:src="@{/images/icons/search.png}" alt="Search">
+        </button>
+    </form>
+</div>
+
 					</div>
 
 					<!-- 🛍 Giỏ hàng -->
@@ -166,6 +161,7 @@
 
 					</div>
 				</div>
+					
 			</div>
 		</nav>
 	</header>
@@ -194,6 +190,24 @@
 				miniSearch.classList.remove("active");
 			}
 		});
+		
+		// ✅ Tự động submit khi nhấn Enter
+		document.addEventListener("DOMContentLoaded", () => {
+		  const searchForm = document.getElementById("searchForm");
+		  const input = searchForm?.querySelector("input[name='keyword']");
+		  const button = searchForm?.querySelector("button");
+
+		  if (input && button) {
+		    input.addEventListener("keypress", (e) => {
+		      if (e.key === "Enter") {
+		        e.preventDefault();
+		        searchForm.submit();
+		      }
+		    });
+		    button.addEventListener("click", () => searchForm.submit());
+		  }
+		});
+
 	</script>
 
 	<!-- ================== SCRIPT BỔ SUNG ĐỒNG BỘ MINI CART ================== -->
@@ -343,4 +357,45 @@ if (emptyWrap) emptyWrap.remove();           // ❗ Xóa cả block rỗng
 		});
 
 	</script>
+	
+	<script>
+	  // 💗 Hiệu ứng hover mini-cart mượt và có thể click được
+	  document.addEventListener("DOMContentLoaded", () => {
+	    const cartWrapper = document.querySelector(".cart-wrapper");
+	    const miniCart = document.querySelector(".mini-cart");
+	    let hideTimeout;
+
+	    if (cartWrapper && miniCart) {
+	      const showCart = () => {
+	        clearTimeout(hideTimeout);
+	        miniCart.style.display = "block";
+	        miniCart.style.opacity = "1";
+	        miniCart.style.transition = "opacity 0.3s ease";
+	      };
+
+	      const hideCart = () => {
+	        hideTimeout = setTimeout(() => {
+	          miniCart.style.opacity = "0";
+	          setTimeout(() => (miniCart.style.display = "none"), 300);
+	        }, 400);
+	      };
+
+	      // 🩷 Hover icon hoặc mini-cart
+	      cartWrapper.addEventListener("mouseenter", showCart);
+	      cartWrapper.addEventListener("mouseleave", hideCart);
+	      miniCart.addEventListener("mouseenter", showCart);
+	      miniCart.addEventListener("mouseleave", hideCart);
+
+	      // 🩵 Cho phép click link bên trong (không bị ẩn ngay)
+	      miniCart.querySelectorAll("a").forEach(link => {
+	        link.addEventListener("click", e => {
+	          e.stopPropagation(); // chặn event ẩn khi click
+	          window.location.href = link.href; // thực hiện điều hướng thủ công
+	        });
+	      });
+	    }
+	  });
+	</script>
+
 </div>
+	

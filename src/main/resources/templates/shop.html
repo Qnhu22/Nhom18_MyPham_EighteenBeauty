@@ -8,7 +8,8 @@
   <link rel="stylesheet" th:href="@{/css/footer.css}">
   <link rel="stylesheet" th:href="@{/css/banner.css}">
   <link rel="stylesheet" th:href="@{/css/shop.css}">
-  <script src="https://kit.fontawesome.com/a2e0e6ad8b.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -43,13 +44,90 @@
     </div>
   </section>
 
+    </a>
+  </div>
+</section>
 
-  <!-- =============== PRODUCT GRID =============== -->
+<!-- 🔍 KẾT QUẢ TÌM KIẾM -->
+<div class="search-result-header" th:if="${keyword != null and !noResult}">
+  <h2>Kết quả tìm kiếm cho: "<span th:text="${keyword}"></span>"</h2>
+  <a th:href="@{/shop}" class="btn-reset-search">← Xem tất cả sản phẩm</a>
+</div>
+
+<!-- ⚠️ THÔNG BÁO KHI KHÔNG CÓ KẾT QUẢ -->
+<div class="no-result" th:if="${noResult}">
+  <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa "<span th:text="${keyword}"></span>".</p>
+  <a th:href="@{/shop}" class="btn-reset-search">← Quay lại xem toàn bộ sản phẩm</a>
+</div>
+
+<!-- =============== PRODUCT AREA =============== -->
+<div class="shop-container">
+
+  <!-- 🧩 SIDEBAR BÊN TRÁI -->
+  <aside class="shop-sidebar">
+    <!-- 💄 Danh mục -->
+    <div class="filter-group">
+      <h4>Danh mục</h4>
+      <ul>
+        <li><a th:href="@{/shop}" th:classappend="${selectedCategory == null} ? 'active' : ''">Tất cả</a></li>
+        <li th:each="c : ${categories}">
+          <a th:href="@{'/shop'(category=${c.name})}"
+             th:text="${c.name}"
+             th:classappend="${selectedCategory == c.name} ? 'active' : ''"></a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 🎨 Thương hiệu -->
+    <div class="filter-group">
+      <h4>Thương hiệu</h4>
+      <ul>
+        <li><a th:href="@{/shop(brand='Innisfree')}" th:classappend="${selectedBrand == 'Innisfree'} ? 'active' : ''">Innisfree</a></li>
+        <li><a th:href="@{/shop(brand='3CE')}" th:classappend="${selectedBrand == '3CE'} ? 'active' : ''">3CE</a></li>
+        <li><a th:href="@{/shop(brand='Maybelline')}" th:classappend="${selectedBrand == 'Maybelline'} ? 'active' : ''">Maybelline</a></li>
+        <li><a th:href="@{/shop(brand='Skin Aqua')}" th:classappend="${selectedBrand == 'Skin Aqua'} ? 'active' : ''">Skin Aqua</a></li>
+      </ul>
+    </div>
+
+    <!-- 💰 Khoảng giá -->
+    <div class="filter-group">
+      <h4>Giá</h4>
+      <ul>
+        <li><a th:href="@{/shop(priceRange='low')}" th:classappend="${selectedPriceRange == 'low'} ? 'active' : ''">Dưới 200.000₫</a></li>
+        <li><a th:href="@{/shop(priceRange='mid')}" th:classappend="${selectedPriceRange == 'mid'} ? 'active' : ''">200.000₫ – 400.000₫</a></li>
+        <li><a th:href="@{/shop(priceRange='high')}" th:classappend="${selectedPriceRange == 'high'} ? 'active' : ''">Trên 400.000₫</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- 🖼️ SHOP BANNER (nằm trên phần sắp xếp và sản phẩm) -->
+  <section class="shop-banner">
+    <img th:src="@{/images/banner/shop-banner.jpeg?v=2}" alt="Shop Banner">
+  </section>
+
+  <!-- ✅ SẮP XẾP THEO (đưa ra ngoài, ngay dưới banner, căn giữa theo sản phẩm) -->
+  <section class="sort-section">
+    <form th:action="@{/shop}" method="get" class="sort-form">
+      <input type="hidden" name="category" th:value="${selectedCategory}">
+      <label for="sortSelect">Sắp xếp theo:</label>
+      <select id="sortSelect" name="sort" onchange="this.form.submit()">
+        <option value="">-- Không sắp xếp --</option>
+        <option value="newest" th:selected="${sort == 'newest'}">Mới nhất</option>
+        <option value="bestseller" th:selected="${sort == 'bestseller'}">Bán chạy nhất</option>
+        <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Giá: Thấp → Cao</option>
+        <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Giá: Cao → Thấp</option>
+        <option value="nameAsc" th:selected="${sort == 'nameAsc'}">Tên: A → Z</option>
+        <option value="nameDesc" th:selected="${sort == 'nameDesc'}">Tên: Z → A</option>
+      </select>
+
+      <!-- 🔁 Nút đặt lại -->
+      <a th:href="@{/shop(category=${selectedCategory})}" class="reset-sort-btn">🔁 Đặt lại</a>
+    </form>
+  </section>
+
+  <!-- 🛍 DANH SÁCH SẢN PHẨM -->
   <section class="shop-products">
-
-    <!-- Nếu có sản phẩm -->
     <div th:unless="${#lists.isEmpty(products)}" class="product-grid">
-
       <div th:each="p : ${products}" class="product-card-adv">
 
         <!-- Hình ảnh -->
@@ -68,37 +146,31 @@
           </div>
         </div>
 
-        <!-- Tên sản phẩm -->
+        <!-- Tên -->
         <h3 class="product-name" th:text="${p.name}"></h3>
 
-        <!-- Giá sản phẩm -->
+        <!-- Giá -->
         <div class="product-prices">
-
-          <!-- 🧮 Hiển thị khoảng giá tính từ service -->
-<span class="price-range"
-      th:if="${p.variants != null and !#lists.isEmpty(p.variants)}"
-      th:text="${@productServiceImpl.getPriceRange(p)}">
-</span>
-
-<!-- Nếu không có variants -->
-<span class="price-placeholder"
-      th:if="${p.variants == null or #lists.isEmpty(p.variants)}">
-  Liên hệ để xem giá
-</span>
-
-
-          <!-- Nếu chưa có variants -->
+          <span class="price-range"
+                th:if="${p.variants != null and !#lists.isEmpty(p.variants)}"
+                th:text="${@productServiceImpl.getPriceRange(p)}"></span>
           <span class="price-placeholder"
                 th:if="${p.variants == null or #lists.isEmpty(p.variants)}">
             Liên hệ để xem giá
           </span>
         </div>
 
-        <!-- Rating -->
-        <div class="product-rating">
-          <i class="fa fa-star"
-             th:each="i : ${#numbers.sequence(1, (p.rating != null ? p.rating.intValue() : 5))}"></i>
-        </div>
+        <!-- ⭐ Rating -->
+<div class="product-rating">
+  <!-- Hiển thị sao -->
+  <i class="fa-solid fa-star"
+     th:each="i : ${#numbers.sequence(1, (p.rating != null ? p.rating.intValue() : 5))}"></i>
+
+  <!-- Hiển thị số điểm trung bình -->
+  <span th:if="${p.rating != null}" 
+        th:text="'(' + ${#numbers.formatDecimal(p.rating, 1, 1)} + ')'"
+        class="rating-value"></span>
+</div>
 
       </div>
     </div>
@@ -107,9 +179,34 @@
     <div th:if="${#lists.isEmpty(products)}" class="no-products">
       <p>Hiện chưa có sản phẩm nào trong danh mục này.</p>
     </div>
-
   </section>
+</div>
 </main>
+
+<p th:if="${totalPages > 1}" 
+   style="text-align:center; color:#b14d7d; margin-top:50px; font-weight:500;">
+  Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span>
+</p>
+
+
+<!-- =============== PAGINATION =============== -->
+<div class="pagination pastel-pagination" th:if="${totalPages >= 1}">
+  <!-- Nút Trước -->
+  <a th:if="${currentPage > 1}"
+     th:href="@{'/shop'(category=${selectedCategory}, brand=${selectedBrand}, priceRange=${selectedPriceRange}, sort=${sort}, page=${currentPage - 1})}"
+     class="page-btn prev">← Trước</a>
+
+  <!-- Dòng hiển thị số trang -->
+  <span class="page-info">
+    Trang <span th:text="${currentPage}">1</span>/<span th:text="${totalPages}">1</span>
+  </span>
+
+  <!-- Nút Tiếp -->
+  <a th:if="${currentPage < totalPages}"
+     th:href="@{'/shop'(category=${selectedCategory}, brand=${selectedBrand}, priceRange=${selectedPriceRange}, sort=${sort}, page=${currentPage + 1})}"
+     class="page-btn next">Tiếp →</a>
+</div>
+
 
 <!-- =============== FOOTER =============== -->
 <div th:replace="fragments/_footer :: footer"></div>

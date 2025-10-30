@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface OrderAddressRepository extends JpaRepository<OrderAddress, Long> {
     List<OrderAddress> findByUser(User user);
-    OrderAddress findByUserAndIsDefaultTrue(User user);
+    Optional<OrderAddress> findFirstByUserAndIsDefaultTrue(User user);
     Optional<OrderAddress> findByAddressIdAndUser(Long addressId, User user);
 }

@@ -1,0 +1,371 @@
+/* ==================== BLOG HEADER ==================== */
+.blog-header {
+  background: linear-gradient(180deg, #fafaf2 0%, #fff 100%);
+  padding: 140px 0 60px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .blog-header { padding-top: 120px; }
+}
+
+.blog-header h2 {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #b14d7d;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.blog-header p {
+  color: #888;
+  font-size: 15px;
+  font-style: italic;
+}
+
+/* ==================== BLOG LIST ==================== */
+.blog-list {
+  background: #fff;
+  padding: 60px 0 80px;
+}
+
+.blog-list .blog-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+  max-width: 1150px;
+  margin: 0 auto;
+}
+
+/* ==================== BLOG CARD ==================== */
+.blog-card {
+  width: 330px;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: all 0.35s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.blog-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.blog-card .blog-info {
+  padding: 22px 20px 28px;
+  text-align: left;
+}
+
+.blog-card h3 {
+  font-size: 19px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.blog-card:hover h3 { color: #b14d7d; }
+
+.blog-card .meta {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+.blog-card .meta i {
+  color: #b14d7d;
+  margin-right: 6px;
+}
+
+.blog-card p {
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.blog-card .read-more {
+  display: inline-block;
+  color: #b14d7d;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.blog-card .read-more:hover {
+  color: #a25a91;
+  text-decoration: underline;
+}
+
+/* ==================== BLOG DETAIL ==================== */
+.blog-detail {
+  padding: 150px 0 80px;
+  background: #fff;
+}
+
+.blog-detail .container {
+  display: flex;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.blog-detail .content {
+  flex: 3;
+  background: #fff;
+}
+
+.blog-detail .content img.main-img {
+  width: 100%;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
+}
+
+.blog-detail .meta {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.blog-detail .meta span { margin-right: 15px; }
+
+.blog-detail .text h4 {
+  color: #b14d7d;
+  margin-top: 30px;
+  font-size: 18px;
+}
+
+.blog-detail .text p {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.8;
+  margin: 14px 0;
+  text-align: justify;
+}
+
+/* Ảnh minh họa trong bài viết */
+.blog-detail img.sub-img {
+  display: block;
+  max-width: 70%;        /* ảnh nhỏ lại còn 70% khung bài viết */
+  height: auto;          /* giữ đúng tỉ lệ gốc */
+  margin: 30px auto;     /* căn giữa hình */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  image-rendering: -webkit-optimize-contrast; /* tăng độ nét */
+  image-rendering: crisp-edges;
+}
+
+
+blockquote {
+  background: #fff3f8;
+  border-left: 5px solid #e4a0c0;
+  padding: 14px 18px;
+  margin: 25px 0;
+  font-style: italic;
+  color: #555;
+  border-radius: 6px;
+}
+
+/* ==================== SHARE SECTION ==================== */
+.share-section {
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  margin-top: 40px;
+}
+
+.share-section p {
+  font-weight: 600;
+  color: #333;
+}
+
+.share-icons a {
+  display: inline-block;
+  font-size: 20px;
+  margin-right: 10px;
+  color: #b14d7d;
+  transition: transform 0.3s;
+}
+
+.share-icons a:hover {
+  transform: scale(1.15);
+  color: #a25a91;
+}
+
+/* ==================== COMMENT SECTION ==================== */
+.comment-section {
+  margin-top: 50px;
+  padding-top: 40px;
+  border-top: 1px solid #eee;
+}
+
+.comment-section h4 {
+  color: #b14d7d;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Danh sách bình luận */
+.comment-list {
+  margin-bottom: 25px;
+}
+
+.comment-item {
+  background: #fff8fa;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.comment-author {
+  font-weight: 600;
+  color: #b14d7d;
+  margin-bottom: 2px;
+}
+
+.comment-date {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.comment-text {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Form bình luận */
+.comment-form input,
+.comment-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border 0.3s;
+}
+
+.comment-form input:focus,
+.comment-form textarea:focus {
+  border-color: #b14d7d;
+}
+
+.comment-form button {
+  background: #b14d7d;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.comment-form button:hover {
+  background: #a24b7a;
+}
+
+/* Thông báo cảm ơn */
+.comment-message {
+  margin-top: 10px;
+  color: #57b87c;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar {
+  flex: 1;
+}
+
+.sidebar .widget {
+  background: #fff8fa;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .widget img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.sidebar .recent-posts ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .recent-posts li {
+  margin-bottom: 8px;
+}
+
+.sidebar .recent-posts a {
+  text-decoration: none;
+  color: #444;
+  transition: color 0.3s;
+}
+
+.sidebar .recent-posts a:hover {
+  color: #b14d7d;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+  .blog-detail .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    order: 2;
+  }
+}
+
+/* ==================== SUBSCRIBE WIDGET ==================== */
+.subscribe-widget p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.subscribe-form input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.subscribe-form button {
+  width: 100%;
+  background: #b14d7d;
+  color: #fff;
+  border: none;
+  padding: 8px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.subscribe-form button:hover {
+  background: #a24b7a;
+}

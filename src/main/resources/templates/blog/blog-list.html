@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle}">Blog - OneShop</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/blog.css}">
+</head>
+<body>
+<div th:replace="fragments/_header :: header"></div>
+
+<section class="blog-header">
+  <h2>BLOG</h2>
+  <p>Home - Blog</p>
+</section>
+
+<section class="blog-list">
+  <div class="container">
+    <div class="blog-grid">
+      <div th:each="b : ${blogs}" class="blog-card">
+        <a th:href="@{'/blog/' + ${b.blogId}}">
+          <img th:src="@{${b.imageUrl}}" th:alt="${b.title}">
+          <div class="blog-info">
+            <h3 th:text="${b.title}"></h3>
+            <p class="meta">
+              <i class="fa-solid fa-calendar"></i>
+              <span th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy')}"></span>
+              &nbsp;|&nbsp;
+              <span th:text="${b.author}"></span>
+            </p>
+            <p th:text="${#strings.abbreviate(b.content, 150)}"></p>
+            <span class="read-more">Đọc thêm →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div th:replace="fragments/_footer :: footer"></div>
+</body>
+</html>
