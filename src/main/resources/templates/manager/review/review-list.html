@@ -186,54 +186,51 @@
 		<nav class="mt-4">
 			<ul class="pagination justify-content-center">
 
-				<!-- Nút Trang trước -->
+				<!-- Prev -->
 				<li class="page-item"
 					th:classappend="${currentPage == 0} ? 'disabled'"><a
 					class="page-link"
-					th:href="@{'/manager/reviews?(page=' + ${currentPage - 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
-                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
-                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
-                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + ')'}">&laquo;</a>
-				</li>
+					th:href="@{|/manager/reviews?page=${currentPage - 1}
+                        ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                        ${selectedProductId != null ? '&productId=' + selectedProductId : ''}
+                        ${selectedRating != null ? '&rating=' + selectedRating : ''}
+                        ${fromDate != null ? '&fromDate=' + fromDate : ''}
+                        ${toDate != null ? '&toDate=' + toDate : ''}
+                        ${keyword != null ? '&keyword=' + keyword : ''}|}">
+						&laquo; </a></li>
 
-				<!-- Các số trang -->
+				<!-- Page numbers -->
 				<li class="page-item"
-					th:each="i : ${#numbers.sequence(1, totalPages)}"
-					th:classappend="${i - 1 == currentPage} ? 'active'"><a
-					class="page-link"
-					th:href="@{'/manager/reviews?(page=' + ${i - 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
-                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
-                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
-                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + ')'}"
-					th:text="${i}"></a></li>
+					th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:classappend="${i == currentPage} ? 'active'"><a
+					class="page-link" th:text="${i + 1}"
+					th:href="@{|/manager/reviews?page=${i}
+                        ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                        ${selectedProductId != null ? '&productId=' + selectedProductId : ''}
+                        ${selectedRating != null ? '&rating=' + selectedRating : ''}
+                        ${fromDate != null ? '&fromDate=' + fromDate : ''}
+                        ${toDate != null ? '&toDate=' + toDate : ''}
+                        ${keyword != null ? '&keyword=' + keyword : ''}|}">
+				</a></li>
 
-				<!-- Nút Trang sau -->
+				<!-- Next -->
 				<li class="page-item"
-					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+					th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
 					<a class="page-link"
-					th:href="@{'/manager/reviews?(page=' + ${currentPage + 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${selectedProductId} != null ? '&productId=' + ${selectedProductId} : '') 
-                   + (${selectedRating} != null ? '&rating=' + ${selectedRating} : '') 
-                   + (${fromDate} != null ? '&fromDate=' + ${fromDate} : '') 
-                   + (${toDate} != null ? '&toDate=' + ${toDate} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + ')'}">&raquo;</a>
+					th:href="@{|/manager/reviews?page=${currentPage + 1}
+                        ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                        ${selectedProductId != null ? '&productId=' + selectedProductId : ''}
+                        ${selectedRating != null ? '&rating=' + selectedRating : ''}
+                        ${fromDate != null ? '&fromDate=' + fromDate : ''}
+                        ${toDate != null ? '&toDate=' + toDate : ''}
+                        ${keyword != null ? '&keyword=' + keyword : ''}|}">
+						&raquo; </a>
 				</li>
 
 			</ul>
 		</nav>
 
-
-	<!-- REPLY MODAL -->
+		<!-- REPLY MODAL -->
 	<div class="modal" id="replyModal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">

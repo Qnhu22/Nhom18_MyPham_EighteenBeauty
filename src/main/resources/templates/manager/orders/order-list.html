@@ -191,43 +191,41 @@
 		<nav class="mt-4">
 			<ul class="pagination justify-content-center">
 
-				<!-- Nút Trang trước -->
+				<!-- Previous -->
 				<li class="page-item"
 					th:classappend="${currentPage == 0} ? 'disabled'"><a
 					class="page-link"
-					th:href="@{'/manager/orders?(page=' + ${currentPage - 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + (${start} != null ? '&start=' + ${start} : '') 
-                   + (${end} != null ? '&end=' + ${end} : '') 
-                   + ')'}">
+					th:href="@{|/manager/orders?page=${currentPage - 1}
+                    ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                    ${keyword != null ? '&keyword=' + keyword : ''}
+                    ${start != null ? '&start=' + start : ''}
+                    ${end != null ? '&end=' + end : ''}|}">
 						&laquo; </a></li>
 
-				<!-- Các số trang -->
+				<!-- Page numbers -->
 				<li class="page-item"
-					th:each="i : ${#numbers.sequence(1, totalPages)}"
-					th:classappend="${i - 1 == currentPage} ? 'active'"><a
-					class="page-link"
-					th:href="@{'/manager/orders?(page=' + ${i - 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + (${start} != null ? '&start=' + ${start} : '') 
-                   + (${end} != null ? '&end=' + ${end} : '') 
-                   + ')'}"
-					th:text="${i}"> </a></li>
+					th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:classappend="${i == currentPage} ? 'active'"><a
+					class="page-link" th:text="${i + 1}"
+					th:href="@{|/manager/orders?page=${i}
+                    ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                    ${keyword != null ? '&keyword=' + keyword : ''}
+                    ${start != null ? '&start=' + start : ''}
+                    ${end != null ? '&end=' + end : ''}|}">
+				</a></li>
 
-				<!-- Nút Trang sau -->
+				<!-- Next -->
 				<li class="page-item"
 					th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
 					<a class="page-link"
-					th:href="@{'/manager/orders?(page=' + ${currentPage + 1} 
-                   + (${selectedStatus} != null ? '&status=' + ${selectedStatus} : '') 
-                   + (${keyword} != null ? '&keyword=' + ${keyword} : '') 
-                   + (${start} != null ? '&start=' + ${start} : '') 
-                   + (${end} != null ? '&end=' + ${end} : '') 
-                   + ')'}">
+					th:href="@{|/manager/orders?page=${currentPage + 1}
+                    ${selectedStatus != null ? '&status=' + selectedStatus : ''}
+                    ${keyword != null ? '&keyword=' + keyword : ''}
+                    ${start != null ? '&start=' + start : ''}
+                    ${end != null ? '&end=' + end : ''}|}">
 						&raquo; </a>
 				</li>
+
 			</ul>
 		</nav>
 

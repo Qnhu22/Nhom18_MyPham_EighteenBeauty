@@ -165,6 +165,10 @@ public class OrderServiceImpl implements OrderService {
 		if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
 			throw new RuntimeException("Không thể phân công shipper cho đơn hàng đã giao hoặc đã hủy!");
 		}
+		
+		if (order.getStatus() != OrderStatus.CONFIRMED) {
+	        throw new RuntimeException("Chỉ có thể phân công shipper khi đơn đã được xác nhận!");
+	    }
 
 		Shipper shipper = shipperRepository.findByUser_UserId(shipperUserId);
 		if (shipper == null) {
@@ -179,9 +183,18 @@ public class OrderServiceImpl implements OrderService {
 	public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!"));
+		OrderStatus oldStatus = order.getStatus();
 		if (order.getStatus() == OrderStatus.CANCELLED) {
 			throw new RuntimeException("Không thể cập nhật trạng thái cho đơn hàng đã hủy!");
 		}
+		if (newStatus.ordinal() < oldStatus.ordinal()) {
+	        throw new RuntimeException("Không thể cập nhật trạng thái lùi!");
+	    }
+
+	    // Chặn hủy nếu shipper đang giao
+	    if (newStatus == OrderStatus.CANCELLED && oldStatus == OrderStatus.SHIPPING) {
+	        throw new RuntimeException("Không thể hủy đơn hàng đang giao!");
+	    }
 		order.setStatus(newStatus);
 		orderRepository.save(order);
 	}
