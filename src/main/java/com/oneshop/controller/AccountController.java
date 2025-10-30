@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +55,7 @@ public class AccountController {
      
      // Nếu là shipper → lấy thêm thông tin từ bảng shipper
         if (roles.contains("Nhân viên giao hàng")) {
-            Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+            Shipper shipper = shipperService.getShipperById(user.getUserId());
             model.addAttribute("shipper", shipper);
         }
         
@@ -82,7 +83,7 @@ public class AccountController {
             @RequestParam String fullName,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String gender,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime birthDate,
             @RequestParam(required = false) String area,      // ✅ thêm cho shipper
             @RequestParam(required = false) String status,    // ✅ thêm cho shipper
             Authentication auth) throws IOException {
@@ -138,7 +139,7 @@ public class AccountController {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
         // Tìm shipper tương ứng
-        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+        Shipper shipper = shipperService.getShipperById(user.getUserId());
         if (shipper == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin shipper");
         }
@@ -148,7 +149,7 @@ public class AccountController {
         shipper.setStatus(status);
 
         // Lưu lại
-        shipperService.save(shipper);
+        shipperService.saveShipper(shipper);
 
         return "redirect:/account";
     }

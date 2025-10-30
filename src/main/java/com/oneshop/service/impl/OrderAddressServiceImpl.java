@@ -4,9 +4,9 @@ import com.oneshop.entity.OrderAddress;
 import com.oneshop.entity.User;
 import com.oneshop.repository.OrderAddressRepository;
 import com.oneshop.service.OrderAddressService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,9 +40,9 @@ public class OrderAddressServiceImpl implements OrderAddressService {
             existing.setCity(address.getCity());
 
             // ✅ Nếu tick “Đặt làm mặc định”
-            if (Boolean.TRUE.equals(address.isDefault())) {
+            if (Boolean.TRUE.equals(address.isDefaultAddress())) {
                 removeDefaultFromOther(user); // reset các địa chỉ khác
-                existing.setDefault(true);
+                existing.setDefaultAddress(true);
             } 
             // ❗ Nếu không tick, giữ nguyên trạng thái mặc định cũ
             // Không cần set false, vì người dùng không thay đổi
@@ -51,7 +51,7 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         }
 
         // ✅ Nếu là địa chỉ mới
-        if (Boolean.TRUE.equals(address.isDefault())) {
+        if (Boolean.TRUE.equals(address.isDefaultAddress())) {
             removeDefaultFromOther(user);
         }
         return addressRepo.save(address);
@@ -63,7 +63,7 @@ public class OrderAddressServiceImpl implements OrderAddressService {
     private void removeDefaultFromOther(User user) {
         List<OrderAddress> list = addressRepo.findByUser(user);
         for (OrderAddress a : list) {
-            a.setDefault(false);
+            a.setDefaultAddress(false);
         }
         addressRepo.saveAll(list);
     }
@@ -77,7 +77,7 @@ public class OrderAddressServiceImpl implements OrderAddressService {
 
         addressRepo.delete(address);
     }
-
+    
     @Override
     @Transactional
     public void setDefaultAddress(Long id, User user) {
@@ -88,7 +88,7 @@ public class OrderAddressServiceImpl implements OrderAddressService {
         OrderAddress selected = addressRepo.findById(id)
                 .filter(a -> a.getUser().getUserId().equals(user.getUserId()))
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy địa chỉ để đặt mặc định"));
-        selected.setDefault(true);
+        selected.setDefaultAddress(true);
 
         addressRepo.save(selected);
     }
@@ -97,4 +97,46 @@ public class OrderAddressServiceImpl implements OrderAddressService {
     public OrderAddress getAddressById(Long id) {
         return addressRepo.findById(id).orElse(null);
     }
+    
+    @Override
+    public List<OrderAddress> getAddressesByUser(Long userId) {
+        return addressRepo.findByUser_UserId(userId);
+    }
+
+    @Override
+    public List<OrderAddress> getAllAddresses() {
+        return addressRepo.findAll();
+    }
+
+    @Override
+    public OrderAddress getById(Long id) {
+        return addressRepo.findById(id).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public void setDefaultAddress(OrderAddress selected) {
+        Long userId = selected.getUser().getUserId();
+        List<OrderAddress> allByUser = addressRepo.findByUser_UserId(userId);
+        for (OrderAddress a : allByUser) {
+            a.setDefaultAddress(false);
+        }
+        selected.setDefaultAddress(true);
+        addressRepo.saveAll(allByUser);
+    }
+
+    @Override
+    public void delete(Long id) {
+        addressRepo.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void save(OrderAddress address) {
+        if (address.isDefaultAddress()) {
+            setDefaultAddress(address);
+        }
+        addressRepo.save(address);
+    }
+    
 }

@@ -177,7 +177,7 @@ public class CartController {
         if (defaultAddress == null) {
             // Nếu user chưa có defaultAddressId -> tìm dòng có isDefault = 1
             for (OrderAddress addr : user.getAddresses()) {
-                if (addr.isDefault()) {
+                if (addr.isDefaultAddress()) {
                     defaultAddress = addr;
                     break;
                 }

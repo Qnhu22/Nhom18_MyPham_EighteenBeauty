@@ -59,7 +59,7 @@ public class ShipperController {
 	@GetMapping({"/dashboard", ""})
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) throws JsonProcessingException {
         Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Shipper shipper = shipperService.getShipperById(userId);
     
         
         if (shipper == null) {
@@ -112,7 +112,7 @@ public class ShipperController {
         Long userId = getCurrentUserId(principal);
         List<Order> orders;
 
-        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Shipper shipper = shipperService.getShipperById(userId);
         Long shipperId = shipper.getShipperId();
 
         if (status == null || status.isBlank()) {
@@ -135,7 +135,7 @@ public class ShipperController {
     @GetMapping("/order/{orderId}")
     public String viewOrderDetail(@PathVariable Long orderId, Model model, Principal principal) {
         User user = userService.getByUsername(principal.getName());
-        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+        Shipper shipper = shipperService.getShipperById(user.getUserId());
         
         Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
         model.addAttribute("order", order);
@@ -151,7 +151,7 @@ public class ShipperController {
                                @RequestParam(required = false) String note,
                                RedirectAttributes redirectAttributes) {
         Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Shipper shipper = shipperService.getShipperById(userId);
      // Lấy order hiện tại
       //  Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
 
@@ -169,14 +169,14 @@ public class ShipperController {
                                 @ModelAttribute Shipper shipperForm,
                                 RedirectAttributes redirectAttributes) {
         Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Shipper shipper = shipperService.getShipperById(userId);
         if (shipper == null) return "redirect:/shipper/profile";
 
         shipper.setArea(shipperForm.getArea());
         shipper.setStatus(shipperForm.getStatus());
         shipper.setTotalFailed(shipperForm.getTotalFailed());
         shipper.setTotalDelivered(shipperForm.getTotalDelivered());
-        shipperService.save(shipper);
+        shipperService.saveShipper(shipper);
 
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công!");
         return "redirect:/shipper/profile";
@@ -186,7 +186,7 @@ public class ShipperController {
     @GetMapping("/statistics/export")
     public ResponseEntity<byte[]> exportReport(@AuthenticationPrincipal UserDetails principal) {
         Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperByUserId(userId);
+        Shipper shipper = shipperService.getShipperById(userId);
 
         byte[] fileData = reportService.generateRevenueReport(shipper.getShipperId());
 

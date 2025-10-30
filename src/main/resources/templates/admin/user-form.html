@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Người dùng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafaf2;
+      padding: 30px;
+    }
+
+    .form-container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      border: 3px solid #e8b4d1;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #aec6e5;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      color: #e8b4d1;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #aec6e5;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e8b4d1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2 th:text="${pageTitle}">Thêm người dùng</h2>
+
+  <form th:action="${user.userId == null} ? @{/admin/users/save} : @{/admin/users/update/{id}(id=${user.userId})}"
+        th:object="${user}" method="post">
+    <input type="hidden" th:field="*{userId}"/>
+
+    <label>Tên đăng nhập</label>
+    <input type="text" th:field="*{username}" th:readonly="${user.userId != null}" required/>
+
+    <label>Mật khẩu</label>
+    <input type="password" th:field="*{password}" th:if="${user.userId == null}" required/>
+    <input type="password" th:if="${user.userId != null}" value="********" readonly disabled/>
+
+    <label>Họ và tên</label>
+    <input type="text" th:field="*{fullName}"/>
+
+    <label>Email</label>
+    <input type="email" th:field="*{email}" required/>
+
+    <label>Số điện thoại</label>
+    <input type="text" th:field="*{phone}"/>
+
+    <label>Giới tính</label>
+    <select th:field="*{gender}">
+      <option value="">-- Chọn --</option>
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+      <option value="Khác">Khác</option>
+    </select>
+
+<!--     <label>Vai trò</label> -->
+<!--     <select th:field="*{role}"> -->
+<!--       <option value="USER">USER</option> -->
+<!--       <option value="ADMIN">ADMIN</option> -->
+<!--       <option value="SELLER">SELLER</option> -->
+<!--       <option value="SHIPPER">SHIPPER</option> -->
+<!--     </select> -->
+
+	<label>Vai trò</label>
+	<select name="roleId" required>
+	 <option th:each="role : ${roles}"
+        th:value="${role.roleId}"
+        th:text="${role.roleName}"
+        th:selected="${user.roles.?[roleId == role.roleId].size() > 0}">
+	</option>
+
+	</select>
+
+<!--     <label>Trạng thái</label> -->
+<!--     <select th:field="*{status}"> -->
+<!--       <option value="true">Hoạt động</option> -->
+<!--       <option value="false">Bị khóa</option> -->
+<!--     </select> -->
+	<label>Trạng thái</label>
+	<select th:field="*{active}">
+	  <option value="true">Hoạt động</option>
+	  <option value="false">Bị khóa</option>
+	</select>
+
+
+<!--     <label>Địa chỉ mặc định</label> -->
+<!--     <input type="text" th:field="*{defaultAddress}" /> -->
+	<label>Địa chỉ mặc định</label>
+	<select name="defaultAddressId">
+	  <option value="">-- Không chọn --</option>
+	  <option th:each="addr : ${addresses}"
+	          th:value="${addr.addressId}"
+	          th:text="${addr.addressLine}"
+	          th:selected="${user.defaultAddress?.addressId == addr.addressId}">
+	  </option>
+	</select>
+
+    <input type="file" name="avatarFile" accept="image/*" onchange="previewAvatar(this)" class="form-control-file">
+
+
+    <button type="submit">💾 Lưu</button>
+    <a th:href="@{/admin/users}" class="btn btn-back" style="margin-right: 10px;">⬅️ Quay lại</a>
+  </form>
+</div>
+</body>
+</html>

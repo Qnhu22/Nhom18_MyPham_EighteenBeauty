@@ -138,6 +138,14 @@
   width: 100%;
 }
 
+.logout-btn {
+    background-color: #aec6e5;
+    margin-bottom: 10px;
+    float: right;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
 /* ================== SEARCH & CART ================== */
 .actions {
   display: flex;
@@ -238,21 +246,7 @@
   filter: brightness(70%);
 }
 
-.cart-btn {
-  position: relative;
-  display: inline-block;
-}
 
-.cart-btn .badge {
-  position: absolute;
-  top: -8px;
-  right: -10px;
-  background: var(--color-dark);
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  padding: 2px 6px;
-}
 
 /* ================== MINI SEARCH (fix lỗi to & lệch) ================== */
 .mini-search {

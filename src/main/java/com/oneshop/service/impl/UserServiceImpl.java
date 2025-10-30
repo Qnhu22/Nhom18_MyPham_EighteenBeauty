@@ -1,15 +1,24 @@
 package com.oneshop.service.impl;
 
+import com.oneshop.dto.UserLogCountProjection;
+import com.oneshop.entity.OrderAddress;
 import com.oneshop.entity.User;
+import com.oneshop.repository.UserActionLogRepository;
 import com.oneshop.repository.UserRepository;
 import com.oneshop.service.UserService;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -17,14 +26,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService; // service gửi mail
-    
+    private final UserActionLogRepository logRepository;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
-                           MailService mailService) {
+                           MailService mailService,
+                           UserActionLogRepository logRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
+        this.logRepository = logRepository;
     }
 
     // ================== CRUD ==================
@@ -34,8 +45,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
     // Đăng ký user bình thường (active=false, cần OTP)
@@ -54,8 +65,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(Long id, User user) {
-        return userRepository.findById(id)
+    public User updateUser(Long userId, User user) {
+        return userRepository.findById(userId)
                 .map(existing -> {
                     existing.setFullName(user.getFullName());
                     existing.setEmail(user.getEmail());
@@ -69,8 +80,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 
     // ================== NGHIỆP VỤ ==================
@@ -164,10 +175,64 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+    
+    @Override
+    public void setDefaultAddress(User user, OrderAddress address) {
+        user.setDefaultAddress(address);
+        userRepository.save(user);
+    }
+    
+    @Override
+    public long countAll() {
+        return userRepository.count();
+    }
+
+    @Override
+    public long countByActive(boolean active) {
+        return userRepository.countByActive(active);
+    }
+
+    @Override
+    public long countByRole(String roleName) {
+        return userRepository.countByRoles_RoleName(roleName);
+    }
+
+    @Override
+    public List<Integer> getMonthlyUserRegistrations() {
+        List<Object[]> result = userRepository.countUsersByMonthThisYear();
+
+        Map<Integer, Integer> monthMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) monthMap.put(i, 0);
+
+        for (Object[] row : result) {
+            Integer month = (Integer) row[0];
+            Long count = (Long) row[1];
+            monthMap.put(month, count.intValue());
+        }
+
+        return monthMap.values().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getTopActiveUsers() {
+        List<UserLogCountProjection> projections = logRepository.findTop5UsersByLogCount();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (UserLogCountProjection proj : projections) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("userId", proj.getUserId());
+            item.put("username", proj.getUsername());
+            item.put("email", proj.getEmail());
+            item.put("logCount", proj.getLogCount());
+            result.add(item);
+        }
+
+        return result;
+    }
+    
     @Override
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + username));
     }
-
 }

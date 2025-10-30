@@ -1,10 +1,12 @@
 package com.oneshop.service.impl;
 
 import com.oneshop.entity.Shipper;
+import com.oneshop.entity.User;
 import com.oneshop.repository.ShipperRepository;
 import com.oneshop.service.ShipperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -12,7 +14,7 @@ import java.util.List;
 public class ShipperServiceImpl implements ShipperService {
 
     private final ShipperRepository shipperRepository;
-    
+
     @Override
     public List<Shipper> getAllShippers() {
         return shipperRepository.findAll();
@@ -21,11 +23,6 @@ public class ShipperServiceImpl implements ShipperService {
     @Override
     public Shipper getShipperById(Long id) {
         return shipperRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public Shipper getShipperByUserId(Long userId) {
-        return shipperRepository.findByUser_UserId(userId);
     }
 
     @Override
@@ -38,15 +35,20 @@ public class ShipperServiceImpl implements ShipperService {
         shipperRepository.deleteById(id);
     }
 
-	@Override
-	public Shipper findByUsername(String username) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void save(Shipper shipper) {
-        shipperRepository.save(shipper);
+    @Override
+    public List<Shipper> searchShippers(String keyword) {
+        return shipperRepository.findByAreaContainingIgnoreCaseOrStatusContainingIgnoreCase(keyword, keyword);
     }
 
-	
+    @Override
+    public void createIfAbsent(User user) {
+        if (!shipperRepository.existsByUser_UserId(user.getUserId())) {
+            Shipper newShipper = Shipper.builder()
+                    .user(user)
+                    .status("Đang hoạt động")
+                    .area("Chưa phân vùng")
+                    .build();
+            shipperRepository.save(newShipper);
+        }
+    }
 }

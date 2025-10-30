@@ -3,16 +3,21 @@ package com.oneshop.repository;
 import com.oneshop.entity.OrderAddress;
 import com.oneshop.entity.User;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface OrderAddressRepository extends JpaRepository<OrderAddress, Long> {
+	List<OrderAddress> findByUser_UserId(Long userId);
+	
+	List<OrderAddress> findByUser_EmailContainingIgnoreCaseOrReceiverNameContainingIgnoreCaseOrPhoneContainingIgnoreCase(
+	        String email, String receiverName, String phone
+	    );
 
-    List<OrderAddress> findByUser(User user);
-    OrderAddress findByUserAndIsDefaultTrue(User user);
-    Optional<OrderAddress> findByAddressIdAndUser(Long addressId, User user);
+    // Optional: chỉ lấy địa chỉ mặc định nếu cần dùng sau này
+	List<OrderAddress> findByDefaultAddressTrueAndUser_UserId(Long userId);
+
+	List<OrderAddress> findByUser(User user);
 }

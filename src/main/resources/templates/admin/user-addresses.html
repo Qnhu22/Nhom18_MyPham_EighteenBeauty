@@ -1,0 +1,52 @@
+<!-- templates/admin/user-addresses.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Địa chỉ giao hàng của người dùng</title>
+    <link rel="stylesheet" th:href="@{/css/admin_table.css}">
+    <link rel="stylesheet" th:href="@{/css/header_admin.css}">
+</head>
+<body>
+<div th:replace="fragments/_header_admin :: header"></div>
+
+<section class="main-section">
+	<div class="container">
+	    <h2>📍 Địa chỉ giao hàng của <span th:text="${user.fullName}"></span></h2>
+	    <a th:href="@{/admin/addresses}" class="btn-reset">← Quay về danh sách địa chỉ</a>
+	    <a th:href="@{'/admin/users/' + ${user.userId} + '/addresses/form'}" class="btn-reset">➕ Thêm địa chỉ mới</a>
+	
+	    <table>
+	        <thead>
+	        <tr>
+	            <th>Người nhận</th>
+	            <th>SĐT</th>
+	            <th>Địa chỉ</th>
+	            <th>Mặc định</th>
+	            <th>Thao tác</th>
+	        </tr>
+	        </thead>
+	        <tbody>
+	        <tr th:each="addr : ${addresses}">
+	            <td th:text="${addr.receiverName}"></td>
+	            <td th:text="${addr.phone}"></td>
+	            <td th:text="${addr.addressLine} + ', ' + ${addr.ward} + ', ' + ${addr.district} + ', ' + ${addr.city}"></td>
+	            <td>
+	                <span th:if="${addr.defaultAddress}">🌟 Mặc định</span>
+	                <form th:if="${!addr.defaultAddress}" th:action="@{'/admin/addresses/' + ${addr.addressId} + '/set-default'}" method="post" style="display:inline;">
+	                    <button type="submit">Chọn làm mặc định</button>
+	                </form>
+	            </td>
+	            <td>
+	                <a th:href="@{'/admin/addresses/' + ${addr.addressId} + '/edit'}">✏️</a>
+	                <form th:action="@{'/admin/addresses/' + ${addr.addressId} + '/delete'}" method="post" style="display:inline">
+	                    <button type="submit">❌</button>
+	                </form>
+	            </td>
+	        </tr>
+	        </tbody>
+	    </table>
+	</div>
+	</section>F
+</body>
+</html>

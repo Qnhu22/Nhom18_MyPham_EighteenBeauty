@@ -6,7 +6,6 @@ import java.util.Optional;
 
 public interface CategoryService {
     List<Category> getAllCategories();
-    Optional<Category> getByName(String name);
     Optional<Category> getCategoryById(Long id);
     boolean existsByName(String name);
     Category createCategory(Category category);
@@ -14,6 +13,5 @@ public interface CategoryService {
     void toggleStatus(Long id);
     void deleteCategory(Long id);
     List<Category> searchCategories(String keyword);
-    Category findByName(String name);
-    Category findById(Long id);
+	Category findById(Long categoryId);
 }

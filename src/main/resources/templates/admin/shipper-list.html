@@ -1,0 +1,58 @@
+<!-- templates/admin/shipper-list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý shipper</title>
+    <link rel="stylesheet" th:href="@{/css/admin_table.css}">
+    <link rel="stylesheet" th:href="@{/css/header_admin.css}">
+</head>
+<body>
+<div th:replace="fragments/_header_admin :: header"></div>
+
+<section class="main-section">
+    <div class="container">
+        <h2>DANH SÁCH NGƯỜI GIAO HÀNG</h2>
+        <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+	
+	    <form class="search-form" th:action="@{/admin/shipper/search}" method="get">
+	        <input type="text" name="keyword" placeholder="Tìm kiếm theo tên hoặc loại">
+	        <button type="submit" class="btn btn-search">🔍 Tìm</button>
+	        <a th:href="@{/admin/shipper}" class="btn btn-reset">🔄 Reset</a>
+	        
+	    </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Họ tên</th>
+                    <th>SĐT</th>
+                    <th>Khu vực</th>
+                    <th>Thành công</th>
+                    <th>Thất bại</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="shipper, iterStat : ${shippers}">
+                    <td th:text="${iterStat.index + 1}">1</td>
+                    <td th:text="${shipper.user.fullName}">Nguyễn Văn A</td>
+                    <td th:text="${shipper.user.phone}">0901234567</td>
+                    <td th:text="${shipper.area}">TP.HCM</td>
+                    <td th:text="${shipper.totalDelivered}">12</td>
+                    <td th:text="${shipper.totalFailed}">2</td>
+                    <td th:text="${shipper.status == 'AVAILABLE' ? 'Hoạt động' : shipper.status == 'DELIVERING' ? 'Đang giao' : 'Ngừng'}">Hoạt động</td>
+                    <td>
+                        <a th:href="@{'/admin/shippers/edit/' + ${shipper.shipperId}}" class="btn btn-edit">✏️ Sửa</a>
+                        <a th:href="@{'/admin/shippers/delete/' + ${shipper.shipperId}}" class="btn btn-delete"
+	                   onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>
+

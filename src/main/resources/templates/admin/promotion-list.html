@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý khuyến mãi</title>
+    <link rel="stylesheet" th:href="@{/css/admin_table.css}">
+    <link rel="stylesheet" th:href="@{/css/header_admin.css}">
+</head>
+<body>
+<div th:replace="~{fragments/_header_admin :: header}"></div>
+<section class="main-section">
+	<div class="container">
+	    <h2>DANH SÁCH KHUYẾN MÃI</h2>
+	
+		<div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+		
+	    <form class="search-form" th:action="@{/admin/promotion/search}" method="get">
+	        <input type="text" name="keyword" placeholder="Tìm kiếm theo tên hoặc loại">
+	        <button type="submit" class="btn btn-search">🔍 Tìm</button>
+	        <a th:href="@{/admin/promotion/create}" class="btn btn-add">➕ Thêm mới</a>
+	        <a th:href="@{/admin/promotion}" class="btn btn-reset">🔄 Reset</a>
+	        
+	    </form>
+	
+	    <table>
+	        <thead>
+	        <tr>
+	            <th>ID</th>
+	            <th>Tên</th>
+	            <th>Loại</th>
+	            <th>Giảm (%)</th>
+	            <th>Giảm (VNĐ)</th>
+	            <th>Thời gian</th>
+	            <th>Trạng thái</th>
+	            <th>Thao tác</th>
+	        </tr>
+	        </thead>
+	        <tbody>
+	        <tr th:each="promotion : ${promotions}">
+	            <td th:text="${promotion.promotionId}"></td>
+	            <td th:text="${promotion.name}"></td>
+	            <td th:text="${promotion.type}"></td>
+	            <td th:text="${promotion.discountPercent}"></td>
+	            <td th:text="${promotion.discountAmount}"></td>
+	            <td>
+	                <span th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}"/> -
+	                <span th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}"/>
+	            </td>
+	            <td th:text="${promotion.status} ? 'Đang áp dụng' : 'Ngừng'"></td>
+	            <td>
+	                <a th:href="@{/admin/promotion/edit/{id}(id=${promotion.promotionId})}" class="btn btn-edit">✏️</a>
+	                <a th:href="@{/admin/promotion/delete/{id}(id=${promotion.promotionId})}" class="btn btn-delete" onclick="return confirm('Xác nhận xóa khuyến mãi?')">🗑️</a>
+	            </td>
+	        </tr>
+	        </tbody>
+	    </table>
+	</div>
+</section>
+</body>
+</html>

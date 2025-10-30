@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Shipper Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafaf2;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background-color: #fff;
+            border: 3px solid #e8b4d1;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #aec6e5;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            color: #e8b4d1;
+            display: block;
+            margin-top: 15px;
+        }
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #aec6e5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+        }
+        button:hover {
+            background-color: #e8b4d1;
+        }
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-right: 10px;
+            background-color: #f3d5e2;
+            color: #222;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid #e8b4d1;
+        }
+        .btn-back:hover {
+            background-color: #e8b4d1;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2 th:text="${pageTitle}">Thêm Shipper</h2>
+
+    <form th:action="@{${action}}" th:object="${shipper}" method="post">
+        <!-- ID ẩn nếu đang chỉnh sửa -->
+        <input type="hidden" th:if="${shipper.shipperId}" th:field="*{shipperId}"/>
+
+        <!-- Họ tên (readonly) -->
+        <label>Họ tên</label>
+        <input type="text" th:value="${shipper.user.fullName}" class="form-control" readonly>
+
+        <!-- Số điện thoại (readonly) -->
+        <label>Số điện thoại</label>
+        <input type="text" th:value="${shipper.user.phone}" class="form-control" readonly>
+
+        <!-- Khu vực hoạt động -->
+        <label>Khu vực hoạt động</label>
+        <input type="text" th:field="*{area}" class="form-control" placeholder="Nhập khu vực">
+
+        <!-- Trạng thái hoạt động -->
+        <label>Trạng thái</label>
+        <select th:field="*{status}" class="form-select">
+            <option th:value="AVAILABLE" th:selected="${shipper.status == 'AVAILABLE'}">Hoạt động</option>
+            <option th:value="DELIVERING" th:selected="${shipper.status == 'DELIVERING'}">Đang giao</option>
+            <option th:value="OFFLINE" th:selected="${shipper.status == 'OFFLINE'}">Ngừng hoạt động</option>
+        </select>
+
+        <button type="submit">💾 Lưu</button>
+        <a th:href="@{/admin/shippers}" class="btn-back">⬅️ Quay lại</a>
+    </form>
+</div>
+</body>
+</html>

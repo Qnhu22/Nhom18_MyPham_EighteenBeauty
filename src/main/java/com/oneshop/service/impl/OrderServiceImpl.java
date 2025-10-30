@@ -170,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
 	        throw new RuntimeException("Chỉ có thể phân công shipper khi đơn đã được xác nhận!");
 	    }
 
-		Shipper shipper = shipperRepository.findByUser_UserId(shipperUserId);
+		Shipper shipper = shipperRepository.findByShipper_ShipperId(shipperid);
 		if (shipper == null) {
 		    throw new RuntimeException("Không tìm thấy shipper!");
 		}

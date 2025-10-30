@@ -24,7 +24,7 @@ public class OrderAddressController {
             return "redirect:/login";
         }
 
-        model.addAttribute("addresses", addressService.getAddressesByUser(user));
+        model.addAttribute("addresses", addressService.getAddressesByUser(user.getUserId()));
         return "account/addresses";
     }
 
@@ -32,7 +32,7 @@ public class OrderAddressController {
     public String saveAddress(@ModelAttribute OrderAddress address,
                               HttpSession session,
                               RedirectAttributes redirectAttrs) {
-    	System.out.println("✅ isDefault gửi lên: " + address.isDefault());
+    	System.out.println("✅ isDefault gửi lên: " + address.isDefaultAddress());
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";

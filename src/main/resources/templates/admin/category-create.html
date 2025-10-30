@@ -4,53 +4,101 @@
     <meta charset="UTF-8">
     <title th:text="${pageTitle}">Thêm Danh mục</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
-        header { background: #aec6e5; color: white; padding: 15px 30px; }
-        header h1 { margin: 0; font-size: 22px; }
-        .container { padding: 30px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        img { max-width: 150px; margin-top: 10px; display: block; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-submit { background: #27ae60; color: white; }
-        .btn-back { background: #2980b9; color: white; }
-        .btn:hover { opacity: 0.9; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafaf2;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background-color: #fff;
+            border: 3px solid #e8b4d1;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #aec6e5;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #e8b4d1;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #aec6e5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+        }
+
+        button:hover {
+            background-color: #e8b4d1;
+        }
+
+        a.btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #2980b9;
+        }
+
+        a.btn-back:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>➕ Thêm Danh mục</h1>
-</header>
+<div class="form-container">
+    <h2 th:text="${pageTitle}">Thêm/Sửa Danh mục</h2>
+    <form th:action="@{/admin/categories/save}" method="post"
+          enctype="multipart/form-data" th:object="${category}">
 
-<div class="container">
-    <form th:action="@{/admin/categories/save}" method="post" enctype="multipart/form-data" th:object="${category}">
-        <div class="form-group">
-            <label>Tên Danh mục:</label>
-            <input type="text" th:field="*{name}" required>
-        </div>
+        <label for="name">Tên danh mục</label>
+        <input type="text" th:field="*{name}" id="name" required />
 
-        <div class="form-group">
-            <label>Mô tả:</label>
-            <textarea th:field="*{description}" rows="3"></textarea>
-        </div>
+        <label for="description">Mô tả</label>
+        <textarea th:field="*{description}" id="description" rows="3"></textarea>
 
-        <div class="form-group">
-            <label>Ảnh:</label>
-            <input type="file" name="file" accept="image/*" required>
-        </div>
+        <label for="file">Ảnh</label>
+        <input type="file" name="file" id="file" accept="image/*" required />
 
-        <div class="form-group">
-            <label>Trạng thái:</label>
-            <select th:field="*{status}">
-                <option value="true">Hoạt động</option>
-                <option value="false">Ẩn</option>
-            </select>
-        </div>
+        <label for="status">Trạng thái</label>
+        <select th:field="*{status}" id="status">
+            <option value="true">Hoạt động</option>
+            <option value="false">Ẩn</option>
+        </select>
 
-        <button type="submit" class="btn btn-submit">💾 Lưu</button>
-        <a th:href="@{/admin/categories}" class="btn btn-back">⬅️ Quay lại</a>
+        <button type="submit">💾 Lưu</button>
+        <a th:href="@{/admin/categories}" class="btn-back">⬅️ Quay lại</a>
     </form>
 </div>
 

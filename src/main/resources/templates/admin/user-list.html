@@ -1,92 +1,77 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title th:text="${pageTitle}">Quản lý User</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
-        header { background: #aec6e5; color: white; padding: 15px 30px; }
-        header h1 { margin: 0; font-size: 22px; }
-        nav { background: #f3d5e2; padding: 10px 30px; }
-        nav a, nav form { display: inline-block; }
-        nav a { color: white; margin-right: 15px; text-decoration: none; font-weight: bold; }
-        nav a:hover { text-decoration: underline; }
-        .container { padding: 30px; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 15px; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        th { background: #8e9aad; color: white; }
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-add { color: #27ae60; }
-        .btn-delete { background: #e75480; color: white; }
-        .btn-edit { background: #bfc8d2; color: white; }
-        .btn-back { background: #2980b9; color: white; }
-        .btn:hover { opacity: 0.9; }
-        .flash { margin: 10px 0; padding: 10px; border-radius: 4px; }
-        .flash-success { background: #2ecc71; color: white; }
-        .search-box { margin-top: 15px; }
-        .search-box input { padding: 6px; width: 250px; }
-        .search-box button { padding: 6px 12px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .search-box a { margin-left: 10px; color: #e74c3c; text-decoration: none; }
-    </style>
+<meta charset="UTF-8">
+<title>Quản lý danh mục</title>
+<link rel="stylesheet" th:href="@{/css/admin_table.css}">
+<link rel="stylesheet" th:href="@{/css/header_admin.css}">
 </head>
 <body>
+	<!-- Header admin -->
+	<div th:replace="~{fragments/_header_admin :: header}"></div>
+	<section class="main-section">
+		<div class="container">
+			<h2>DANH SÁCH NGƯỜI DÙNG</h2>
 
-<header>
-    <h1>👥 Quản lý User</h1>
-</header>
+			<div th:if="${success}" class="flash flash-success"
+				th:text="${success}"></div>
+			
+	
+			<form class="search-form" th:action="@{/admin/users}"
+				method="get">
+				<input type="text" name="keyword"
+					placeholder="Tìm kiếm theo tên hoặc loại">
+				
+				<button type="submit" class="btn btn-search">🔍 Tìm</button>
+				<a th:href="@{/admin/users/create}" class="btn btn-add">➕ Thêm mới</a>
+				<a th:href="@{/admin/users}" class="btn btn-reset">🔄 Reset</a>
+			  	<a class="btn-stats" th:href="@{/admin/users/stats}">📊 Xem thống kê</a>
+			</form>
 
-<nav>
-    <a th:href="@{/admin/dashboard}" class="btn-back">⬅️ Quay lại Dashboard</a>
-    <a th:href="@{/admin/users/create}" class="btn-add">➕ Tạo User</a>
-</nav>
+			<!-- Bảng danh sách user -->
+			<table>
+				<thead>
+		
+		
+					<tr>
+						<th>ID</th>
+						<th>Tên đăng nhập</th>
+						<th>Họ tên</th>
+						<th>Email</th>
+						<th>Role</th>
+						<th>Trạng thái</th>
+						<th>Đăng nhập gần nhất</th>
+						<th>Ngày tạo</th>
+						<th>Cập nhật</th>
+						<th>Thao tác</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="user : ${users}">
+						<td th:text="${user.userId}"></td>
+						<td th:text="${user.username}"></td>
+						<td th:text="${user.fullName}"></td>
+						<td th:text="${user.email}"></td>
+						<td>
+							<ul style="padding-left: 1rem;">
+								<li th:each="r : ${user.roles}" th:text="${r.roleName}"></li>
 
-<div class="container">
-    <!-- Hiển thị thông báo -->
-    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
-
-    <!-- Form tìm kiếm -->
-    <form th:action="@{/admin/users}" method="get" class="search-box">
-        <input type="text" name="keyword" placeholder="🔍 Tìm theo username hoặc họ tên"
-               th:value="${keyword}">
-        <button type="submit">Tìm kiếm</button>
-        <a th:href="@{/admin/users}">❌ Reset</a>
-    </form>
-
-    <!-- Bảng danh sách user -->
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Họ tên</th>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Số điện thoại</th>
-            <th>Roles</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <td th:text="${user.userId}"></td>
-            <td th:text="${user.fullName}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.username}"></td>
-            <td th:text="${user.phone}"></td>
-            <td>
-                <span th:each="role : ${user.roles}" th:text="${role.roleName}"></span>
-            </td>
-            <td th:text="${user.active} ? '✅ Active' : '❌ Disabled'"></td>
-            <td>
-                <a th:href="@{'/admin/users/edit/' + ${user.userId}}" class="btn btn-edit">✏️ Sửa</a>
-                <a th:href="@{'/admin/users/delete/' + ${user.userId}}" class="btn btn-delete"
-                   onclick="return confirm('Bạn có chắc chắn muốn xóa user này?');">🗑️ Xóa</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
+							</ul>
+						</td>
+						<td th:text="${user.active ? '✅ Hoạt động' : '❌ Vô hiệu'}"></td>
+						<td th:text="${#temporals.format(user.lastLogin, 'dd/MM/yyyy HH:mm')}"></td>
+						<td th:text="${#temporals.format(user.createAt, 'dd/MM/yyyy HH:mm')}"></td>
+						<td th:text="${#temporals.format(user.updateAt, 'dd/MM/yyyy HH:mm')}"></td>
+						<td style="white-space: nowrap;"><a
+							th:href="@{'/admin/users/edit/' + ${user.userId}}"
+							class="btn-edit">✏️</a> <a
+							th:href="@{'/admin/logs/user/' + ${user.userId}}" class="btn-log">📜
+								Log</a>
+						<a th:href="@{/admin/users/delete/{id}(id=${user.userId})}" class="btn btn-delete" onclick="return confirm('Xác nhận xóa?')">🗑️</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
 </body>
 </html>

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,15 +16,12 @@ import java.util.StringJoiner;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"user"})
 public class OrderAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "addressId")
     private Long addressId;
 
-    // Liên kết nhiều địa chỉ với 1 user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -48,11 +44,10 @@ public class OrderAddress {
     @Column(columnDefinition = "nvarchar(100)")
     private String city;
 
-    @Column(nullable = false)
-    private boolean isDefault = false;
-
+    @Column(name = "isDefault", nullable = false)
+    private boolean defaultAddress;
+   
     @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
@@ -73,3 +68,4 @@ public class OrderAddress {
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 }
+

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thống kê người dùng</title>
+  <link rel="stylesheet" th:href="@{/css/header_admin.css}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --color-rose: #f3d5e2;
+      --color-rose-dark: #e8b4d1;
+      --color-blue: #aec6e5;
+      --color-white: #fff;
+      --color-cream: #fafaf2;
+      --color-dark: #222;
+    }
+
+    body {
+      background-color: var(--color-cream);
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: var(--color-rose-dark);
+      text-align: center;
+      margin: 30px 0 10px;
+    }
+
+    .main-section .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .form-role-select {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-role-select select {
+      padding: 8px 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--color-rose-dark);
+      background-color: var(--color-white);
+      color: var(--color-dark);
+    }
+
+    .panel-section {
+      display: flex;
+      justify-content: space-around;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin: 0 30px;
+    }
+
+    .panel-box {
+      flex: 1 1 220px;
+      background-color: var(--color-white);
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-top: 5px solid var(--color-rose-dark);
+    }
+
+    .panel-box h3 {
+      font-size: 32px;
+      color: var(--color-rose-dark);
+      margin: 0;
+    }
+
+    .panel-box p {
+      margin-top: 8px;
+      color: var(--color-dark);
+      font-weight: 500;
+    }
+
+    .chart-section {
+      margin: 50px 50px 80px;
+    }
+
+    .chart-container {
+      margin-bottom: 60px;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div th:replace="fragments/_header_admin :: header"></div>
+
+  <section class="main-section">
+    <div class="container">
+      <h2>THỐNG KÊ NGƯỜI DÙNG</h2>
+
+      <!-- Form chọn vai trò -->
+      <div class="form-role-select">
+        <form method="get" th:action="@{/admin/users/stats}">
+          <label for="roleSelect" style="margin-right: 10px;">Chọn vai trò:</label>
+          <select id="roleSelect" name="selectedRole" onchange="this.form.submit()">
+            <option th:value="'ROLE_ADMIN'" th:selected="${selectedRole == 'ROLE_ADMIN'}">Admin</option>
+            <option th:value="'ROLE_USER'" th:selected="${selectedRole == 'ROLE_USER'}">User</option>
+            <option th:value="'ROLE_SHIPPER'" th:selected="${selectedRole == 'ROLE_SHIPPER'}">Shipper</option>
+          </select>
+        </form>
+      </div>
+
+      <!-- Các panel tổng quan -->
+      <div class="panel-section">
+        <div class="panel-box">
+          <h3 th:text="${totalUsers}">0</h3>
+          <p>Tổng người dùng</p>
+        </div>
+        <div class="panel-box">
+          <h3 th:text="${activeUsers}">0</h3>
+          <p>Đang hoạt động</p>
+        </div>
+        <div class="panel-box">
+          <h3 th:text="${selectedRoleCount}">0</h3>
+          <p th:text="'Vai trò: ' + ${selectedRole}">Vai trò</p>
+        </div>
+        <div class="panel-box">
+          <h3 th:text="${monthlyRegistrations}">0</h3>
+          <p>Đăng ký trong tháng</p>
+        </div>
+      </div>
+
+      <!-- Biểu đồ -->
+      <div class="chart-section">
+        <div class="chart-container">
+          <h3 style="text-align:center; color: var(--color-rose-dark); margin-bottom: 10px;">Người dùng đăng ký theo tháng</h3>
+          <canvas id="userCreateChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <h3 style="text-align:center; color: var(--color-rose-dark); margin-bottom: 10px;">Top người dùng hoạt động nhiều nhất</h3>
+          <canvas id="topUserChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script th:inline="javascript">
+    const monthlyStats = [[${userStatsByMonth}]];
+    const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+
+    const ctx1 = document.getElementById('userCreateChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          label: 'Số người dùng mới',
+          data: monthlyStats,
+          borderColor: '#e8b4d1',
+          backgroundColor: 'rgba(232, 180, 209, 0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true }
+        }
+      }
+    });
+
+    const topUsers = [[${topUsers}]];
+    const topUserLabels = topUsers.map(u => u.username);
+    const topUserValues = topUsers.map(u => u.logCount);
+
+    const ctx2 = document.getElementById('topUserChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: topUserLabels,
+        datasets: [{
+          label: 'Số lượt hoạt động',
+          data: topUserValues,
+          backgroundColor: '#aec6e5'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
