@@ -168,6 +168,46 @@
       margin-top: 6px;
       line-height: 1.5;
     }
+    
+    /* 💬 Phản hồi của admin/shop */
+.review-reply {
+  margin-top: 10px;
+  background: #fff6fa;
+  border-left: 4px solid #e6a1c1;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.reply-box {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.reply-box i {
+  color: #b14d7d;
+  margin-right: 6px;
+}
+
+.reply-label {
+  font-weight: 600;
+  color: #b14d7d;
+}
+
+.reply-text {
+  display: inline;
+  margin-left: 4px;
+  color: #444;
+}
+
+.reply-date {
+  display: block;
+  text-align: right;
+  color: #999;
+  font-size: 12px;
+  margin-top: 4px;
+}
+    
 
     /* 🔢 Phân trang */
     .review-pagination {
@@ -327,6 +367,17 @@
              th:classappend="${i <= r.rating} ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
         </div>
         <div class="review-comment" th:text="${r.comment}"></div>
+        
+        <!-- 💭 Phản hồi của admin/shop -->
+<div class="review-reply" th:if="${r.reply != null}">
+  <div class="reply-box">
+    <i class="fa-solid fa-reply"></i>
+    <span class="reply-label">Phản hồi:</span>
+    <p class="reply-text" th:text="${r.reply}"></p>
+    <small class="reply-date" th:text="${#temporals.format(r.replyDate, 'dd/MM/yyyy HH:mm')}"></small>
+  </div>
+</div>
+        
       </div>
     </div>
     <div id="reviewPagination" class="review-pagination"></div>

@@ -69,7 +69,8 @@ public class ShipperServiceImpl implements ShipperService {
     
     @Override
     public Shipper getShipperByUserId(Long userId) {
-        return shipperRepository.findByUser_UserId(userId)
+        return shipperRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin shipper!"));
     }
+
 }
