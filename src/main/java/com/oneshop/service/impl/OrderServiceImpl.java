@@ -341,5 +341,50 @@ public class OrderServiceImpl implements OrderService {
 	public Order findById(Long orderId) {
 		return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 	}
+	
+	@Override
+	@Transactional
+	public Order createPendingOrder(User user, BigDecimal amount) {
+	    Order order = new Order();
+	    order.setUser(user);
+	    order.setOrderDate(LocalDateTime.now());
+	    order.setStatus(OrderStatus.NEW);
+	    order.setPaymentStatus("UNPAID");
+
+	    // ✅ Ghi nhận tổng tiền
+	    order.setTotalAmount(amount);
+	    order.setFinalAmount(amount);
+
+	    // ✅ Nếu sau này có tính phí ship
+	    order.setShippingFee(BigDecimal.ZERO);
+
+	    // ✅ Thêm ghi chú để dễ theo dõi trong DB
+	    order.setNote("Thanh toán qua Momo - đang chờ xác nhận");
+
+	    // 🔹 Nếu entity Order có trường địa chỉ (address)
+	    // bạn có thể thêm:
+	    // order.setAddress("Địa chỉ mặc định từ người dùng");
+
+	    return orderRepository.save(order);
+	}
+
+
+	@Override
+	@Transactional
+	public void updateOrderStatus(Long orderId, String newStatus) {
+	    Order order = orderRepository.findById(orderId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng #" + orderId));
+	    OrderStatus statusEnum = OrderStatus.valueOf(newStatus.toUpperCase());
+	    order.setStatus(statusEnum);
+
+	    if (statusEnum == OrderStatus.CONFIRMED) {
+	        order.setPaymentStatus("PAID");
+	    } else if (statusEnum == OrderStatus.CANCELLED) {
+	        order.setPaymentStatus("FAILED");
+	    }
+
+	    orderRepository.save(order);
+	    System.out.println("🔁 [MOMO] Cập nhật trạng thái đơn #" + orderId + " → " + statusEnum);
+	}
 
 }

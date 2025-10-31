@@ -138,9 +138,9 @@
 
       <!-- ✅ Form thanh toán qua Momo (ẩn) -->
       <form id="momoForm" th:action="@{/payment/momo/pay}" method="post" style="display:none;">
-  <input type="hidden" name="orderId" th:value="${T(java.util.UUID).randomUUID()}">
-  <input type="hidden" name="amount" th:value="${#numbers.formatInteger(total,0)}">
+  <input type="hidden" name="amount" th:value="${total}"> <!-- số thuần không format -->
 </form>
+
 
       <!-- 💳 Nút xác nhận -->
       <button type="button" class="btn-confirm" id="confirmBtn">

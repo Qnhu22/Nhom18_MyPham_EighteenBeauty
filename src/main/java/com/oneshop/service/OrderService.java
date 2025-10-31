@@ -47,4 +47,11 @@ public interface OrderService {
     List<Order> getOrdersByUserAndStatus(User user, OrderStatus status);
     Order saveOrder(Order order);
     boolean changeStatus(Long orderId, User owner, OrderStatus toStatus, String note);
+    
+ // Tạo đơn hàng chờ thanh toán Momo
+    Order createPendingOrder(User user, BigDecimal amount);
+
+    // Cập nhật trạng thái đơn hàng từ chuỗi (dùng cho Momo)
+    void updateOrderStatus(Long orderId, String newStatus);
+
 }
