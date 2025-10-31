@@ -4,6 +4,10 @@ import com.oneshop.entity.Shipper;
 import com.oneshop.entity.User;
 import com.oneshop.service.ShipperService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +22,33 @@ public class AdminShipperController {
 	private final ShipperService shipperService;
 
 	@GetMapping
-	public String listShippers(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-		List<Shipper> shippers = (keyword == null || keyword.isEmpty()) ? shipperService.getAllShippers()
-				: shipperService.searchShippers(keyword);
-		model.addAttribute("shippers", shippers);
-		model.addAttribute("keyword", keyword);
-		return "admin/shipper-list";
+	public String listShippers(
+	        @RequestParam(value = "keyword", required = false) String keyword,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        Model model) {
+
+	    int pageSize = 10;
+
+	    // ✅ Sắp xếp theo tên người dùng
+	    PageRequest pageable = PageRequest.of(page, pageSize, Sort.by("user.fullName").ascending());
+	    Page<Shipper> shippersPage;
+
+	    if (keyword != null && !keyword.isEmpty()) {
+	        shippersPage = shipperService.searchShippersWithPaging(keyword, pageable);
+	        model.addAttribute("keyword", keyword);
+	    } else {
+	        shippersPage = shipperService.getAllShippersWithPaging(pageable);
+	    }
+
+	    // Gắn User rỗng để tránh lỗi view nếu cần
+	    shippersPage.forEach(shipper -> {
+	        if (shipper.getUser() == null) {
+	            shipper.setUser(new User());
+	        }
+	    });
+
+	    model.addAttribute("shippers", shippersPage);
+	    return "admin/shipper-list";
 	}
 
 	@GetMapping("/add")

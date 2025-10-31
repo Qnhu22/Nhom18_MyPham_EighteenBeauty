@@ -84,7 +84,7 @@ public class ShopServiceImpl implements ShopService {
 			}
 			Path filePath = uploadPath.resolve(filename);
 			Files.copy(logoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-			existing.setLogoUrl("/uploads/logo" + filename);
+			existing.setLogoUrl("/uploads/logo/" + filename);
 		}
 
 		return shopRepository.save(existing);

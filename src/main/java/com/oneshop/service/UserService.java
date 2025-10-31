@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface UserService {
     // ================== CRUD ==================
     List<User> getAllUsers();
@@ -29,4 +32,7 @@ public interface UserService {
     List<Integer> getMonthlyUserRegistrations();
     List<Map<String, Object>> getTopActiveUsers();
 	User getByUsername(String username);
+	
+	Page<User> findAll(Pageable pageable);
+    Page<User> search(String keyword, Pageable pageable);
 }

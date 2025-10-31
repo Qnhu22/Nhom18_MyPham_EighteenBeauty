@@ -5,7 +5,12 @@ import com.oneshop.entity.User;
 import com.oneshop.repository.ShipperRepository;
 import com.oneshop.service.ShipperService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -50,5 +55,21 @@ public class ShipperServiceImpl implements ShipperService {
                     .build();
             shipperRepository.save(newShipper);
         }
+    }
+    
+    @Override
+    public Page<Shipper> getAllShippersWithPaging(Pageable pageable) {
+        return shipperRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Shipper> searchShippersWithPaging(String keyword, Pageable pageable) {
+        return shipperRepository.findByUserFullNameContaining(keyword, pageable);
+    }
+    
+    @Override
+    public Shipper getShipperByUserId(Long userId) {
+        return shipperRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin shipper!"));
     }
 }

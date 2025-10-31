@@ -277,8 +277,8 @@ public class OrderServiceImpl implements OrderService {
 	    }
 
 	    // Chặn hủy nếu shipper đang giao
-	    if (newStatus == OrderStatus.CANCELLED && oldStatus == OrderStatus.SHIPPING) {
-	        throw new RuntimeException("Không thể hủy đơn hàng đang giao!");
+	    if (newStatus == OrderStatus.CANCELLED && (oldStatus == OrderStatus.SHIPPING && oldStatus != OrderStatus.DELIVERED && oldStatus != OrderStatus.RETURNED)) {
+	        throw new RuntimeException("Không thể hủy đơn hàng đang giao, đã nhận, hoặc trả hàng!");
 	    }
 		order.setStatus(newStatus);
 		orderRepository.save(order);

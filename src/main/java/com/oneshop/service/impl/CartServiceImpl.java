@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,10 +27,12 @@ public class CartServiceImpl implements CartService {
                 .orElseGet(() -> {
                     Cart newCart = Cart.builder()
                             .user(user)
-                            .build(); // ✅ không cần .items()
+                            .items(new HashSet<>()) // 🔹 FIX: khởi tạo Set rỗng
+                            .build();
                     return cartRepository.save(newCart);
                 });
     }
+
 
 
 

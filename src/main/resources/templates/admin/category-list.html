@@ -24,38 +24,48 @@
 	        <a th:href="@{/admin/categories}" class="btn btn-reset">🔄 Reset</a>
         
     	</form>
-	    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
-	
+	    
 	    <table>
-	        <thead>
-	        <tr>
-	            <th>ID</th>
-	            <th>Tên Danh mục</th>
-	            <th>Mô tả</th>
-	            <th>Ảnh</th>
-	            <th>Trạng thái</th>
-	            <th>Hành động</th>
-	        </tr>
-	        </thead>
-	        <tbody>
-	        <tr th:each="category : ${categories}">
-	            <td th:text="${category.categoryId}"></td>
-	            <td th:text="${category.name}"></td>
-	            <td th:text="${category.description}"></td>
-	            <td>
-	                <img th:if="${category.imageUrl}" th:src="@{${category.imageUrl}}" alt="Category Image">
-	            </td>
-	            <td>
-	                <span th:text="${category.status == true ? 'Hoạt động' : 'Ẩn'}"></span>
-	            </td>
-	            <td>
-	                <a th:href="@{'/admin/categories/edit/' + ${category.categoryId}}" class="btn btn-edit">✏️ Sửa</a>
-	                <a th:href="@{'/admin/categories/delete/' + ${category.categoryId}}" class="btn btn-delete"
-	                   onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a>
-	            </td>
-	        </tr>
-	        </tbody>
-	    </table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Tên Danh mục</th>
+						<th>Mô tả</th>
+						<th>Ảnh</th>
+						<th>Trạng thái</th>
+						<th>Hành động</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="category : ${categories.content}">
+						<td th:text="${category.categoryId}"></td>
+						<td th:text="${category.name}"></td>
+						<td th:text="${category.description}"></td>
+						<td><img th:if="${category.imageUrl}"
+							th:src="@{${category.imageUrl}}" alt="Category Image"></td>
+						<td><span
+							th:text="${category.status == true ? 'Hoạt động' : 'Ẩn'}"></span>
+						</td>
+						<td><a
+							th:href="@{'/admin/categories/edit/' + ${category.categoryId}}"
+							class="btn btn-edit">✏️ Sửa</a> <a
+							th:href="@{'/admin/categories/delete/' + ${category.categoryId}}"
+							class="btn btn-delete"
+							onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="pagination"
+				style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">
+				<a th:if="${categories.hasPrevious()}"
+					th:href="@{/admin/categories(page=${categories.number - 1}, keyword=${keyword})}"
+					class="btn btn-reset">⬅️ Trước</a> <span style="font-weight: bold;">
+					Trang <span th:text="${categories.number + 1}"></span> / <span
+					th:text="${categories.totalPages}"></span>
+				</span> <a th:if="${categories.hasNext()}"
+					th:href="@{/admin/categories(page=${categories.number + 1}, keyword=${keyword})}"
+					class="btn btn-reset">Tiếp ➡️</a>
+			</div>
 	</div>
 </section>
 </body>

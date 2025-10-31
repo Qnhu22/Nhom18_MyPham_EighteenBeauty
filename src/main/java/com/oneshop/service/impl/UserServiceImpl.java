@@ -7,7 +7,9 @@ import com.oneshop.repository.UserActionLogRepository;
 import com.oneshop.repository.UserRepository;
 import com.oneshop.service.UserService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -234,5 +236,15 @@ public class UserServiceImpl implements UserService {
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + username));
+    }
+    
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<User> search(String keyword, Pageable pageable) {
+        return userRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(keyword, keyword, pageable);
     }
 }

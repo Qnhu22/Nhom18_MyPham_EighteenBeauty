@@ -71,6 +71,23 @@
 					</tr>
 				</tbody>
 			</table>
+			
+			<!-- PHÂN TRANG -->
+			<div class="pagination">
+				<span>Trang:</span>
+				<div class="pagination-links">
+					<a th:if="${currentPage > 0}"
+						th:href="@{|?page=${currentPage - 1}&size=${size}${keyword != null ? '&keyword=' + keyword : ''}|}">⬅️
+						Trước</a> <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+						<a th:if="${i != currentPage}"
+						th:href="@{|?page=${i}&size=${size}${keyword != null ? '&keyword=' + keyword : ''}|}"
+						th:text="${i + 1}"></a> <span th:if="${i == currentPage}"
+						class="current-page" th:text="${i + 1}"></span>
+					</span> <a th:if="${currentPage < totalPages - 1}"
+						th:href="@{|?page=${currentPage + 1}&size=${size}${keyword != null ? '&keyword=' + keyword : ''}|}">Sau
+						➡️</a>
+				</div>
+			</div>
 		</div>
 	</section>
 </body>

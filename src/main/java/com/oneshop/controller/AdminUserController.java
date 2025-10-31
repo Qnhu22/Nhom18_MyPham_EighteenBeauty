@@ -12,6 +12,10 @@ import com.oneshop.service.UserActionLogService;
 import com.oneshop.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,17 +52,27 @@ public class AdminUserController {
 	}
 
 	@GetMapping
-	public String listUsers(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-		List<User> users;
-		if (keyword != null && !keyword.isEmpty()) {
-			users = userRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(keyword, keyword);
-			model.addAttribute("keyword", keyword);
-		} else {
-			users = userRepository.findAll();
-		}
-		model.addAttribute("users", users);
-		model.addAttribute("pageTitle", "Quản lý User");
-		return "admin/user-list";
+	public String listUsers(
+	    @RequestParam(value = "keyword", required = false) String keyword,
+	    @RequestParam(value = "page", defaultValue = "0") int page,
+	    @RequestParam(value = "size", defaultValue = "5") int size,
+	    Model model) {
+
+	    Pageable pageable = PageRequest.of(page, size, Sort.by("username").ascending());
+	    Page<User> userPage;
+
+	    if (keyword != null && !keyword.isEmpty()) {
+	        userPage = userService.search(keyword, pageable);
+	        model.addAttribute("keyword", keyword);
+	    } else {
+	        userPage = userService.findAll(pageable);
+	    }
+
+	    model.addAttribute("users", userPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", userPage.getTotalPages());
+	    model.addAttribute("size", size);
+	    return "admin/user-list";
 	}
 
 	@GetMapping("/create")

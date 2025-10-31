@@ -3,6 +3,9 @@ package com.oneshop.controller;
 import com.oneshop.entity.Category;
 import com.oneshop.service.CategoryService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,17 +29,25 @@ public class AdminCategoryController {
 
 	// 📌 Danh sách + tìm kiếm
 	@GetMapping
-	public String listCategories(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-		List<Category> categories;
-		if (keyword != null && !keyword.isEmpty()) {
-			categories = categoryService.searchCategories(keyword);
-			model.addAttribute("keyword", keyword);
-		} else {
-			categories = categoryService.getAllCategories();
-		}
-		model.addAttribute("categories", categories);
-		model.addAttribute("pageTitle", "Quản lý Danh mục");
-		return "admin/category-list";
+	public String listCategories(
+	        @RequestParam(value = "keyword", required = false) String keyword,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "size", defaultValue = "5") int size,
+	        Model model) {
+
+	    Page<Category> categoryPage;
+	    PageRequest pageable = PageRequest.of(page, size, Sort.by("categoryId").ascending());
+
+	    if (keyword != null && !keyword.isEmpty()) {
+	        categoryPage = categoryService.searchCategories(keyword, pageable);
+	        model.addAttribute("keyword", keyword);
+	    } else {
+	        categoryPage = categoryService.getAllCategories(pageable);
+	    }
+
+	    model.addAttribute("categories", categoryPage);
+	    model.addAttribute("pageTitle", "Quản lý Danh mục");
+	    return "admin/category-list";
 	}
 
 	// 📌 Hiển thị form tạo

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.oneshop.dto.ChartData;
 import com.oneshop.dto.PerformanceStats;
 import com.oneshop.entity.Order;
+import com.oneshop.entity.OrderItem;
 import com.oneshop.entity.Shipper;
 import com.oneshop.entity.User;
 import com.oneshop.repository.UserRepository;
@@ -58,8 +59,11 @@ public class ShipperController {
     @SuppressWarnings("deprecation")
 	@GetMapping({"/dashboard", ""})
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) throws JsonProcessingException {
-        Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperById(userId);
+        //Long userId = getCurrentUserId(principal);
+    	
+        User user = userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
     
         
         if (shipper == null) {
@@ -112,7 +116,7 @@ public class ShipperController {
         Long userId = getCurrentUserId(principal);
         List<Order> orders;
 
-        Shipper shipper = shipperService.getShipperById(userId);
+		Shipper shipper = shipperService.getShipperByUserId(userId);
         Long shipperId = shipper.getShipperId();
 
         if (status == null || status.isBlank()) {
@@ -131,16 +135,23 @@ public class ShipperController {
         return "shipper/orders";
     }
 
-    // 🔍 Chi tiết đơn hàng
     @GetMapping("/order/{orderId}")
     public String viewOrderDetail(@PathVariable Long orderId, Model model, Principal principal) {
         User user = userService.getByUsername(principal.getName());
-        Shipper shipper = shipperService.getShipperById(user.getUserId());
-        
+        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+
         Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
+        
+        if (order == null) {
+            model.addAttribute("errorMessage", "Bạn không có quyền xem đơn hàng này hoặc đơn hàng không tồn tại.");
+            return "error";
+        }
+        List<OrderItem> items = orderService.getOrderItems(orderId);
         model.addAttribute("order", order);
+        model.addAttribute("orderItems", items);
         return "shipper/order-detail";
     }
+
 
 
     // 🔄 Cập nhật trạng thái đơn hàng (CONFIRMED → SHIPPING → DELIVERED / RETURNED / CANCELLED)
@@ -150,8 +161,11 @@ public class ShipperController {
                                @RequestParam String status,
                                @RequestParam(required = false) String note,
                                RedirectAttributes redirectAttributes) {
-        Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperById(userId);
+    	User user = userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+    	//Long userId = getCurrentUserId(principal);
+        Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+
      // Lấy order hiện tại
       //  Order order = orderService.getOrderByIdAndShipperId(orderId, shipper.getShipperId());
 
@@ -168,8 +182,10 @@ public class ShipperController {
     public String updateProfile(@AuthenticationPrincipal UserDetails principal,
                                 @ModelAttribute Shipper shipperForm,
                                 RedirectAttributes redirectAttributes) {
-        Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperById(userId);
+        //Long userId = getCurrentUserId(principal);
+    	User user = userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+    	Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
         if (shipper == null) return "redirect:/shipper/profile";
 
         shipper.setArea(shipperForm.getArea());
@@ -185,8 +201,10 @@ public class ShipperController {
     // 📊 Xuất file thống kê (Excel / PDF)
     @GetMapping("/statistics/export")
     public ResponseEntity<byte[]> exportReport(@AuthenticationPrincipal UserDetails principal) {
-        Long userId = getCurrentUserId(principal);
-        Shipper shipper = shipperService.getShipperById(userId);
+       // Long userId = getCurrentUserId(principal);
+    	User user = userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+    	Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
 
         byte[] fileData = reportService.generateRevenueReport(shipper.getShipperId());
 
@@ -197,4 +215,5 @@ public class ShipperController {
         return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
+    
 }

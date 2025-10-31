@@ -53,10 +53,15 @@ public class AccountController {
                 .map(r -> prettifyRole(r.getRoleName()))
                 .toList();
      
-     // Nếu là shipper → lấy thêm thông tin từ bảng shipper
+        // Nếu là shipper → lấy thêm thông tin từ bảng shipper
         if (roles.contains("Nhân viên giao hàng")) {
-            Shipper shipper = shipperService.getShipperById(user.getUserId());
-            model.addAttribute("shipper", shipper);
+        	Shipper shipper = shipperService.getShipperByUserId(user.getUserId());
+
+            if (shipper != null) {
+                model.addAttribute("shipper", shipper);
+            } else {
+                model.addAttribute("shipper", new Shipper()); // tránh null
+            }
         }
         
         model.addAttribute("u", user);
@@ -143,10 +148,10 @@ public class AccountController {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
         // Tìm shipper tương ứng
-        Shipper shipper = shipperService.getShipperById(user.getUserId());
-        if (shipper == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin shipper");
-        }
+     // Tìm shipper tương ứng
+        Shipper shipper = shipperRepository.findByUser_UserId(user.getUserId())
+        	     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin shipper!"));
+
 
         // Cập nhật khu vực và trạng thái
         shipper.setArea(area);
@@ -157,8 +162,6 @@ public class AccountController {
 
         return "redirect:/account";
     }
-
-    
  // ===================== ĐỔI MẬT KHẨU =====================
     @PostMapping("/account/change-password")
     @PreAuthorize("isAuthenticated()")

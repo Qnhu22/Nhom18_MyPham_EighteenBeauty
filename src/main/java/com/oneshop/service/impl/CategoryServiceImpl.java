@@ -6,6 +6,8 @@ import com.oneshop.service.CategoryService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,6 +69,16 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public Category findById(Long id) {
 		return categoryRepository.findById(id).orElse(null);
+	}
+	
+	@Override
+	public Page<Category> getAllCategories(Pageable pageable) {
+	    return categoryRepository.findAll(pageable);
+	}
+
+	@Override
+	public Page<Category> searchCategories(String keyword, Pageable pageable) {
+	    return categoryRepository.findByNameContainingIgnoreCase(keyword, pageable);
 	}
 
 }
